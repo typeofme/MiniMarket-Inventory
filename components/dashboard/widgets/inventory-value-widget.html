@@ -1,0 +1,171 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Value</h3>
+    <i class="fas fa-dollar-sign text-green-500"></i>
+  </div>
+  
+  <div class="text-center mb-4">
+    <h2 class="text-3xl font-bold text-gray-800">$42,680</h2>
+    <p class="text-xs text-green-600 flex items-center justify-center">
+      <i class="fas fa-arrow-up mr-1"></i>
+      <span>3.2% from last month</span>
+    </p>
+  </div>
+  
+  <div class="h-36 mb-2">
+    <canvas id="inventory-value-chart"></canvas>
+  </div>
+  
+  <div class="grid grid-cols-2 gap-3 mt-4 text-center text-xs">
+    <div>
+      <p class="text-gray-500">Highest Value Category</p>
+      <p class="font-semibold text-gray-800">Beverages ($12,450)</p>
+    </div>
+    <div>
+      <p class="text-gray-500">Lowest Value Category</p>
+      <p class="font-semibold text-gray-800">Produce ($4,280)</p>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      // Wait for DOM and Chart.js to be available
+      function initChart() {
+        if (typeof Chart === 'undefined') {
+          console.warn('Chart.js not loaded yet. Retrying in 500ms...');
+          setTimeout(initChart, 500);
+          return;
+        }
+
+        try {
+          // Use unique ID for the chart
+          const ctx = document.getElementById('inventory-value-chart');
+          
+          if (!ctx) {
+            console.error('Cannot find canvas element for inventory value chart');
+            return;
+          }
+          
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+          const values = [36200, 38500, 37800, 39900, 41300, 42680];
+          
+          const inventoryValueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: months,
+              datasets: [{
+                label: 'Total Value ($)',
+                data: values,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'white',
+                pointBorderColor: '#10b981',
+                pointRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return `Value: $${context.raw.toLocaleString()}`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false
+                  }
+                },
+                y: {
+                  ticks: {
+                    callback: function(value) {
+                      return '$' + value.toLocaleString();
+                    }
+                  }
+                }
+              }
+            }
+          });
+          
+          // Add update function to the widget element for access
+          ctx.closest('.dashboard-card')._updateChart = function() {
+            const lastValue = inventoryValueChart.data.datasets[0].data.slice(-1)[0];
+            const changePercent = (Math.random() * 6) - 2; // -2% to +4%
+            const newValue = Math.round(lastValue * (1 + (changePercent / 100)));
+            
+            // Add new month
+            const lastMonth = inventoryValueChart.data.labels.slice(-1)[0];
+            const nextMonthIndex = months.indexOf(lastMonth) + 1;
+            const nextMonth = months[nextMonthIndex % months.length];
+            
+            // Update chart data
+            inventoryValueChart.data.labels.shift();
+            inventoryValueChart.data.labels.push(nextMonth);
+            inventoryValueChart.data.datasets[0].data.shift();
+            inventoryValueChart.data.datasets[0].data.push(newValue);
+            
+            // Update chart
+            inventoryValueChart.update();
+            
+            // Update displayed value
+            const displayValue = ctx.closest('.dashboard-card').querySelector('h2');
+            if (displayValue) {
+              displayValue.textContent = '$' + newValue.toLocaleString();
+            }
+            
+            // Update trend indicator
+            const trendEl = ctx.closest('.dashboard-card').querySelector('p.text-xs span');
+            if (trendEl) {
+              trendEl.textContent = `${changePercent.toFixed(1)}% from last month`;
+              const iconEl = ctx.closest('.dashboard-card').querySelector('p.text-xs i');
+              if (iconEl) {
+                if (changePercent >= 0) {
+                  iconEl.className = 'fas fa-arrow-up mr-1';
+                  trendEl.parentElement.className = 'text-xs text-green-600 flex items-center justify-center';
+                } else {
+                  iconEl.className = 'fas fa-arrow-down mr-1';
+                  trendEl.parentElement.className = 'text-xs text-red-600 flex items-center justify-center';
+                }
+              }
+            }
+          };
+          
+          // Add button to trigger update manually for demo purposes
+          const updateBtn = document.createElement('button');
+          updateBtn.className = 'text-xs text-blue-600 hover:underline mt-2 w-full';
+          updateBtn.textContent = 'Simulate Monthly Update';
+          updateBtn.addEventListener('click', () => ctx.closest('.dashboard-card')._updateChart());
+          ctx.closest('.dashboard-card').appendChild(updateBtn);
+          
+        } catch (error) {
+          console.error('Error initializing inventory value chart:', error);
+          // Show fallback content
+          const canvas = document.getElementById('inventory-value-chart');
+          if (canvas) {
+            const fallback = document.createElement('div');
+            fallback.className = 'flex items-center justify-center h-full text-gray-500';
+            fallback.innerHTML = '<div class="text-center"><i class="fas fa-chart-line text-2xl mb-2"></i><br>Chart visualization unavailable</div>';
+            canvas.parentNode.replaceChild(fallback, canvas);
+          }
+        }
+      }
+
+      // Initialize after a short delay to ensure DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initChart, 300));
+      } else {
+        setTimeout(initChart, 300);
+      }
+    })();
+  </script>
+</div>

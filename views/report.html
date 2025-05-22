@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"
+    />
+    <title>
+      MiniMarket
+    </title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+    <style>
+      :root { --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1
+      100%); --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0,
+      0, 0, 0.02); --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --accent-blue: #3b82f6; --accent-green: #22c55e; --accent-red: #ef4444;
+      --accent-amber: #f59e0b; --accent-purple: #8b5cf6; --sidebar-width: 16rem;
+      --sidebar-width-collapsed: 5rem; --header-height: 73px; } body { font-family:
+      'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction:
+      column; } .dashboard-card { transition: var(--transition-smooth); border-radius:
+      16px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255,
+      0.1); box-shadow: var(--card-shadow); overflow: hidden; } .dashboard-card:hover
+      { transform: translateY(-5px) scale(1.01); box-shadow: 0 20px 30px rgba(0,
+      0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03); } .sidebar { transition:
+      var(--transition-smooth); background: var(--primary-gradient); box-shadow:
+      5px 0 25px rgba(0, 0, 0, 0.1); z-index: 40; width: var(--sidebar-width);
+      } .sidebar::before { content: ''; position: absolute; top: 0; left: 0;
+      right: 0; bottom: 0; background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibm9pc2UiLz48ZmVCbGVuZCBtb2RlPSJzb2Z0LWxpZ2h0IiBpbj0ibm9pc2UiIGluMj0iU291cmNlR3JhcGhpYyIgcmVzdWx0PSJibGVuZCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA3NiIvPjwvc3ZnPg==');
+      opacity: 0.08; pointer-events: none; } .nav-item { position: relative;
+      overflow: hidden; z-index: 1; margin-bottom: 0.25rem; border-radius: 10px;
+      transition: all 0.3s ease; } .nav-item:hover { background-color: rgba(255,
+      255, 255, 0.15); } .nav-item:hover::before { transform: scaleX(1); } .nav-item::before
+      { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.1); transform: scaleX(0); transform-origin:
+      left; transition: transform 0.3s ease; z-index: -1; border-radius: 6px;
+      } .nav-icon { display: inline-flex; align-items: center; justify-content:
+      center; width: 36px; height: 36px; background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px; margin-right: 10px; transition: all 0.3s ease; } .nav-item:hover
+      .nav-icon { background: rgba(255, 255, 255, 0.2); transform: rotate(5deg);
+      } .fade-in { animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1); } @keyframes
+      fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity:
+      1; transform: translateY(0); } } .activity-item { transition: all 0.3s
+      ease; } .activity-item:hover { transform: translateX(5px); } .pulse { animation:
+      pulse-animation 2s infinite; } @keyframes pulse-animation { 0% { transform:
+      scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 50% { transform:
+      scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { transform:
+      scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } } /* Custom scrollbar
+      */ ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background:
+      #f1f1f1; border-radius: 5px; } ::-webkit-scrollbar-thumb { background:
+      #cbd5e1; border-radius: 5px; transition: all 0.3s ease; } ::-webkit-scrollbar-thumb:hover
+      { background: #94a3b8; } /* Enhanced support button */ .support-btn { position:
+      fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius:
+      50%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:
+      white; display: flex; align-items: center; justify-content: center; cursor:
+      pointer; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); z-index: 999; transition:
+      all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); } .support-btn:hover { transform:
+      translateY(-5px) scale(1.05); box-shadow: 0 10px 20px rgba(37, 99, 235,
+      0.4); } .support-btn::before { content: ''; position: absolute; width:
+      100%; height: 100%; border-radius: 50%; background: rgba(59, 130, 246,
+      0.6); z-index: -1; animation: pulse-support 2s infinite; } @keyframes pulse-support
+      { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(1.5);
+      opacity: 0; } 100% { transform: scale(1.5); opacity: 0; } } .support-btn-text
+      { position: absolute; right: 70px; background: #1d4ed8; padding: 8px 15px;
+      border-radius: 20px; font-size: 14px; opacity: 0; transform: translateX(10px);
+      transition: all 0.3s ease; white-space: nowrap; } .support-btn:hover .support-btn-text
+      { opacity: 1; transform: translateX(0); } /* Header styling - fixed at
+      top */ .nav-header, nav.top-nav { position: fixed; top: 0; right: 0; left:
+      var(--sidebar-width); z-index: 50; transition: var(--transition-smooth);
+      background-color: white; box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05); width:
+      auto; /* Let it calculate width based on left and right */ } /* Make header
+      follow the sidebar state */ body.sidebar-closed .nav-header, body.sidebar-closed
+      .top-nav { left: 0; } /* Responsive header */ header { position: fixed;
+      top: 0; right: 0; left: 0; z-index: 50; transition: var(--transition-smooth);
+      padding-left: var(--sidebar-width); } /* Responsive content wrapper */
+      .content-wrapper { margin-top: 73px; margin-left: var(--sidebar-width);
+      transition: var(--transition-smooth); flex: 1; padding: 1.5rem; padding-top:
+      2rem; /* Ensure content is visible below the header */ } /* Improved responsiveness
+      for sidebar and layout */ @media (max-width: 1024px) { .sidebar { width:
+      var(--sidebar-width-collapsed); } .sidebar .nav-icon { margin-right: 0;
+      } .sidebar nav a span:not(.nav-icon *) { display: none; } .sidebar h1 {
+      display: none; } header { padding-left: var(--sidebar-width-collapsed);
+      } .content-wrapper { margin-left: var(--sidebar-width-collapsed); } } /*
+      Mobile layout */ @media (max-width: 640px) { body { position: relative;
+      } .sidebar { transform: translateX(-100%); width: var(--sidebar-width);
+      position: fixed; z-index: 60; } .sidebar.mobile-active { transform: translateX(0);
+      } /* Make nav text visible when sidebar is active on mobile */ .sidebar.mobile-active
+      nav a span:not(.nav-icon *) { display: inline-block; } header { padding-left:
+      0; } .content-wrapper { margin-left: 0; padding: 1rem; } .support-btn {
+      bottom: 15px; right: 15px; width: 50px; height: 50px; } .support-btn-text
+      { display: none; } /* Update header for mobile specifically */ .nav-header,
+      nav.top-nav { left: 0; width: 100%; padding-left: 1rem; padding-right:
+      1rem; } /* Adjust the search input on mobile */ .mobile-search { position:
+      static; } .mobile-search input { width: 100% !important; max-width: 160px;
+      } /* Make the content respect header space */ .content-wrapper { margin-top:
+      var(--header-height); padding-top: 1rem; } /* Mobile search */ input#search-global
+      { width: 100%; transition: all 0.3s ease; } .mobile-search-collapsed input#search-global
+      { width: 40px; background: transparent; } .mobile-search-collapsed input#search-global:focus
+      { width: 180px; background: #f3f4f6; } } /* Also ensure proper display
+      at tablet size */ @media (min-width: 641px) and (max-width: 1024px) { .sidebar.mobile-active
+      nav a span:not(.nav-icon *), .sidebar.mobile-active h1 { display: inline-block;
+      } .sidebar.mobile-active { width: var(--sidebar-width); } } /* Sidebar
+      toggle state styling */ body.sidebar-closed .sidebar { transform: translateX(-100%);
+      } body.sidebar-closed header, body.sidebar-closed .content-wrapper { margin-left:
+      0; padding-left: 0; } /* Overlay for mobile sidebar */ .sidebar-overlay
+      { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 55;
+      opacity: 0; visibility: hidden; transition: all 0.3s ease; } .sidebar-overlay.active
+      { opacity: 1; visibility: visible; }
+    </style>
+    <!-- Add or update this style block in your <head> for responsive charts section -->
+    <style>
+      /* Responsive: Stack charts vertically and make them scrollable on small screens */
+      @media (max-width: 1024px) {
+        .charts-row {
+          flex-direction: column !important;
+          gap: 1.5rem !important;
+          height: auto !important;
+        }
+        .charts-row > div {
+          width: 100% !important;
+          min-width: 0 !important;
+          height: 320px !important;
+          max-width: 100% !important;
+        }
+        .charts-row canvas {
+          width: 100% !important;
+          height: 220px !important;
+          max-width: 100% !important;
+          max-height: 220px !important;
+          display: block;
+        }
+      }
+      @media (max-width: 640px) {
+        .charts-row > div {
+          height: 220px !important;
+          padding: 0.5rem !important;
+        }
+        .charts-row canvas {
+          height: 140px !important;
+          max-height: 140px !important;
+        }
+      }
+    </style>
+    <style>
+  .charts-row > div {
+    overflow: hidden;
+  }
+  .charts-row canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain;
+  }
+</style>
+<!-- Add or update this style block in your <head> for improved overall responsivity -->
+<style>
+  /* Responsive layout for main panels */
+  @media (max-width: 1024px) {
+    .flex.h-full.gap-5 {
+      flex-direction: column !important;
+      gap: 1.5rem !important;
+    }
+    .w-1\/3, .w-2\/3 {
+      width: 100% !important;
+      margin-bottom: 0 !important;
+    }
+    .w-1\/3 {
+      margin-bottom: 1.5rem !important;
+    }
+    .h-\[40\%\], .h-\[60\%\] {
+      height: auto !important;
+    }
+    .max-w-5xl {
+      max-width: 100% !important;
+    }
+    .charts-row {
+      flex-direction: column !important;
+      gap: 1.5rem !important;
+      height: auto !important;
+    }
+    .charts-row > div {
+      width: 100% !important;
+      min-width: 0 !important;
+      min-height: 180px !important;
+      max-width: 100% !important;
+    }
+    .charts-row canvas {
+      width: 100% !important;
+      height: 220px !important;
+      max-width: 100% !important;
+      max-height: 220px !important;
+      display: block;
+    }
+    .bg-white.rounded-xl.shadow-md.p-6.max-w-5xl.mx-auto.w-full.h-\[60\%\] {
+      padding: 1rem !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      height: auto !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .content-wrapper {
+      padding: 0.5rem !important;
+    }
+    .p-6, .p-4 {
+      padding: 0.75rem !important;
+    }
+    .rounded-xl {
+      border-radius: 0.75rem !important;
+    }
+    .overflow-x-auto {
+      margin: 0 -0.5rem;
+      padding: 0 0.5rem;
+    }
+    table.min-w-full th, table.min-w-full td {
+      padding: 0.5rem !important;
+    }
+    .support-btn {
+      bottom: 10px !important;
+      right: 10px !important;
+      width: 44px !important;
+      height: 44px !important;
+    }
+    .charts-row > div {
+      min-height: 120px !important;
+      padding: 0.5rem !important;
+    }
+    .charts-row canvas {
+      height: 140px !important;
+      max-height: 140px !important;
+    }
+    .bg-white.rounded-xl.shadow-md.p-6.max-w-5xl.mx-auto.w-full.h-\[60\%\] {
+      padding: 0.5rem !important;
+    }
+  }
+  /* Ensure table is scrollable on small screens */
+  .overflow-x-auto {
+    width: 100%;
+    overflow-x: auto;
+  }
+  /* Prevent chart overflow */
+  .charts-row > div {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .charts-row canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain;
+  }
+</style>
+    <!-- 1. Add/Update styles in your <head> for fixed height and smooth animation -->
+<style>
+  /* Fixed height for Add New Report and Daily Report sections */
+  .fixed-report-panel {
+    height: 480px;
+    min-height: 340px;
+    max-height: 540px;
+    display: flex;
+    flex-direction: column;
+    /* For animation */
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    animation: fadeInUpReport 0.7s cubic-bezier(0.25, 1, 0.5, 1) 0.1s forwards;
+  }
+  @media (max-width: 1024px) {
+    .fixed-report-panel {
+      height: 380px;
+      min-height: 260px;
+      max-height: 420px;
+    }
+  }
+  @media (max-width: 640px) {
+    .fixed-report-panel {
+      height: 320px;
+      min-height: 180px;
+      max-height: 360px;
+    }
+  }
+  /* Scrollable table body for Daily Report */
+  .scrollable-table-body {
+    display: block;
+    max-height: 260px;
+    overflow-y: auto;
+    width: 100%;
+  }
+  .scrollable-table-body tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  .scrollable-table-body td, .scrollable-table-body th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Keep table header fixed */
+  .fixed-table-header thead, .fixed-table-header tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  .fixed-table-header thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f3f4f6;
+  }
+  /* Smooth fade-in animation */
+  @keyframes fadeInUpReport {
+    0% {
+      opacity: 0;
+      transform: translateY(30px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  /* Add keyframes for panel animation */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Panel animation class */
+  .panel-animate {
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    opacity: 0;
+  }
+
+  /* Staggered delays for panels */
+  .panel-animate:nth-child(1) { animation-delay: 0.1s; }
+  .panel-animate:nth-child(2) { animation-delay: 0.2s; }
+  .panel-animate:nth-child(3) { animation-delay: 0.3s; }
+  .panel-animate:nth-child(4) { animation-delay: 0.4s; }
+</style>
+  </head>
+  
+  <body class="bg-gray-50 flex">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay">
+    </div>
+    <!-- Side Navigation -->
+    <aside class="sidebar text-white min-h-screen p-4 fixed left-0 top-0 z-50">
+      <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+        <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+          <i class="fas fa-store text-3xl">
+          </i>
+        </div>
+        <h1 class="text-2xl font-bold">
+          MiniMarket
+        </h1>
+      </div>
+      <nav class="space-y-2">
+        <a href="/" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="100">
+          <div class="nav-icon">
+            <i class="fas fa-chart-line">
+            </i>
+          </div>
+          <span class="font-medium">
+            Dashboard
+          </span>
+        </a>
+        <a href="/products" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="150">
+          <div class="nav-icon">
+            <i class="fas fa-box">
+            </i>
+          </div>
+          <span>
+            Products
+          </span>
+        </a>
+        <a href="/reports" class="bg-white/10 rounded-xl p-3 flex items-center text-blue-100 backdrop-blur-sm"
+        data-aos="fade-right" data-aos-delay="200">
+          <div class="nav-icon">
+            <i class="fas fa-chart-bar">
+            </i>
+          </div>
+          <span>
+            Reports
+          </span>
+        </a>
+        <a href="/restock" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="250">
+          <div class="nav-icon">
+            <i class="fas fa-boxes">
+            </i>
+          </div>
+          <span>
+            Restock
+          </span>
+        </a>
+        <a href="/invoices" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="300">
+          <div class="nav-icon">
+            <i class="fas fa-file-invoice">
+            </i>
+          </div>
+          <span>
+            Invoices
+          </span>
+        </a>
+        <a href="/profile" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="350">
+          <div class="nav-icon">
+            <i class="fas fa-user-circle">
+            </i>
+          </div>
+          <span>
+            Profile
+          </span>
+        </a>
+        <a href="/settings" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer"
+        data-aos="fade-right" data-aos-delay="400">
+          <div class="nav-icon">
+            <i class="fas fa-cog">
+            </i>
+          </div>
+          <span>
+            Settings
+          </span>
+        </a>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <div class="content-wrapper flex-1">
+      <!-- Top Navigation -->
+      <!-- Replace the navbar right section so notification button and profile are grouped to the right -->
+      <nav class="bg-white shadow-sm p-4 flex justify-between items-center top-nav">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-3 text-gray-700 hover:bg-gray-100 p-2 rounded-xl transition-all">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div>
+            <h1 class="text-lg md:text-xl font-bold text-gray-800 fade-in">
+              Product Reports
+            </h1>
+            <p class="text-xs md:text-sm text-gray-500 hidden sm:block">
+              Welcome back,
+              <span class="text-blue-600 font-medium">Adit</span>!
+            </p>
+          </div>
+        </div>
+        <!-- Group notification button and profile to the right -->
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <button id="notification-btn" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition duration-200 relative">
+              <i class="fas fa-bell text-sm"></i>
+              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                3
+              </span>
+            </button>
+          </div>
+          <a href="/profile" class="hidden sm:flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile"
+              class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover"
+              onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+            <div>
+              <span class="text-sm font-medium text-gray-700">Adit</span>
+              <p class="text-xs text-gray-500">Store Manager</p>
+            </div>
+          </a>
+          <a href="/profile" class="sm:hidden p-2.5 rounded-xl bg-gray-100">
+            <i class="fas fa-user-circle"></i>
+          </a>
+        </div>
+      </nav>
+      <!-- Content goes here -->
+      <main class="p-6">
+        <!-- First Section -->
+        <div class="flex flex-col lg:flex-row lg:h-[620px] sm:h-auto gap-5 items-stretch main-panels">
+          <!-- Left Panel (Add New Report) -->
+          <div class="w-1/3 bg-white rounded-xl shadow-md p-4 flex flex-col h-full panel-animate" style="height: 100%;" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center gap-2 mb-4">
+              <i class="fa-solid fa-circle-plus text-xl text-blue-500"></i>
+              <h2 class="text-xl font-semibold ">
+                Add New Report
+              </h2>
+            </div>
+            <form id="reportForm" class="flex flex-col gap-4 flex-grow">
+              <div>
+                <label class="text-sm text-gray-600">
+                  Product Name
+                </label>
+                <input type="text" placeholder="Enter product name" id="productName" class="w-full border p-2 rounded-lg" required
+                />
+              </div>
+              <div>
+                <label class="text-sm text-gray-600">
+                  Sold <span class="text-xs text-gray-400">(units)</span>
+                </label>
+                <input type="number" placeholder="0" id="productSold" class="w-full border p-2 rounded-lg" required min="0"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm text-gray-600">
+                    Damaged <span class="text-xs text-gray-400">(units)</span>
+                  </label>
+                  <input type="number" placeholder="0" id="productDamaged" class="w-full border p-2 rounded-lg" required min="0"
+                  />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-600">
+                    Missing <span class="text-xs text-gray-400">(units)</span>
+                  </label>
+                  <input type="number" placeholder="0" id="productMissing" class="w-full border p-2 rounded-lg" required min="0"
+                  />
+                </div>
+              </div>
+              <div class="mt-auto">
+                <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:opacity-90 shadow-md">
+                  + Add Report
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- Right Panel (Daily Report) -->
+          <div class="w-2/3 flex flex-col gap-5 h-full">
+            <!-- Top Charts -->
+            <div class="flex gap-5 h-auto charts-row">
+              <div class="bg-white rounded-xl shadow-md p-4 flex-1 flex flex-col panel-animate">
+                <h2 class="font-semibold">
+                  Inventory Overview
+                  <span class="float-right text-xs text-slate-500 select-none">
+                    <span class="chart-range cursor-pointer font-bold text-blue-600" data-range="W">W</span> |
+                    <span class="chart-range cursor-pointer" data-range="M">M</span> |
+                    <span class="chart-range cursor-pointer" data-range="Y">Y</span>
+                  </span>
+                </h2>
+                <div class="flex-1 min-h-[180px]">
+                  <canvas id="lineChart" class="w-full h-full mt-5 block"></canvas>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl shadow-md p-4 flex-1 flex flex-col panel-animate">
+                <h2 class="font-semibold">
+                  Category Distribution
+                  <span class="float-right text-xs text-slate-500 select-none">
+                    <span class="chart-range cursor-pointer font-bold text-blue-600" data-range="W">W</span> |
+                    <span class="chart-range cursor-pointer" data-range="M">M</span> |
+                    <span class="chart-range cursor-pointer" data-range="Y">Y</span>
+                  </span>
+                </h2>
+                <div class="flex-1 min-h-[180px]">
+                  <canvas id="barChart" class="w-full h-full align-middle mt-5 block"></canvas>
+                </div>
+              </div>
+            </div>
+            <!-- Table -->
+            <div class="bg-white rounded-xl shadow-md p-6 max-w-5xl mx-auto w-full flex-1 panel-animate overflow-hidden flex flex-col" data-aos="fade-up" data-aos-delay="200">
+  <!-- Title and controls section -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+    <div class="flex items-center gap-2 mb-0">
+      <i class="fa-solid fa-file text-blue-500 text-xl"></i>
+      <h2 class="text-xl font-semibold">Daily Report</h2>
+    </div>
+    <!-- Search and Sort Controls -->
+    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto md:w-auto">
+      <div class="relative w-full sm:w-56">
+        <input type="text" id="reportSearchInput" placeholder="Search reports..." class="border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full" />
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+      <div class="relative w-full sm:w-44">
+        <select id="reportSortSelect" class="border border-gray-300 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full">
+          <option value="name">Sort by Name</option>
+          <option value="sold-desc">Sold: High to Low</option>
+          <option value="sold-asc">Sold: Low to High</option>
+          <option value="damaged-desc">Damaged: High to Low</option>
+          <option value="damaged-asc">Damaged: Low to High</option>
+          <option value="missing-desc">Missing: High to Low</option>
+          <option value="missing-asc">Missing: Low to High</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Table container with proper overflow handling -->
+  <div class="flex-1 min-h-0 overflow-hidden">
+    <div class="overflow-y-auto overflow-x-auto h-full">
+      <table class="min-w-full text-sm text-left text-gray-700 fixed-table-header">
+        <thead class="bg-gray-100 font-semibold text-gray-600 sticky top-0 z-10">
+          <tr>
+            <th class="px-4 py-2 rounded-tl-lg">Name</th>
+            <th class="px-4 py-2 text-center">Sold</th>
+            <th class="px-4 py-2 text-center">Damaged</th>
+            <th class="px-4 py-2 text-center">Missing</th>
+            <th class="px-4 py-2 text-center rounded-tr-lg">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody">
+          <!-- Rows will be added here dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+        <!-- Second Section -->
+      </main>
+    </div>
+    <!-- Live Support Button -->
+    <div class="support-btn">
+      <i class="fas fa-headset text-xl">
+      </i>
+      <span class="support-btn-text shadow-lg">
+        Need Help?
+      </span>
+    </div>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js">
+    </script>
+    <script>
+      // Initialize AOS animation library
+      AOS.init({
+        duration: 800,
+        once: true,
+        easing: 'ease-out-cubic'
+      });
+
+      // Enhanced sidebar toggle functionality
+      document.getElementById('sidebar-toggle').addEventListener('click',
+      function() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        // For mobile devices
+        if (window.innerWidth <= 640) {
+          sidebar.classList.toggle('mobile-active');
+          overlay.classList.toggle('active');
+        } else {
+          // For larger screens
+          document.body.classList.toggle('sidebar-closed');
+        }
+      });
+
+      // Close sidebar when clicking on overlay
+      document.getElementById('sidebar-overlay').addEventListener('click',
+      function() {
+        document.querySelector('.sidebar').classList.remove('mobile-active');
+        this.classList.remove('active');
+      });
+
+      // Handle responsive behavior on resize
+      window.addEventListener('resize',
+      function() {
+        if (window.innerWidth <= 640) {
+          document.body.classList.remove('sidebar-closed');
+          const searchContainer = document.querySelector('.mobile-search');
+          if (searchContainer && !searchContainer.classList.contains('mobile-search-collapsed')) {
+            searchContainer.classList.add('mobile-search-collapsed');
+          }
+        } else if (window.innerWidth <= 1024) {
+          document.querySelector('.sidebar').classList.remove('mobile-active');
+          document.getElementById('sidebar-overlay').classList.remove('active');
+        }
+      });
+
+      // Handle mobile search
+      if (window.innerWidth <= 640) {
+        const searchContainer = document.querySelector('.mobile-search');
+        const searchInput = document.getElementById('search-global');
+
+        searchContainer.classList.add('mobile-search-collapsed');
+
+        searchInput.addEventListener('focus',
+        function() {
+          searchContainer.classList.remove('mobile-search-collapsed');
+        });
+
+        searchInput.addEventListener('blur',
+        function() {
+          if (this.value === '') {
+            searchContainer.classList.add('mobile-search-collapsed');
+          }
+        });
+      }
+
+      // Replace or update the chart initialization code
+function initializeCharts() {
+  const isMobile = window.innerWidth <= 640;
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { 
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: !isMobile,
+        position: 'top',
+      }
+    }
+  };
+
+  // Line Chart
+  const lineCtx = document.getElementById('lineChart').getContext('2d');
+  lineChart = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: chartData.W.labels,
+      datasets: [{
+        label: 'Sales',
+        data: chartData.W.sales,
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      ...defaultOptions,
+      elements: {
+        line: {
+          borderWidth: isMobile ? 2 : 3
+        },
+        point: {
+          radius: isMobile ? 2 : 4
+        }
+      }
+    }
+  });
+
+  // Bar Chart
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: chartData.W.labels,
+      datasets: [
+        {
+          label: 'Damaged',
+          data: chartData.W.damaged,
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: isMobile ? 1 : 2
+        },
+        {
+          label: 'Missing',
+          data: chartData.W.missing,
+          backgroundColor: 'rgba(255, 205, 86, 0.7)',
+          borderColor: 'rgb(255, 205, 86)',
+          borderWidth: isMobile ? 1 : 2
+        }
+      ]
+    },
+    options: {
+      ...defaultOptions,
+      barThickness: isMobile ? 'flex' : 20
+    }
+  });
+}
+
+// Update the updateCharts function to handle mobile responsiveness
+function updateCharts(range = 'W') {
+  const isMobile = window.innerWidth <= 640;
+  currentChartRange = range;
+
+  if (lineChart) lineChart.destroy();
+  if (barChart) barChart.destroy();
+  
+  initializeCharts();
+
+  // Update active state of range buttons
+  document.querySelectorAll('.chart-range').forEach(el => {
+    el.classList.remove('font-bold', 'text-blue-600');
+    if (el.dataset.range === range) {
+      el.classList.add('font-bold', 'text-blue-600');
+    }
+  });
+}
+
+// Add resize handler for responsive charts
+window.addEventListener('resize', () => {
+  updateCharts(currentChartRange);
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  renderReports();
+  initializeCharts();
+  setChartRange('W');
+});
+      // Bar Chart
+      const barCtx = document.getElementById('barChart').getContext('2d');
+      new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Expired', 'Broken', 'Missing'],
+          datasets: [{
+            label: 'Product Issues',
+            data: [5, 3, 8],
+            backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(255, 159, 64, 0.7)', 'rgba(255, 205, 86, 0.7)'],
+            borderColor: ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    </script>
+
+    <!-- Replace your report form/table JS with this block for object-array based, fully editable, responsive reports -->
+<script>
+  // Report data storage as array of objects
+  let reports = [
+    {
+      id: 1,
+      name: "Sample Product",
+      sold: 10,
+      damaged: 1,
+      missing: 0,
+      date: "2025-05-17"
+    }
+  ];
+  let editMode = false;
+  let currentReportId = null;
+
+  const form = document.getElementById('reportForm');
+  const tbody = document.getElementById('reportTableBody');
+  const productName = document.getElementById('productName');
+  const productSold = document.getElementById('productSold');
+  const productDamaged = document.getElementById('productDamaged');
+  const productMissing = document.getElementById('productMissing');
+  const reportSearchInput = document.getElementById('reportSearchInput');
+  const reportSortSelect = document.getElementById('reportSortSelect');
+
+  // --- Render reports to table with search and sort ---
+  function renderReports() {
+    let filtered = [...reports];
+    const searchTerm = reportSearchInput.value.toLowerCase().trim();
+    if (searchTerm) filtered = filtered.filter(r => r.name.toLowerCase().includes(searchTerm));
+    switch (reportSortSelect.value) {
+      case "name": filtered.sort((a, b) => a.name.localeCompare(b.name)); break;
+      case "sold-desc": filtered.sort((a, b) => b.sold - a.sold); break;
+      case "sold-asc": filtered.sort((a, b) => a.sold - b.sold); break;
+      case "damaged-desc": filtered.sort((a, b) => b.damaged - a.damaged); break;
+      case "damaged-asc": filtered.sort((a, b) => a.damaged - b.damaged); break;
+      case "missing-desc": filtered.sort((a, b) => b.missing - a.missing); break;
+      case "missing-asc": filtered.sort((a, b) => a.missing - b.missing); break;
+    }
+    tbody.innerHTML = filtered.length ? filtered.map(report => `
+      <tr>
+        <td class="px-4 py-2 font-medium text-gray-900">${report.name}</td>
+        <td class="px-4 py-2 text-center">${report.sold}</td>
+        <td class="px-4 py-2 text-center">${report.damaged}</td>
+        <td class="px-4 py-2 text-center">${report.missing}</td>
+        <td class="px-4 py-2 text-center space-x-2">
+          <button onclick="editReport(${report.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+          <button onclick="deleteReport(${report.id})" class="text-red-600 hover:text-red-800"><i class="fas fa-trash-alt"></i></button>
+        </td>
+      </tr>
+    `).join('') : `<tr><td colspan="5" class="text-center py-6 text-gray-400">No reports yet.</td></tr>`;
+  }
+
+  // --- Add or update report ---
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const data = {
+      name: productName.value,
+      sold: parseInt(productSold.value, 10),
+      damaged: parseInt(productDamaged.value, 10),
+      missing: parseInt(productMissing.value, 10),
+      date: new Date().toISOString().slice(0, 10)
+    };
+    if (editMode && currentReportId !== null) {
+      // Update
+      const idx = reports.findIndex(r => r.id === currentReportId);
+      if (idx !== -1) {
+        reports[idx] = { ...reports[idx], ...data };
+      }
+      editMode = false;
+      currentReportId = null;
+      form.querySelector('button[type="submit"]').textContent = '+ Add Report';
+    } else {
+      // Add
+      reports.push({ id: Date.now(), ...data });
+    }
+    form.reset();
+    renderReports();
+    updateCharts(currentChartRange);
+  });
+
+  // --- Edit report ---
+  window.editReport = function(id) {
+    const report = reports.find(r => r.id === id);
+    if (report) {
+      productName.value = report.name;
+      productSold.value = report.sold;
+      productDamaged.value = report.damaged;
+      productMissing.value = report.missing;
+      editMode = true;
+      currentReportId = id;
+      form.querySelector('button[type="submit"]').textContent = 'Update Report';
+      if (window.innerWidth < 1024) form.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // --- Delete report with confirmation and notification ---
+  window.deleteReport = function(id) {
+    const report = reports.find(r => r.id === id);
+    if (!report) return;
+    if (confirm(`Are you sure you want to delete the report for "${report.name}"?`)) {
+      reports = reports.filter(r => r.id !== id);
+      if (editMode && currentReportId === id) {
+        form.reset();
+        editMode = false;
+        currentReportId = null;
+        form.querySelector('button[type="submit"]').textContent = '+ Add Report';
+      }
+      renderReports();
+      updateCharts(currentChartRange);
+    }
+  };
+
+  // --- Search and sort events ---
+  reportSearchInput.addEventListener('input', renderReports);
+  reportSortSelect.addEventListener('change', renderReports);
+
+  // --- Chart.js dynamic timeseries logic ---
+  let lineChart, barChart;
+  let currentChartRange = 'W';
+  const chartData = {
+    W: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      sales: [120, 190, 300, 250, 280, 400, 350],
+      damaged: [2, 1, 0, 3, 1, 2, 1],
+      missing: [0, 1, 0, 0, 1, 0, 2]
+    },
+    M: {
+      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+      sales: [900, 1100, 950, 1200],
+      damaged: [5, 3, 4, 6],
+      missing: [2, 3, 1, 2]
+    },
+    Y: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      sales: [4000, 4200, 3900, 4500, 4700, 4800, 5000, 5100, 4950, 5200, 5300, 5400],
+      damaged: [20, 18, 22, 19, 21, 23, 20, 18, 17, 22, 19, 21],
+      missing: [7, 8, 6, 7, 8, 7, 6, 7, 8, 7, 6, 7]
+    }
+  };
+
+  function updateCharts(range = 'W') {
+    currentChartRange = range;
+    // Line Chart
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    if (lineChart) lineChart.destroy();
+    lineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: chartData[range].labels,
+        datasets: [
+          {
+            label: 'Sales',
+            data: chartData[range].sales,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    if (barChart) barChart.destroy();
+    barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: chartData[range].labels,
+        datasets: [
+          {
+            label: 'Damaged',
+            data: chartData[range].damaged,
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1
+          },
+          {
+            label: 'Missing',
+            data: chartData[range].missing,
+            backgroundColor: 'rgba(255, 205, 86, 0.7)',
+            borderColor: 'rgb(255, 205, 86)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // --- Chart range switcher (fully functional) ---
+  function setChartRange(range) {
+    document.querySelectorAll('.chart-range').forEach(el => {
+      el.classList.remove('font-bold', 'text-blue-600');
+      if (el.dataset.range === range) {
+        el.classList.add('font-bold', 'text-blue-600');
+      }
+    });
+    updateCharts(range);
+  }
+  document.querySelectorAll('.chart-range').forEach(el => {
+    el.addEventListener('click', function () {
+      setChartRange(this.dataset.range);
+    });
+  });
+
+  // --- Initial render ---
+  document.addEventListener('DOMContentLoaded', () => {
+    renderReports();
+    setChartRange('W');
+  });
+</script>
+<!-- Place this just before </body> -->
+<div id="deleteReportModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[9999] transition-all duration-300 invisible opacity-0">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full relative animate-pop">
+    <button id="closeDeleteReportModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl focus:outline-none" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="flex flex-col items-center text-center">
+      <div class="bg-red-100 text-red-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+        <i class="fas fa-exclamation-triangle text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-bold mb-2">Delete Report?</h3>
+      <p class="text-gray-600 mb-6">Are you sure you want to delete this report? This action cannot be undone.</p>
+      <div class="flex gap-3 w-full">
+        <button id="cancelDeleteReport" class="flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">Cancel</button>
+        <button id="confirmDeleteReport" class="flex-1 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Pop up animation for modal */
+@keyframes popInModal {
+  0% { opacity: 0; transform: scale(0.92) translateY(30px);}
+  100% { opacity: 1; transform: scale(1) translateY(0);}
+}
+.animate-pop {
+  animation: popInModal 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+#deleteReportModal.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto;
+}
+#deleteReportModal {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s, visibility 0.25s;
+  z-index: 9999;
+}
+</style>
+
+<script>
+  // --- Prettier Delete Confirmation Modal Logic ---
+  let reportToDeleteId = null;
+  const deleteReportModal = document.getElementById('deleteReportModal');
+  const cancelDeleteReport = document.getElementById('cancelDeleteReport');
+  const confirmDeleteReport = document.getElementById('confirmDeleteReport');
+  const closeDeleteReportModal = document.getElementById('closeDeleteReportModal');
+
+  window.deleteReport = function(id) {
+    reportToDeleteId = id;
+    deleteReportModal.classList.add('visible');
+  };
+
+  function closeDeleteModal() {
+    deleteReportModal.classList.remove('visible');
+    reportToDeleteId = null;
+  }
+
+  cancelDeleteReport.addEventListener('click', closeDeleteModal);
+  closeDeleteReportModal.addEventListener('click', closeDeleteModal);
+
+  // Also close modal on background click
+  deleteReportModal.addEventListener('click', function(e) {
+    if (e.target === deleteReportModal) closeDeleteModal();
+  });
+
+  confirmDeleteReport.addEventListener('click', () => {
+    if (reportToDeleteId !== null) {
+      const report = reports.find(r => r.id === reportToDeleteId);
+      reports = reports.filter(r => r.id !== reportToDeleteId);
+      if (editMode && currentReportId === reportToDeleteId) {
+        form.reset();
+        editMode = false;
+        currentReportId = null;
+        form.querySelector('button[type="submit"]').textContent = '+ Add Report';
+      }
+      renderReports();
+      updateCharts(currentChartRange);
+      closeDeleteModal();
+    }
+  });
+</script>
+<script>
+    // Load notification modal script dynamically
+    loadScript('/components/dashboard/notification-modal.js', function() {
+      console.log('Initializing notification system');
+      
+      // Check if NotificationModal is available
+      if (typeof NotificationModal === 'undefined') {
+        console.error('NotificationModal not loaded properly');
+        return;
+      }
+      
+      // Initialize notification system
+      const notificationSystem = new NotificationModal({
+        position: 'top-right',
+        maxNotifications: 10,
+        autoHideTimeout: 6000
+      });
+      
+      // Set the notification button as trigger
+      notificationSystem.setTrigger('#notification-btn');
+      
+      // Add dashboard-specific notifications
+      notificationSystem.add({
+        title: 'Daily Report Ready',
+        message: 'Your sales report for today is now available',
+        type: 'info',
+        time: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+        onClick: (notification) => {
+          console.log('Clicked on report notification:', notification);
+        }
+      });
+      
+      notificationSystem.add({
+        title: 'Low Stock Alert',
+        message: 'Rice Crackers (5 items) and Fresh Apples (12 items) running low',
+        type: 'warning',
+        time: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      });
+      
+      notificationSystem.add({
+        title: 'Sales Goal Achieved!',
+        message: 'Congratulations! You reached your daily sales target of $1,200',
+        type: 'success',
+        time: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+      });
+    });
+
+    // Dynamic script loader function
+    function loadScript(url, callback) {
+      console.log('Loading script:', url);
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      
+      // Execute callback when script is loaded
+      script.onload = function() {
+        console.log('Script loaded successfully:', url);
+        if (callback) callback();
+      };
+      
+      script.onerror = function() {
+        console.error('Error loading script:', url);
+      };
+      
+      document.head.appendChild(script);
+    }
+  </script>
+  <style>
+nav.top-nav {
+  left: 0 !important;
+  width: 100vw !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  box-sizing: border-box;
+}
+@media (min-width: 1025px) {
+  nav.top-nav {
+    left: var(--sidebar-width) !important;
+    width: calc(100vw - var(--sidebar-width)) !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+  </style>
+  <style>
+  /* Preserve sidebar width and positioning */
+  nav.top-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width);
+    z-index: 50;
+    transition: var(--transition-smooth);
+    background-color: white;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    width: auto;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    nav.top-nav {
+      left: var(--sidebar-width-collapsed);
+      width: calc(100% - var(--sidebar-width-collapsed));
+    }
+  }
+
+  @media (max-width: 640px) {
+    nav.top-nav {
+      left: 0;
+      width: 100%;
+    }
+  }
+
+  /* Sidebar closed state */
+  body.sidebar-closed nav.top-nav {
+    left: 0;
+    width: 100%;
+  }
+</style>
+// support-faq js
+<script src="/components/support/supportModal.js"></script>
+  </body>
+
+</html>

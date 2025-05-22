@@ -1,0 +1,363 @@
+<div class="activity-card" data-aos="fade-up">
+  <div class="activity-header">
+    <div class="flex items-center">
+      <div class="activity-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <h3 class="activity-title">Recent Activity</h3>
+    </div>
+    <div class="activity-nav">
+      <button class="activity-btn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      <button class="activity-btn" title="Filter"><i class="fas fa-filter"></i></button>
+    </div>
+  </div>
+  
+  <div class="activity-body">
+    <ul class="activity-list" id="activity-list">
+      <li class="activity-item">
+        <div class="activity-time">
+          <div class="activity-time-dot bg-green-500"></div>
+          <div class="activity-timestamp">Just now</div>
+        </div>
+        <div class="activity-content">
+          <div class="activity-action">New Order #38291</div>
+          <div class="activity-details">$129.99 - 3 items</div>
+        </div>
+      </li>
+      
+      <li class="activity-item">
+        <div class="activity-time">
+          <div class="activity-time-dot bg-blue-500"></div>
+          <div class="activity-timestamp">10 min ago</div>
+        </div>
+        <div class="activity-content">
+          <div class="activity-action">Inventory Updated</div>
+          <div class="activity-details">Organic Apples +50 units</div>
+        </div>
+      </li>
+      
+      <li class="activity-item">
+        <div class="activity-time">
+          <div class="activity-time-dot bg-purple-500"></div>
+          <div class="activity-timestamp">25 min ago</div>
+        </div>
+        <div class="activity-content">
+          <div class="activity-action">Customer Feedback</div>
+          <div class="activity-details">⭐⭐⭐⭐⭐ from John D.</div>
+        </div>
+      </li>
+      
+      <li class="activity-item">
+        <div class="activity-time">
+          <div class="activity-time-dot bg-amber-500"></div>
+          <div class="activity-timestamp">1 hour ago</div>
+        </div>
+        <div class="activity-content">
+          <div class="activity-action">Price Update</div>
+          <div class="activity-details">Milk decreased by 5%</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <style>
+    /* Activity Feed Styling */
+    .activity-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-height: 400px; /* Cap the overall height */
+    }
+    
+    .activity-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .activity-icon {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+    
+    .activity-icon i {
+      font-size: 16px;
+    }
+    
+    .activity-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1d;
+      letter-spacing: -0.02em;
+    }
+    
+    .activity-nav {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .activity-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E8E93;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .activity-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #1d1d1d;
+    }
+    
+    .activity-body {
+      flex: 1;
+      padding: 12px 6px 12px 16px;
+      overflow-y: auto;
+      max-height: 280px; /* Set a fixed maximum height */
+    }
+    
+    .activity-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .activity-item {
+      display: flex;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      transform: translateX(2px);
+    }
+    
+    .activity-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 12px;
+      min-width: 60px;
+    }
+    
+    .activity-time-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-bottom: 4px;
+    }
+    
+    .activity-timestamp {
+      font-size: 11px;
+      font-weight: 500;
+      color: #8E8E93;
+      white-space: nowrap;
+    }
+    
+    .activity-content {
+      flex: 1;
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+      padding-left: 12px;
+    }
+    
+    .activity-action {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1d;
+      margin-bottom: 2px;
+    }
+    
+    .activity-details {
+      font-size: 11px;
+      color: #8E8E93;
+      display: flex;
+      align-items: center;
+    }
+    
+
+    
+    /* New activity highlighting */
+    .activity-item:first-child {
+      background-color: rgba(52, 152, 219, 0.08);
+      border-left: 2px solid #3498db;
+      padding-left: 8px;
+    }
+    
+    .activity-item:first-child .activity-timestamp {
+      color: #3498db;
+      font-weight: 600;
+    }
+    
+    /* Subtle animations */
+    @keyframes subtle-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    
+    .activity-item:first-child {
+      animation: subtle-pulse 3s infinite;
+    }
+    
+    /* Scrollbar styling */
+    .activity-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .activity-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .activity-body::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+    }
+    
+    /* Make sure the scrollbar is always visible */
+    .activity-body {
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: rgba(0, 0, 0, 0.1) transparent; /* Firefox */
+    }
+  </style>
+  
+  <script>
+    // Update activity timestamps to be relative
+    function updateActivityTimestamps() {
+      // For a real implementation, this would calculate actual timestamps based on real data
+      // Here we're just using static data for demonstration
+    }
+    
+    // Function to simulate new activities
+    function simulateNewActivity() {
+      const activities = [
+        { 
+          action: "New Order #38295", 
+          details: "$85.50 - 2 items",
+          dotClass: "bg-green-500" 
+        },
+        { 
+          action: "Price Update Alert", 
+          details: "Vegetables +2% average",
+          dotClass: "bg-amber-500" 
+        },
+        { 
+          action: "New Customer Signup", 
+          details: "Emma W. from Downtown",
+          dotClass: "bg-blue-500" 
+        },
+        { 
+          action: "Staff Clock-in", 
+          details: "Marcus T. - Cashier",
+          dotClass: "bg-purple-500" 
+        },
+        { 
+          action: "Delivery Arrived", 
+          details: "Fresh Produce from Farm Co.",
+          dotClass: "bg-indigo-500" 
+        }
+      ];
+      
+      // Get a random activity
+      const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+      
+      // Create new activity item
+      const activityList = document.getElementById('activity-list');
+      const newItem = document.createElement('li');
+      newItem.className = 'activity-item';
+      
+      // Add animation class that will be removed after animation completes
+      newItem.classList.add('new-activity-animation');
+      
+      newItem.innerHTML = `
+        <div class="activity-time">
+          <div class="activity-time-dot ${randomActivity.dotClass}"></div>
+          <div class="activity-timestamp">Just now</div>
+        </div>
+        <div class="activity-content">
+          <div class="activity-action">${randomActivity.action}</div>
+          <div class="activity-details">${randomActivity.details}</div>
+        </div>
+      `;
+      
+      // Update existing timestamps
+      const timestamps = activityList.querySelectorAll('.activity-timestamp');
+      if (timestamps.length > 0) {
+        timestamps[0].textContent = '5 min ago';
+      }
+      
+      // Insert at the top
+      activityList.insertBefore(newItem, activityList.firstChild);
+      
+      // Remove the oldest item if there are more than 4
+      if (activityList.children.length > 4) {
+        activityList.removeChild(activityList.lastChild);
+      }
+      
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        newItem.classList.remove('new-activity-animation');
+      }, 3000);
+    }
+    
+    // Run on load
+    updateActivityTimestamps();
+    
+    // Simulate new activity every 30-60 seconds
+    setInterval(() => {
+      // Random interval between 30-60 seconds
+      if (Math.random() > 0.7) { // 30% chance to get a new activity
+        simulateNewActivity();
+      }
+    }, 15000); // Check every 15 seconds
+    
+
+    
+    // Add interaction to navigation buttons
+    document.querySelectorAll('.activity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (this.title === 'Refresh') {
+          simulateNewActivity();
+        } else if (this.title === 'Filter') {
+          alert('Activity filter options would appear here');
+        }
+      });
+    });
+  </script>
+</div>

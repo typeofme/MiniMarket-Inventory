@@ -1,0 +1,168 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Turnover</h3>
+    <i class="fas fa-sync text-green-500"></i>
+  </div>
+  
+  <div class="h-44 mb-2 relative">
+    <canvas id="inventory-turnover-chart"></canvas>
+    <div id="turnover-loader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+    </div>
+    <div id="turnover-error" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+      <div class="text-center text-gray-500">
+        <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+        <p class="text-sm">Chart could not be loaded</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-2 gap-3 mt-2">
+    <div class="bg-blue-50 p-2 rounded-lg text-center">
+      <p class="text-xs text-gray-600">Average Turnover</p>
+      <p class="font-bold text-blue-700">8.4 days</p>
+    </div>
+    <div class="bg-green-50 p-2 rounded-lg text-center">
+      <p class="text-xs text-gray-600">Fastest Category</p>
+      <p class="font-bold text-green-700">Produce (3.2d)</p>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      // Function to initialize the chart
+      function initTurnoverChart() {
+        const loader = document.getElementById('turnover-loader');
+        const errorDisplay = document.getElementById('turnover-error');
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+          console.warn('Chart.js not loaded yet for inventory turnover. Retrying in 500ms...');
+          setTimeout(initTurnoverChart, 500);
+          return;
+        }
+        
+        try {
+          // Get the chart canvas element
+          const ctx = document.getElementById('inventory-turnover-chart');
+          
+          if (!ctx) {
+            console.error('Cannot find canvas element for inventory turnover chart');
+            showError();
+            return;
+          }
+          
+          // Create the bar chart
+          const turnoverChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Produce', 'Dairy', 'Bakery', 'Beverages', 'Snacks', 'Others'],
+              datasets: [{
+                label: 'Days',
+                data: [3.2, 4.8, 5.1, 9.5, 12.2, 15.7],
+                backgroundColor: [
+                  'rgba(34, 197, 94, 0.7)',
+                  'rgba(59, 130, 246, 0.7)',
+                  'rgba(139, 92, 246, 0.7)',
+                  'rgba(245, 158, 11, 0.7)',
+                  'rgba(239, 68, 68, 0.7)',
+                  'rgba(156, 163, 175, 0.7)',
+                ],
+                borderWidth: 0,
+                borderRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              indexAxis: 'y',
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return `Turnover: ${context.raw} days`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false
+                  },
+                  ticks: {
+                    callback: function(value) {
+                      return value + 'd';
+                    }
+                  }
+                },
+                y: {
+                  grid: {
+                    display: false
+                  }
+                }
+              },
+              animation: {
+                duration: 1000,
+                onComplete: function() {
+                  // Hide loader when animation completes
+                  if (loader) loader.style.display = 'none';
+                }
+              }
+            }
+          });
+          
+          // Function to update stats based on chart data
+          function updateTurnoverStats() {
+            const data = turnoverChart.data.datasets[0].data;
+            const labels = turnoverChart.data.labels;
+            
+            // Calculate average turnover
+            const avgTurnover = (data.reduce((sum, val) => sum + parseFloat(val), 0) / data.length).toFixed(1);
+            
+            // Find the fastest category (minimum turnover)
+            const minTurnover = Math.min(...data).toFixed(1);
+            const minTurnoverIndex = data.findIndex(val => parseFloat(val).toFixed(1) === minTurnover);
+            const fastestCategory = labels[minTurnoverIndex];
+            
+            // Update the stats display
+            const statDivs = ctx.closest('.dashboard-card').querySelectorAll('.grid.grid-cols-2 p.font-bold');
+            if (statDivs && statDivs.length >= 2) {
+              statDivs[0].textContent = avgTurnover + ' days';
+              statDivs[1].textContent = `${fastestCategory} (${minTurnover}d)`;
+            }
+          }
+          
+          // Initial stats update
+          updateTurnoverStats();
+          
+          // Attach update function to the chart for future use
+          ctx.updateChart = function(newData) {
+            turnoverChart.data.datasets[0].data = newData;
+            turnoverChart.update();
+            updateTurnoverStats();
+          };
+          
+        } catch (error) {
+          console.error('Error creating inventory turnover chart:', error);
+          showError();
+        }
+        
+        function showError() {
+          if (loader) loader.style.display = 'none';
+          if (errorDisplay) errorDisplay.classList.remove('hidden');
+        }
+      }
+      
+      // Initialize the chart when the document is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initTurnoverChart, 200));
+      } else {
+        setTimeout(initTurnoverChart, 200);
+      }
+    })();
+  </script>
+</div>

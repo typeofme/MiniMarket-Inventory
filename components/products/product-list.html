@@ -1,0 +1,358 @@
+<!-- Product List Component -->
+<style>
+  /* Fix for dropdown menus appearing behind sticky header */
+  .custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 0.25rem;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 20; /* Higher than the sticky header z-index */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+  }
+  
+  .custom-select-options.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .custom-select-container {
+    position: relative;
+  }
+</style>
+<div class="dashboard-card bg-white p-6 rounded-lg shadow" data-aos="fade-up" data-aos-delay="500">
+  <div class="flex justify-between items-center mb-4">
+    <div class="flex items-center">
+      <i class="fas fa-list text-blue-600 mr-2"></i>
+      <h2 class="text-xl font-semibold">Product List</h2>
+    </div>
+    <div class="flex gap-2">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="Search products..." 
+          class="border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm" />
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+
+      <!-- BV Filter Dropdown -->
+      <div class="custom-select-container" id="bvFilterContainer">
+        <div class="custom-select-trigger" id="bvFilterTrigger">
+          <span id="selectedBVText">Filter by BV</span>
+          <i class="fas fa-filter text-xs ml-2 text-gray-500 custom-select-arrow"></i>
+        </div>
+        <div class="custom-select-options" id="bvFilterOptions">
+          <div class="custom-option selected" data-value="all">
+            <i class="fas fa-globe custom-option-icon text-blue-500"></i>
+            All Categories
+          </div>
+          <div class="custom-option" data-value="Food">
+            <i class="fas fa-utensils custom-option-icon text-green-500"></i>
+            Food
+          </div>
+          <div class="custom-option" data-value="Appliance">
+            <i class="fas fa-blender custom-option-icon text-red-500"></i>
+            Appliance
+          </div>
+          <div class="custom-option" data-value="Electronics">
+            <i class="fas fa-laptop custom-option-icon text-purple-500"></i>
+            Electronics
+          </div>
+          <div class="custom-option" data-value="Beverage">
+            <i class="fas fa-coffee custom-option-icon text-yellow-500"></i>
+            Beverage
+          </div>
+          <div class="custom-option" data-value="Household">
+            <i class="fas fa-broom custom-option-icon text-teal-500"></i>
+            Household
+          </div>
+          <div class="custom-option" data-value="Stationery">
+            <i class="fas fa-pencil-alt custom-option-icon text-indigo-500"></i>
+            Stationery
+          </div>
+        </div>
+        <!-- Keep the original select for functionality but hide it visually -->
+        <select id="bvFilterSelect" class="hidden">
+          <option value="all">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Appliance">Appliance</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Beverage">Beverage</option>
+          <option value="Household">Household</option>
+          <option value="Stationery">Stationery</option>
+        </select>
+      </div>
+      
+      <!-- Sort Dropdown -->
+      <div class="custom-select-container" id="customSelectContainer">
+        <div class="custom-select-trigger" id="customSelectTrigger">
+          <span id="selectedOptionText">Sort by Name</span>
+          <i class="fas fa-chevron-down text-xs ml-2 text-gray-500 custom-select-arrow"></i>
+        </div>
+        <div class="custom-select-options" id="customSelectOptions">
+          <div class="custom-option selected" data-value="name">
+            <i class="fas fa-font custom-option-icon text-gray-500"></i>
+            Sort by Name
+          </div>
+          <div class="custom-option" data-value="price-asc">
+            <i class="fas fa-arrow-up custom-option-icon text-green-500"></i>
+            Price: Low to High
+          </div>
+          <div class="custom-option" data-value="price-desc">
+            <i class="fas fa-arrow-down custom-option-icon text-red-500"></i>
+            Price: High to Low
+          </div>
+          <div class="custom-option" data-value="stock">
+            <i class="fas fa-box custom-option-icon text-amber-500"></i>
+            Stock: Low to High
+          </div>
+        </div>
+        <!-- Keep the original select for functionality but hide it visually -->
+        <select id="sortSelect" class="hidden">
+          <option value="name">Sort by Name</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="stock">Stock: Low to High</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="overflow-x-auto overflow-y-auto max-h-[895px] border border-gray-100 rounded-lg">
+    <table class="min-w-full table-auto text-sm text-left">
+      <thead class="sticky top-0 bg-white z-10">
+        <tr class="bg-gray-100">
+          <th class="p-3 rounded-tl-lg">Image</th>
+          <th class="p-3">Name</th>
+          <th class="p-3">Stock</th>
+          <th class="p-3">Price</th>
+          <th class="p-3 hidden md:table-cell">Description</th>
+          <th class="p-3 hidden md:table-cell">BV</th>
+          <th class="p-3 rounded-tr-lg">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody">
+        <!-- Products will be populated via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+  <div id="noProducts" class="hidden py-8 text-center text-gray-500">
+    <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+    <p>No products found. Add your first product using the form.</p>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+    <h3 class="text-lg font-bold mb-4">Confirm Deletion</h3>
+    <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+    <div class="mt-4 flex justify-end gap-2">
+      <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-all">Cancel</button>
+      <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Rendering products
+  function renderProducts() {
+    const productTableBody = document.getElementById('productTableBody');
+    const noProducts = document.getElementById('noProducts');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const bvFilterSelect = document.getElementById('bvFilterSelect');
+    
+    let filteredProducts = [...products];
+    
+    // Apply search filter
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (searchTerm) {
+      filteredProducts = filteredProducts.filter(p => 
+        p.name.toLowerCase().includes(searchTerm) || 
+        (p.description && p.description.toLowerCase().includes(searchTerm))
+      );
+    }
+    
+    // Apply BV filter
+    const bvFilter = bvFilterSelect.value;
+    if (bvFilter && bvFilter !== 'all') {
+      filteredProducts = filteredProducts.filter(p => p.bv === bvFilter);
+    }
+    
+    // Apply sorting
+    const sortType = sortSelect.value;
+    switch (sortType) {
+      case 'name':
+        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'price-asc':
+        filteredProducts.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filteredProducts.sort((a, b) => b.price - a.price);
+        break;
+      case 'stock':
+        filteredProducts.sort((a, b) => a.stock - b.stock);
+        break;
+    }
+    
+    // Show/hide no products message
+    if (filteredProducts.length === 0) {
+      productTableBody.innerHTML = '';
+      noProducts.classList.remove('hidden');
+    } else {
+      noProducts.classList.add('hidden');
+      
+      // Render products
+      productTableBody.innerHTML = filteredProducts.map(product => `
+        <tr class="border-t hover:bg-gray-50 transition-colors">
+          <td class="p-3">
+            ${product.image 
+              ? `<img src="${product.image}" alt="${product.name}" class="w-16 h-16 object-cover rounded-lg shadow" />` 
+              : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>`
+            }
+          </td>
+          <td class="p-3 font-medium">${product.name}</td>
+          <td class="p-3">
+            <span class="px-3 py-1 rounded-full ${product.stock < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+              ${product.stock}
+            </span>
+          </td>
+          <td class="p-3 font-medium">$${product.price.toFixed(2)}</td>
+          <td class="p-3 hidden md:table-cell text-gray-600">${product.description || '-'}</td>
+          <td class="p-3 hidden md:table-cell">
+            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-800">
+              ${product.bv || 'Uncategorized'}
+            </span>
+          </td>
+          <td class="p-3">
+            <button onclick="editProduct(${product.id})" class="text-blue-600 hover:bg-blue-100 p-2 rounded-lg mr-1 transition-all">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:bg-red-100 p-2 rounded-lg transition-all">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+  
+  function deleteProduct(id) {
+    window.currentProductId = id;
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+  
+  function confirmDeleteProduct() {
+    if (window.currentProductId) {
+      const product = products.find(p => p.id === window.currentProductId);
+      products = products.filter(p => p.id !== window.currentProductId);
+      document.getElementById('deleteModal').classList.add('hidden');
+      
+      // Add notification for product deletion
+      if (product && typeof window.deleteProductNotification === 'function') {
+        window.deleteProductNotification(product);
+      }
+      
+      window.currentProductId = null;
+      renderProducts();
+      updateDashboardStats();
+    }
+  }
+  
+  // Setup event listeners for product list functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const bvFilterSelect = document.getElementById('bvFilterSelect');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+    
+    // Search and filters
+    searchInput.addEventListener('input', renderProducts);
+    sortSelect.addEventListener('change', renderProducts);
+    bvFilterSelect.addEventListener('change', renderProducts);
+    
+    // Modal buttons
+    cancelDelete.addEventListener('click', () => {
+      document.getElementById('deleteModal').classList.add('hidden');
+      window.currentProductId = null;
+    });
+    
+    confirmDelete.addEventListener('click', () => {
+      // Use the global confirmDeleteProduct function from product-module.js
+      if (typeof window.confirmDeleteProduct === 'function') {
+        window.confirmDeleteProduct();
+      } else {
+        // Fallback to local function if global one isn't available
+        confirmDeleteProduct();
+      }
+    });
+    
+    // Sort dropdown functionality
+    setupCustomDropdown('customSelectContainer', 'customSelectTrigger', 'customSelectOptions', 
+                       'selectedOptionText', 'sortSelect');
+    
+    // BV filter dropdown functionality
+    setupCustomDropdown('bvFilterContainer', 'bvFilterTrigger', 'bvFilterOptions', 
+                       'selectedBVText', 'bvFilterSelect');
+  });
+  
+  // Helper function for custom dropdowns
+  function setupCustomDropdown(containerId, triggerId, optionsId, selectedTextId, selectId) {
+    const selectContainer = document.getElementById(containerId);
+    const selectTrigger = document.getElementById(triggerId);
+    const selectOptions = document.getElementById(optionsId);
+    const selectedText = document.getElementById(selectedTextId);
+    const hiddenSelect = document.getElementById(selectId);
+    const options = selectOptions.querySelectorAll('.custom-option');
+    
+    // Toggle dropdown on trigger click
+    selectTrigger.addEventListener('click', function() {
+      selectTrigger.classList.toggle('active');
+      selectOptions.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!selectContainer.contains(e.target)) {
+        selectTrigger.classList.remove('active');
+        selectOptions.classList.remove('active');
+      }
+    });
+    
+    // Handle option selection
+    options.forEach(option => {
+      option.addEventListener('click', function() {
+        // Update visual selection
+        options.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        // Update trigger text
+        selectedText.textContent = this.textContent.trim();
+        
+        // Update hidden select value
+        const value = this.getAttribute('data-value');
+        hiddenSelect.value = value;
+        
+        // Close dropdown
+        selectTrigger.classList.remove('active');
+        selectOptions.classList.remove('active');
+        
+        // Manually dispatch change event on the select element
+        const event = new Event('change', { bubbles: true });
+        hiddenSelect.dispatchEvent(event);
+        
+        // Directly call renderProducts to ensure the filters are applied
+        renderProducts();
+      });
+    });
+  }
+</script>

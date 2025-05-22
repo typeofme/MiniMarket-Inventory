@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restock</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .dashboard-card {
+      transition: var(--transition-smooth);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background: var(--primary-gradient);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibm9pc2UiLz48ZmVCbGVuZCBtb2RlPSJzb2Z0LWxpZ2h0IiBpbj0ibm9pc2UiIGluMj0iU291cmNlR3JhcGhpYyIgcmVzdWx0PSJibGVuZCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA3NiIvPjwvc3ZnPg==');
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-item:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      z-index: -1;
+      border-radius: 6px;
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activity-item {
+      transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .pulse {
+      animation: pulse-animation 2s infinite;
+    }
+    
+    @keyframes pulse-animation {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Enhanced support button */
+    .support-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .support-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+    }
+    
+    .support-btn::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.6);
+      z-index: -1;
+      animation: pulse-support 2s infinite;
+    }
+    
+    @keyframes pulse-support {
+      0% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .support-btn-text {
+      position: absolute;
+      right: 70px;
+      background: #1d4ed8;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .support-btn:hover .support-btn-text {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .dashboard-cards {
+      transition: var(--transition-smooth);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    .dashboard-cards:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+    }
+
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+  <!-- Side Navigation -->
+  <aside class="sidebar text-white w-64 min-h-screen p-4 fixed left-0 top-0 z-10">
+    <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+      <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+        <i class="fas fa-store text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold">MiniMarket</h1>
+    </div>
+    
+    <nav class="space-y-2">
+      <a href="/" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="100">
+        <div class="nav-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <span>Dashboard</span>
+      </a>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="250">
+        <div class="nav-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <span>Products</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="200">
+        <div class="nav-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <span>Reports</span>
+      </div>
+      
+      <div class="bg-white/10 rounded-xl p-3 flex items-center text-blue-100 backdrop-blur-sm" 
+           data-aos="fade-right" data-aos-delay="150">
+        <div class="nav-icon">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <span class="font-medium">Restock</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="300">
+        <div class="nav-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <span>Invoices</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="350">
+        <div class="nav-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <span>Profile</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="400">
+        <div class="nav-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <span>Settings</span>
+      </div>
+    </nav>
+    
+    <div class="mt-auto pt-20 mb-6 px-4">
+      <div class="bg-white/10 p-4 rounded-xl shadow-inner backdrop-blur-sm" data-aos="fade-up">
+        <div class="flex items-center">
+          <div class="bg-gradient-to-tr from-blue-400 to-blue-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-question-circle text-white text-xl"></i>
+          </div>
+          <div class="ml-3">
+            <h4 class="text-sm font-medium text-white">Need Help?</h4>
+            <p class="text-xs text-blue-200">Check our docs</p>
+          </div>
+        </div>
+        <button class="mt-3 bg-white/20 hover:bg-white/30 w-full py-2.5 rounded-xl transition duration-200 text-sm text-white backdrop-blur-sm font-medium">
+          Documentation
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 ml-64">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <button id="sidebar-toggle" class="mr-4 text-gray-700 hover:bg-gray-100 p-2.5 rounded-xl transition-all">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="text-xl font-bold text-gray-800 fade-in">Restock Management</h1>
+          <p class="text-sm text-gray-500">Manage your products restock process</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <input type="text" id="search-global" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-xl bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-60" />
+          <i class="fas fa-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+        </div>
+        <div class="relative">
+          <button class="p-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition duration-200 relative">
+            <i class="fas fa-bell text-sm"></i>
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">3</span>
+          </button>
+        </div>
+        <a href="/profile" class="flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+          <img src="/assets/images/profile.jpg" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+          <div>
+            <span class="text-sm font-medium text-gray-700">Adit</span>
+            <p class="text-xs text-gray-500">Store Manager</p>
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <main class="p-6">
+      <!-- Dashboard Stats Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="rounded-full bg-red-100 p-3 mr-4 pulse">
+            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Items Needing Restock</h3>
+            <p class="text-2xl font-bold" id="totalProducts">0</p>
+          </div>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="200">
+          <div class="rounded-full bg-green-100 p-3 mr-4 pulse">
+            <i class="fas fa-sync-alt text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Pending Restock Orders</h3>
+            <p class="text-2xl font-bold" id="totalStock">0</p>
+          </div>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="300">
+          <div class="rounded-full bg-purple-100 p-3 mr-4 pulse">
+            <i class="fas fa-stopwatch text-purple-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Average Lead Time</h3>
+            <p class="text-2xl font-bold" id="avgPrice">0 days</p> 
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+      <div class="flex border-b border-gray-200">
+        <button id="tabCreateOrder" class="px-6 py-3 font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none">Create Order</button>
+        <button id="tabOrderList" class="px-6 py-3 font-semibold text-gray-500 hover:text-blue-600 focus:outline-none">Order List</button>
+      </div>
+     </div>
+
+     <div id="tabCreateOrderContent">
+      <div class="flex flex-col gap-6 mb-6">
+        <!-- Order Form Section -->
+        <div class="dashboard-cards bg-white p-6 rounded-lg shadow w-full" data-aos="fade-up" data-aos-delay="400">
+          <div class="flex items-center mb-4">
+            <h2 class="text-xl font-semibold" id="formTitle">Order Details</h2>
+          </div>
+          <form id="orderForm" class="flex flex-col gap-4">
+      
+            <div class="flex flex-col lg:flex-row gap-4">
+              <div class="flex-1">
+                <label for="supplierSelect" class="block text-sm font-medium text-gray-700">Select Supplier</label>
+                <select id="supplierSelect" name="supplierSelect" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+                  <option value="">-- Select a supplier --</option>
+                  <option value="supplierA">Supplier A</option>
+                  <option value="supplierB">Supplier B</option>
+                  <option value="supplierC">Supplier C</option>
+                </select>
+              </div>
+              <div class="flex-1">
+                <label for="orderDate" class="block text-sm font-medium text-gray-700">Order Date</label>
+                <input type="date" id="orderDate" name="orderDate" class="w-full mt-1 border border-gray-300 rounded-lg p-2" value="2025-05-01" required />
+              </div>
+              <div class="flex-1">
+                <label for="expectedArrival" class="block text-sm font-medium text-gray-700">Expected Arrival</label>
+                <input type="date" id="expectedArrival" name="expectedArrival" class="w-full mt-1 border border-gray-300 rounded-lg p-2" value="2025-05-10" required />
+              </div>
+              <div class="flex-1">
+                <label for="referenceNumber" class="block text-sm font-medium text-gray-700">Reference Number</label>
+                <input type="text" id="referenceNumber" name="referenceNumber" placeholder="PO-YYYY-XXXX" pattern="PO-\d{4}-\d{4}" value="PO-2025-0542" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+              </div>
+            </div>
+        
+            <input type="hidden" id="productId" name="productId" />
+          </form>
+        </div>
+      </div>      
+
+        <!-- Product List Section -->
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow w-full" data-aos="fade-up" data-aos-delay="500">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center">
+              <i class="fas fa-list text-blue-600 mr-2"></i>
+              <h2 class="text-xl font-semibold">Product List</h2>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full table-auto text-sm text-left">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="p-3 rounded-tl-lg">Image</th>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">Current Stock</th>
+                  <th class="p-3">Order Qty</th>
+                  <th class="p-3">Price</th>
+                  <th class="p-3 hidden md:table-cell">Description</th>
+                  <th class="p-3">Total</th>
+                  <th class="p-3 rounded-tr-lg">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody">
+                <!-- Products will be populated via JavaScript -->
+              </tbody>
+            </table>
+          <div class="flex justify-center mt-4">
+           <button type="button" id="addProductRowBtn" class="bg-green-600 text-white px-8 py-3 rounded-xl text-lg font-semibold hover:bg-green-700 transition-all w-full max-w-md">
+           <i class="fas fa-plus mr-2"></i> Add Another Product
+          </button>
+          </div>
+         <div id="orderSummary" class="mt-4 flex flex-row justify-center gap-12 text-lg font-semibold text-gray-700 py-2"></div>
+          </div>
+          <div class="flex justify-center gap-2 mt-2">
+            <button type="button" id="cancelEdit" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all hidden">Cancel</button>
+            <button type="button" id="clearBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all">Clear</button>
+            <button type="button" id="submitBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all">Order</button>
+          </div>
+          <div id="orderSuccessNotif" class="hidden flex justify-center mt-4">
+            <div class="bg-green-100 text-green-800 px-6 py-3 rounded-lg shadow font-semibold flex items-center gap-2">
+              <i class="fas fa-check-circle"></i> Order successfully created!
+            </div>
+          </div>
+          <div id="noProducts" class="hidden py-8 text-center text-gray-500">
+            <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+            <p>No products found. Add your first product using the form.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="tabOrderListContent" class="hidden">
+        <!-- Order List Tab Content -->
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow w-full" data-aos="fade-up" data-aos-delay="500">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center">
+              <i class="fas fa-list text-blue-600 mr-2"></i>
+              <h2 class="text-xl font-semibold">Order List</h2>
+            </div>
+        <div class="flex gap-2">
+          <div class="relative">
+            <input type="text" id="searchOrderInput" placeholder="Search order..." 
+              class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <span class="absolute left-3 top-2.5 text-gray-400">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
+          <select id="sortOrderSelect" class="border border-gray-300 rounded-lg px-4 py-2">
+            <option value="date-desc">Newest</option>
+            <option value="date-asc">Oldest</option>
+            <option value="total-desc">Total: High to Low</option>
+            <option value="total-asc">Total: Low to High</option>
+          </select>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto text-sm text-left">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3">Order Date</th>
+              <th class="p-3">Supplier</th>
+              <th class="p-3">Reference</th>
+              <th class="p-3">Total Products</th>
+              <th class="p-3">Total Price</th>
+              <th class="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="orderListTableBody">
+            <!-- Orders will be populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      <div id="noOrders" class="hidden py-8 text-center text-gray-500">
+        <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+        <p>No orders found.</p>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+  </div>
+
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 class="text-lg font-bold mb-4">Confirm Deletion</h3>
+      <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-all">Cancel</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Support Button -->
+  <div class="support-btn">
+    <i class="fas fa-headset text-xl"></i>
+    <span class="support-btn-text shadow-lg">Need Help?</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize AOS animation library
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+
+    // Handle sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.ml-64');
+      if (sidebar.classList.contains('translate-x-0') || !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        mainContent.classList.remove('ml-64');
+        mainContent.classList.add('ml-0');
+      } else {
+        sidebar.classList.remove('-translate-x-full');
+        mainContent.classList.remove('ml-0');
+        mainContent.classList.add('ml-64');
+      }
+    });
+
+    // --- DATA ---
+    let products = [
+      {
+        id: 1,
+        name: "Indomie Goreng",
+        stock: 24,
+        price: 3500,
+        image: null,
+        description: "Popular instant noodles"
+      },
+      {
+        id: 2,
+        name: "Aqua Botol 600ml",
+        stock: 8,
+        price: 4000,
+        image: null,
+        description: "Mineral water bottle"
+      },
+      {
+        id: 3,
+        name: "Kopi ABC Sachet",
+        stock: 5,
+        price: 1500,
+        image: null,
+        description: "Instant coffee sachet"
+      }
+    ];
+    let orders = [
+      {
+        date: "2025-05-01",
+        supplier: "supplierA",
+        reference: "PO-2025-0542",
+        expectedArrival: "2025-05-10",
+        totalQty: 1,
+        totalPrice: 3500,
+        status: "Pending",
+        items: [
+          { productId: 1, orderQty: 1 }
+        ]
+      }
+    ];
+    let orderRows = [{ productId: '', orderQty: '' }];
+
+    // --- DOM Elements ---
+    const orderForm = document.getElementById('orderForm');
+    const productTableBody = document.getElementById('productTableBody');
+    const noProducts = document.getElementById('noProducts');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const totalProductsEl = document.getElementById('totalProducts');
+    const totalStockEl = document.getElementById('totalStock');
+    const avgPriceEl = document.getElementById('avgPrice');
+    const orderSummary = document.getElementById('orderSummary');
+
+    // Tab switching logic
+    const tabCreateOrder = document.getElementById('tabCreateOrder');
+    const tabOrderList = document.getElementById('tabOrderList');
+    const tabCreateOrderContent = document.getElementById('tabCreateOrderContent');
+    const tabOrderListContent = document.getElementById('tabOrderListContent');
+
+    tabCreateOrder.addEventListener('click', () => {
+      tabCreateOrder.classList.add('text-blue-600', 'border-blue-600');
+      tabCreateOrder.classList.remove('text-gray-500');
+      tabOrderList.classList.remove('text-blue-600', 'border-blue-600');
+      tabOrderList.classList.add('text-gray-500');
+      tabCreateOrderContent.classList.remove('hidden');
+      tabOrderListContent.classList.add('hidden');
+      tabCreateOrderContent.classList.remove('fade-in');
+      void tabCreateOrderContent.offsetWidth; 
+      tabCreateOrderContent.classList.add('fade-in');
+    });
+
+    tabOrderList.addEventListener('click', () => {
+      tabOrderList.classList.add('text-blue-600', 'border-blue-600');
+      tabOrderList.classList.remove('text-gray-500');
+      tabCreateOrder.classList.remove('text-blue-600', 'border-blue-600');
+      tabCreateOrder.classList.add('text-gray-500');
+      tabCreateOrderContent.classList.add('hidden');
+      tabOrderListContent.classList.remove('hidden');
+      tabOrderListContent.classList.remove('fade-in');
+      void tabOrderListContent.offsetWidth; 
+      tabOrderListContent.classList.add('fade-in');
+      renderOrderList();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      tabCreateOrder.classList.add('fade-in');
+      tabOrderList.classList.add('fade-in');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderRestockTable();
+      updateDashboardStats();
+      setupRestockEventListeners();
+      renderOrderList();
+
+      // Tombol Order
+      document.getElementById('submitBtn').onclick = handleOrderBtnClick;
+      // Tombol Clear
+      document.getElementById('clearBtn').onclick = function() {
+        document.getElementById('orderForm').reset();
+        orderRows = [{ productId: '', orderQty: '' }];
+        renderRestockTable();
+        updateOrderSummary();
+        hideOrderSuccessNotif();
+      };
+    });
+
+    function setupRestockEventListeners() {
+      // Form submission
+      orderForm.addEventListener('submit', handleOrderFormSubmit);
+
+      // Add product row
+      document.getElementById('addProductRowBtn').onclick = function() {
+        orderRows.push({ productId: '', orderQty: '' });
+        renderRestockTable();
+      };
+
+      // Order list search/sort
+      document.getElementById('searchOrderInput').addEventListener('input', renderOrderList);
+      document.getElementById('sortOrderSelect').addEventListener('change', renderOrderList);
+    }
+
+    function handleOrderFormSubmit(e) {
+      e.preventDefault();
+      // Validasi minimal 1 produk dipilih dan qty > 0
+      const validRows = orderRows.filter(row => row.productId && row.orderQty > 0);
+      if (validRows.length === 0) {
+        alert('Please select at least one product and enter quantity.');
+        return;
+      }
+      // Ambil data form
+      const orderDate = document.getElementById('orderDate').value;
+      const supplier = document.getElementById('supplierSelect').value;
+      const reference = document.getElementById('referenceNumber').value;
+      const expectedArrival = document.getElementById('expectedArrival').value;
+      // Hitung total
+      const totalQty = validRows.reduce((sum, row) => sum + (parseInt(row.orderQty) || 0), 0);
+      const totalPrice = validRows.reduce((sum, row) => {
+        const product = products.find(p => p.id == row.productId);
+        return sum + (product ? product.price * row.orderQty : 0);
+      }, 0);
+      // Simpan order
+      orders.push({
+        date: orderDate,
+        supplier,
+        reference,
+        expectedArrival,
+        totalQty,
+        totalPrice,
+        status: 'Pending',
+        items: JSON.parse(JSON.stringify(validRows))
+      });
+      // Reset orderRows dan render ulang
+      orderRows = [{ productId: '', orderQty: '' }];
+      renderRestockTable();
+      updateOrderSummary();
+      renderOrderList();
+      orderForm.reset();
+      updateDashboardStats();
+      // Pindah ke tab Order List
+      tabOrderList.click();
+    }
+
+    function handleOrderBtnClick(e) {
+      // Validasi minimal 1 produk dipilih dan qty > 0
+      const validRows = orderRows.filter(row => row.productId && row.orderQty > 0);
+      if (validRows.length === 0) {
+        alert('Please select at least one product and enter quantity.');
+        return;
+      }
+      // Validasi form utama
+      const orderFormEl = document.getElementById('orderForm');
+      if (!orderFormEl.reportValidity()) {
+        return;
+      }
+      // Ambil data form
+      const orderDate = document.getElementById('orderDate').value;
+      const supplier = document.getElementById('supplierSelect').value;
+      const reference = document.getElementById('referenceNumber').value;
+      const expectedArrival = document.getElementById('expectedArrival').value;
+      // Hitung total
+      const totalQty = validRows.reduce((sum, row) => sum + (parseInt(row.orderQty) || 0), 0);
+      const totalPrice = validRows.reduce((sum, row) => {
+        const product = products.find(p => p.id == row.productId);
+        return sum + (product ? product.price * row.orderQty : 0);
+      }, 0);
+      // Simpan order
+      orders.push({
+        date: orderDate,
+        supplier,
+        reference,
+        expectedArrival,
+        totalQty,
+        totalPrice,
+        status: 'Pending',
+        items: JSON.parse(JSON.stringify(validRows))
+      });
+      // Reset orderRows dan render ulang
+      orderRows = [{ productId: '', orderQty: '' }];
+      renderRestockTable();
+      updateOrderSummary();
+      renderOrderList();
+      orderFormEl.reset();
+      updateDashboardStats();
+      showOrderSuccessNotif();
+    }
+
+    function showOrderSuccessNotif() {
+      const notif = document.getElementById('orderSuccessNotif');
+      notif.classList.remove('hidden');
+      notif.classList.add('fade-in');
+      setTimeout(() => {
+        notif.classList.remove('fade-in');
+        notif.classList.add('fade-out');
+        setTimeout(() => {
+          notif.classList.add('hidden');
+          notif.classList.remove('fade-out');
+        }, 600);
+      }, 1800);
+    }
+    function hideOrderSuccessNotif() {
+      const notif = document.getElementById('orderSuccessNotif');
+      notif.classList.add('hidden');
+      notif.classList.remove('fade-in', 'fade-out');
+    }
+
+    function renderRestockTable() {
+      // Filter & sort produk master
+      let filteredProducts = [...products];
+
+      // Tampilkan pesan jika belum ada baris order
+      if (orderRows.length === 0) {
+        productTableBody.innerHTML = '';
+        noProducts.classList.remove('hidden');
+        updateOrderSummary();
+        return;
+      }
+      noProducts.classList.add('hidden');
+
+      // Render baris order
+      productTableBody.innerHTML = orderRows.map((row, idx) => {
+        const selectedProduct = filteredProducts.find(p => p.id == row.productId) || {};
+        return `
+          <tr data-row="${idx}">
+            <td class="p-3">
+              ${selectedProduct.image 
+                ? `<img src="${selectedProduct.image}" alt="${selectedProduct.name}" class="w-16 h-16 object-cover rounded-lg shadow" />` 
+                : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>`
+              }
+            </td>
+            <td class="p-3">
+              <select class="border rounded w-full p-1" onchange="window.selectRestockProduct(${idx}, this.value)">
+                <option value="">-- Select Product --</option>
+                ${filteredProducts.map(p => `<option value="${p.id}" ${p.id==row.productId?'selected':''}>${p.name}</option>`).join('')}
+              </select>
+            </td>
+            <td class="p-3">${selectedProduct.stock ?? '-'}</td>
+            <td class="p-3">
+              <input type="number" min="0" value="${row.orderQty||''}" oninput="window.updateRestockQtyRow(${idx}, this.value)" class="border rounded w-16 p-1 text-center" ${!row.productId?'disabled':''} />
+            </td>
+            <td class="p-3 font-medium">${selectedProduct.price ? '$'+selectedProduct.price.toLocaleString() : '-'}</td>
+            <td class="p-3 hidden md:table-cell text-gray-600">${selectedProduct.description || '-'}</td>
+            <td class="p-3 total-cell">${row.orderQty && selectedProduct.price ? '$'+(row.orderQty*selectedProduct.price).toLocaleString() : '-'}</td>
+            <td class="p-3">
+              <button type="button" onclick="window.removeRestockOrderRow(${idx})" class="text-red-600 hover:bg-red-100 p-2 rounded-lg transition-all">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      updateOrderSummary();
+    }
+
+    function updateOrderSummary() {
+      // Hitung total produk yang dipesan (baris dengan qty > 0 dan produk dipilih)
+      const totalQty = orderRows.reduce((sum, row) => sum + (row.productId && row.orderQty ? 1 : 0), 0);
+      // Hitung total harga
+      const totalPrice = orderRows.reduce((sum, row) => {
+        const product = products.find(p => p.id == row.productId);
+        return sum + (product && row.orderQty ? product.price * row.orderQty : 0);
+      }, 0);
+      orderSummary.innerHTML = `
+        <div class="px-4">Total Products Ordered: <span class="text-blue-600">${totalQty}</span></div>
+        <div class="px-4">Total Price: <span class="text-green-600">$${totalPrice.toLocaleString()}</span></div>
+      `;
+    }
+
+    // Untuk akses dari inline HTML
+    window.selectRestockProduct = function(idx, productId) {
+      orderRows[idx].productId = productId;
+      orderRows[idx].orderQty = '';
+      renderRestockTable();
+    };
+    window.updateRestockQtyRow = function(idx, qty) {
+      orderRows[idx].orderQty = parseInt(qty) || '';
+      renderRestockTable();
+    };
+    window.removeRestockOrderRow = function(idx) {
+      orderRows.splice(idx, 1);
+      renderRestockTable();
+    };
+
+    function renderOrderList() {
+      const tbody = document.getElementById('orderListTableBody');
+      const noOrders = document.getElementById('noOrders');
+      let filteredOrders = [...orders];
+      const searchTerm = document.getElementById('searchOrderInput').value.toLowerCase().trim();
+      if (searchTerm) {
+        filteredOrders = filteredOrders.filter(order => 
+          order.reference.toLowerCase().includes(searchTerm) || 
+          order.supplier.toLowerCase().includes(searchTerm)
+        );
+      }
+      const sortType = document.getElementById('sortOrderSelect').value;
+      switch (sortType) {
+        case 'date-desc':
+          filteredOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+          break;
+        case 'date-asc':
+          filteredOrders.sort((a, b) => new Date(a.date) - new Date(b.date));
+          break;
+        case 'total-desc':
+          filteredOrders.sort((a, b) => b.totalPrice - a.totalPrice);
+          break;
+        case 'total-asc':
+          filteredOrders.sort((a, b) => a.totalPrice - b.totalPrice);
+          break;
+      }
+      if (filteredOrders.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8 text-gray-400">No orders yet.</td>
+          </tr>
+        `;
+        noOrders.classList.add('hidden');
+      } else {
+        noOrders.classList.add('hidden');
+        tbody.innerHTML = filteredOrders.map(order => `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="p-3">${order.date}</td>
+            <td class="p-3">${getSupplierName(order.supplier)}</td>
+            <td class="p-3 font-medium">${order.reference}</td>
+            <td class="p-3">${order.totalQty}</td>
+            <td class="p-3">$${order.totalPrice.toLocaleString()}</td>
+            <td class="p-3">
+              <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(order.status)}">
+                ${order.status}
+              </span>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function getSupplierName(supplierValue) {
+      const suppliers = {
+        'supplierA': 'Supplier A',
+        'supplierB': 'Supplier B',
+        'supplierC': 'Supplier C'
+      };
+      return suppliers[supplierValue] || supplierValue;
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'Pending':
+          return 'bg-yellow-100 text-yellow-800';
+        case 'Completed':
+          return 'bg-green-100 text-green-800';
+        case 'Cancelled':
+          return 'bg-red-100 text-red-800';
+        default:
+          return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    function updateDashboardStats() {
+      // Items Needing Restock: produk dengan stock < 10
+      const needRestock = products.filter(p => p.stock < 10).length;
+      animateCounter(totalProductsEl, needRestock);
+
+      // Pending Restock Orders: order dengan status Pending
+      const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+      animateCounter(totalStockEl, pendingOrders);
+
+      // Average Lead Time: rata-rata hari antara order.date dan order.expectedArrival
+      const leadTimes = orders
+        .filter(o => o.expectedArrival && o.date)
+        .map(o => {
+          const d1 = new Date(o.date);
+          const d2 = new Date(o.expectedArrival);
+          return (d2 - d1) / (1000 * 60 * 60 * 24);
+        })
+        .filter(days => !isNaN(days));
+      const avgLead = leadTimes.length ? (leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length) : 0;
+      animateLeadTime(avgPriceEl, avgLead);
+    }
+
+    function animateCounter(element, value) {
+      const duration = 1000;
+      const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+      const startTime = performance.now();
+      function updateCounter(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.floor(startValue + easedProgress * (value - startValue));
+        element.textContent = currentValue.toLocaleString();
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        }
+      }
+      requestAnimationFrame(updateCounter);
+    }
+
+    function animateLeadTime(element, value) {
+      const duration = 1000;
+      const startValue = parseFloat(element.textContent.replace(/[^\d.]/g, '')) || 0;
+      const startTime = performance.now();
+      function updateCounter(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 4);
+        const currentValue = startValue + easedProgress * (value - startValue);
+        element.textContent = `${currentValue.toFixed(1)} days`;
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        }
+      }
+      requestAnimationFrame(updateCounter);
+    }
+  </script>
+</body>
+</html>

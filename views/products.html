@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/components/products/styles/products.css" rel="stylesheet">
+  
+</head>
+<body class="bg-gray-50 flex">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div id="sidebar-container"></div>
+  <div class="content-wrapper flex-1">
+    <div id="topnav-container"></div>
+    <main class="p-6">
+      <div id="stats-cards-container"></div>
+      <div class="flex flex-col lg:flex-row gap-6 mb-8">
+        <div id="product-form-container" class="lg:w-1/3"></div>
+        <div id="product-list-container" class="lg:w-2/3"></div>
+      </div>
+    </main>
+  </div>
+  <div id="support-button-container"></div>
+  <div id="delete-modal-container"></div>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="/components/componentLoader.js"></script>
+  <script src="/components/products/product-module.js"></script>
+  <script src="/components/dashboard/notification-modal.js"></script>
+  <script src="/components/support/supportModal.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      ComponentLoader.load('shared/sidebar', 'sidebar-container');
+      setTimeout(() => {
+        ComponentLoader.load('shared/topnav', 'topnav-container');
+        ComponentLoader.load('products/stats-cards', 'stats-cards-container');
+        ComponentLoader.load('products/product-form', 'product-form-container');
+        ComponentLoader.load('products/product-list', 'product-list-container');
+        ComponentLoader.load('products/delete-modal', 'delete-modal-container');
+        ComponentLoader.load('products/support-button', 'support-button-container');
+        ComponentLoader.onAllLoaded(function() {
+          initializeDropdowns();
+          initializeSearch();
+          initSidebarToggle();
+          initDeleteModal();
+          if (typeof NotificationModal !== 'undefined' && (!window.notificationSystem || !window.notificationSystemInitialized)) {
+            const notificationBtn = document.getElementById('notification-btn');
+            if (notificationBtn) {
+              window.notificationSystem = new NotificationModal({
+                position: 'top-right',
+                maxNotifications: 10,
+                autoHideTimeout: 6000
+              });
+              window.notificationSystem.setTrigger('#notification-btn');
+              window.notificationSystem.add({
+                title: 'Product Updates',
+                message: 'New product synchronization completed',
+                type: 'info',
+                time: new Date(Date.now() - 15 * 60 * 1000)
+              });
+              window.notificationSystem.add({
+                title: 'Low Stock Alert',
+                message: 'Some products need reordering',
+                type: 'warning',
+                time: new Date(Date.now() - 60 * 60 * 1000)
+              });
+              window.notificationSystemInitialized = true;
+            }
+          }
+          if (window.setActiveMenuItem) {
+            window.setActiveMenuItem();
+          }
+        });
+      }, 100);
+    });
+    function initSidebarToggle() {
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+          const sidebar = document.querySelector('.sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          if (window.innerWidth <= 640) {
+            sidebar.classList.toggle('mobile-active');
+            overlay.classList.toggle('active');
+          } else {
+            document.body.classList.toggle('sidebar-closed');
+          }
+        });
+      }
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) {
+        overlay.addEventListener('click', function() {
+          document.querySelector('.sidebar').classList.remove('mobile-active');
+          this.classList.remove('active');
+        });
+      }
+      window.addEventListener('resize', function() {
+        if (window.innerWidth <= 640) {
+          document.body.classList.remove('sidebar-closed');
+        } else if (window.innerWidth <= 1024) {
+          document.querySelector('.sidebar')?.classList.remove('mobile-active');
+          document.getElementById('sidebar-overlay')?.classList.remove('active');
+        }
+      });
+    }
+    function initializeDropdowns() {
+      setupCustomDropdown('customSelectContainer', 'customSelectTrigger', 'customSelectOptions', 
+                         'selectedOptionText', 'sortSelect');
+      setupCustomDropdown('bvFilterContainer', 'bvFilterTrigger', 'bvFilterOptions', 
+                         'selectedBVText', 'bvFilterSelect');
+    }
+    function setupCustomDropdown(containerId, triggerId, optionsId, selectedTextId, selectId) {
+      const selectContainer = document.getElementById(containerId);
+      if (!selectContainer) {
+        return;
+      }
+      const selectTrigger = document.getElementById(triggerId);
+      const selectOptions = document.getElementById(optionsId);
+      const selectedText = document.getElementById(selectedTextId);
+      const hiddenSelect = document.getElementById(selectId);
+      if (!selectTrigger || !selectOptions || !selectedText || !hiddenSelect) {
+        return;
+      }
+      const options = selectOptions.querySelectorAll('.custom-option');
+      selectTrigger.addEventListener('click', function() {
+        selectTrigger.classList.toggle('active');
+        selectOptions.classList.toggle('active');
+      });
+      document.addEventListener('click', function(e) {
+        if (!selectContainer.contains(e.target)) {
+          selectTrigger.classList.remove('active');
+          selectOptions.classList.remove('active');
+        }
+      });
+      options.forEach(option => {
+        option.addEventListener('click', function() {
+          options.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          selectedText.textContent = this.textContent.trim();
+          const value = this.getAttribute('data-value');
+          hiddenSelect.value = value;
+          selectTrigger.classList.remove('active');
+          selectOptions.classList.remove('active');
+          const event = new Event('change');
+          hiddenSelect.dispatchEvent(event);
+        });
+      });
+    }
+    function initializeSearch() {
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          if (typeof window.renderProducts === 'function') {
+            window.renderProducts();
+          }
+        });
+      }
+    }
+    function initDeleteModal() {
+      const deleteModal = document.getElementById('deleteModal');
+      const cancelDeleteBtn = document.getElementById('cancelDelete');
+      const confirmDeleteBtn = document.getElementById('confirmDelete');
+      if (deleteModal && cancelDeleteBtn && confirmDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', function() {
+          deleteModal.classList.add('hidden');
+          window.currentProductId = null;
+        });
+        confirmDeleteBtn.addEventListener('click', function() {
+          if (typeof window.confirmDeleteProduct === 'function') {
+            window.confirmDeleteProduct();
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

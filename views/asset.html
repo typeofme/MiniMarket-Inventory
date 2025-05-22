@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asset</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .dashboard-card {
+      transition: var(--transition-smooth);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background: var(--primary-gradient);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibm9pc2UiLz48ZmVCbGVuZCBtb2RlPSJzb2Z0LWxpZ2h0IiBpbj0ibm9pc2UiIGluMj0iU291cmNlR3JhcGhpYyIgcmVzdWx0PSJibGVuZCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA3NiIvPjwvc3ZnPg==');
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-item:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      z-index: -1;
+      border-radius: 6px;
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activity-item {
+      transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .pulse {
+      animation: pulse-animation 2s infinite;
+    }
+    
+    @keyframes pulse-animation {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Enhanced support button */
+    .support-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .support-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+    }
+    
+    .support-btn::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.6);
+      z-index: -1;
+      animation: pulse-support 2s infinite;
+    }
+    
+    @keyframes pulse-support {
+      0% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .support-btn-text {
+      position: absolute;
+      right: 70px;
+      background: #1d4ed8;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .support-btn:hover .support-btn-text {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+  <!-- Side Navigation -->
+  <aside class="sidebar text-white w-64 min-h-screen p-4 left-0 top-0 z-10 lg:fixed relative">
+    <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+      <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+        <i class="fas fa-store text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold">MiniMarket</h1>
+    </div>
+    
+    <nav class="space-y-2">
+      <a href="/" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="100">
+        <div class="nav-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <span>Dashboard</span>
+      </a>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="150">
+        <div class="nav-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <span class="font-medium">Products</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="200">
+        <div class="nav-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <span>Reports</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="250">
+        <div class="nav-icon">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <span>Restock</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="300">
+        <div class="nav-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <span>Invoices</span>
+      </div>
+      
+      <div class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="350">
+        <div class="nav-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <span>Profile</span>
+      </div>
+      
+      <div class="bg-white/10 rounded-xl p-3 flex items-center text-blue-100 backdrop-blur-sm" 
+           data-aos="fade-right" data-aos-delay="400">
+        <div class="nav-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <span>Asset</span>
+      </div>
+    </nav>
+    
+    <div class="mt-auto pt-20 mb-6 px-4">
+      <div class="bg-white/10 p-4 rounded-xl shadow-inner backdrop-blur-sm" data-aos="fade-up">
+        <div class="flex items-center">
+          <div class="bg-gradient-to-tr from-blue-400 to-blue-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-question-circle text-white text-xl"></i>
+          </div>
+          <div class="ml-3">
+            <h4 class="text-sm font-medium text-white">Need Help?</h4>
+            <p class="text-xs text-blue-200">Check our docs</p>
+          </div>
+        </div>
+        <button class="mt-3 bg-white/20 hover:bg-white/30 w-full py-2.5 rounded-xl transition duration-200 text-sm text-white backdrop-blur-sm font-medium">
+          Documentation
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 w-full min-w-0 lg:ml-64">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <button id="sidebar-toggle" class="mr-4 text-gray-700 hover:bg-gray-100 p-2.5 rounded-xl transition-all">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="text-xl font-bold text-gray-800 fade-in">Asset Management</h1>
+          <p class="text-sm text-gray-500">Manage your store's physical assets and equipment</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <input type="text" id="search-global" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-xl bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-60" />
+          <i class="fas fa-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+        </div>
+        <div class="relative">
+          <button class="p-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition duration-200 relative">
+            <i class="fas fa-bell text-sm"></i>
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">3</span>
+          </button>
+        </div>
+        <a href="/profile" class="flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+          <img src="/assets/images/profile.jpg" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+          <div>
+            <span class="text-sm font-medium text-gray-700">Adit</span>
+            <p class="text-xs text-gray-500">Store Manager</p>
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Container utama: lepas max-w-7xl, gunakan w-full dan overflow-x-auto -->
+    <main class="w-full px-2 sm:px-4 md:px-6 py-4 md:py-6">
+      <!-- Dashboard Stats Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="rounded-full bg-blue-100 p-3 mr-4 pulse">
+            <i class="fas fa-warehouse text-blue-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Total Assets</h3>
+            <p class="text-2xl font-bold" id="totalProducts">0</p>
+          </div>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="200">
+          <div class="rounded-full bg-green-100 p-3 mr-4 pulse">
+            <i class="fas fa-cogs text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Active Assets</h3>
+            <p class="text-2xl font-bold" id="totalStock">0</p>
+          </div>
+        </div>
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="300">
+          <div class="rounded-full bg-red-100 p-3 mr-4 pulse">
+            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm">Assets Needing Maintenance</h3>
+            <p class="text-2xl font-bold" id="avgPrice">$0.00</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asset Health Overview Section -->
+      <div class="mt-6 md:mt-8 mb-6 md:mb-8" data-aos="fade-up" data-aos-delay="100" data-aos-once="true">
+        <div class="dashboard-card bg-white p-6 flex flex-col gap-4 rounded-lg border border-gray-200">
+          <h2 class="text-xl font-semibold mb-2">Asset Health Overview</h2>
+          <div id="assetHealthOverview" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
+            <div class="dashboard-card bg-green-100 p-6 flex items-center rounded-lg border border-green-200">
+              <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
+              <div>
+                <div class="text-lg font-bold text-green-700" id="countHealthy">0</div>
+                <div class="text-xs text-green-700">Healthy</div>
+              </div>
+            </div>
+            <div class="dashboard-card bg-yellow-100 p-6 flex items-center rounded-lg border border-yellow-200">
+              <span class="w-3 h-3 rounded-full bg-yellow-400 mr-3"></span>
+              <div>
+                <div class="text-lg font-bold text-yellow-700" id="countAttention">0</div>
+                <div class="text-xs text-yellow-700">Needs Attention</div>
+              </div>
+            </div>
+            <div class="dashboard-card bg-red-100 p-6 flex items-center rounded-lg border border-red-200">
+              <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
+              <div>
+                <div class="text-lg font-bold text-red-700" id="countCritical">0</div>
+                <div class="text-xs text-red-700">Critical</div>
+              </div>
+            </div>
+            <div class="dashboard-card bg-gray-100 p-6 flex items-center rounded-lg border border-gray-200">
+              <span class="w-3 h-3 rounded-full bg-gray-400 mr-3"></span>
+              <div>
+                <div class="text-lg font-bold text-gray-700" id="countInactive">0</div>
+                <div class="text-xs text-gray-700">Inactive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Layout: Sidebar (Actions & Categories) + Asset List -->
+      <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 md:gap-8 mb-6 md:mb-8 w-full min-w-0" data-aos="fade-up" data-aos-delay="150" data-aos-once="true">
+        <!-- Sidebar Left: Asset Actions & Categories -->
+        <aside class="flex flex-col gap-6 md:gap-8 w-full lg:w-[280px] min-w-0">
+          <!-- Asset Actions -->
+          <div class="bg-white rounded-lg shadow border p-4 flex flex-col gap-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">Asset Actions</h3>
+            <button id="addAssetBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2 shadow mb-2">
+              <i class="fas fa-plus"></i> Add New Asset
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center">
+                <i class="fas fa-history"></i> <span class="hidden md:inline">History</span>
+              </button>
+              <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center">
+                <i class="fas fa-file-export"></i> <span class="hidden md:inline">Export</span>
+              </button>
+              <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center">
+                <i class="fas fa-qrcode"></i> <span class="hidden md:inline">Scan QR</span>
+              </button>
+              <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center">
+                <i class="fas fa-chart-bar"></i> <span class="hidden md:inline">Reports</span>
+              </button>
+            </div>
+          </div>
+          <!-- Asset Categories -->
+          <div class="bg-white rounded-lg shadow border p-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="250" data-aos-once="true">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">Asset Categories</h3>
+            <ul id="assetCategoriesList" class="flex flex-col gap-2">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Asset List Section (Card Grid) -->
+        <main class="min-w-0 w-full">
+          <!-- Filters & Search -->
+          <div class="flex flex-col md:flex-row md:items-center md:gap-x-6 gap-3 md:gap-4 mb-4 md:mb-6" data-aos="fade-up" data-aos-delay="300" data-aos-once="true">
+            <div class="flex gap-2 w-full flex-wrap">
+              <div class="relative flex-1 min-w-[180px]">
+                <input type="text" id="searchAssetInput" placeholder="Search asset name..." 
+                  class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
+                <span class="absolute left-3 top-2.5 text-gray-400">
+                  <i class="fas fa-search"></i>
+                </span>
+              </div>
+              <select id="filterType" class="border border-gray-300 rounded-lg px-4 py-2 min-w-[120px]">
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Vehicles">Vehicles</option>
+                <option value="Other">Other</option>
+              </select>
+              <select id="filterStatus" class="border border-gray-300 rounded-lg px-4 py-2 min-w-[120px]">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Spare">Spare</option>
+                <option value="Damaged">Damaged</option>
+              </select>
+            </div>
+          </div>
+          <div id="assetCardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">
+            <!-- Cards populated by JS -->
+          </div>
+          <div id="noAssets" class="hidden py-8 text-center text-gray-500" data-aos="fade-up" data-aos-delay="350" data-aos-once="true">
+            <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+            <p>No assets found. Add your first asset using the form.</p>
+          </div>
+        </main>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Add/Edit Asset -->
+  <div id="assetModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-xs sm:max-w-sm mx-4 p-6 relative" style="backdrop-filter: blur(2px);">
+      <button id="closeAssetModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="flex items-center mb-4">
+        <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+        <h2 class="text-xl font-semibold" id="formTitle">Add New Asset</h2>
+      </div>
+      <form id="assetForm" class="flex flex-col gap-4">
+        <div>
+          <label for="assetName" class="block text-sm font-medium text-gray-700">Asset Name</label>
+          <input type="text" id="assetName" name="assetName" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+        </div>
+        <div>
+          <label for="assetType" class="block text-sm font-medium text-gray-700">Asset Type</label>
+          <select id="assetType" name="assetType" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+            <option value="">Select Type</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Vehicles">Vehicles</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="placementLocation" class="block text-sm font-medium text-gray-700">Placement Location</label>
+          <input type="text" id="placementLocation" name="placementLocation" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+        </div>
+        <div>
+          <label for="purchaseDate" class="block text-sm font-medium text-gray-700">Purchase Date</label>
+          <input type="date" id="purchaseDate" name="purchaseDate" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+        </div>
+        <div>
+          <label for="condition" class="block text-sm font-medium text-gray-700">Condition</label>
+          <select id="condition" name="condition" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+            <option value="">Select Condition</option>
+            <option value="Good">Good</option>
+            <option value="Minor Damage">Minor Damage</option>
+            <option value="Major Damage">Major Damage</option>
+            <option value="Worn">Worn</option>
+          </select>
+        </div>
+        <div>
+          <label for="assetStatus" class="block text-sm font-medium text-gray-700">Asset Status</label>
+          <select id="assetStatus" name="assetStatus" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+            <option value="">Select Status</option>
+            <option value="Active">Active</option>
+            <option value="Spare">Spare</option>
+            <option value="Damaged">Damaged</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" id="cancelEdit" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all hidden">Cancel</button>
+          <button type="reset" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all">Clear</button>
+          <button type="submit" id="submitBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all">Save</button>
+        </div>
+        <input type="hidden" id="assetId" name="assetId" />
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 class="text-lg font-bold mb-4">Confirm Deletion</h3>
+      <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-all">Cancel</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Support Button -->
+  <div class="support-btn">
+    <i class="fas fa-headset text-xl"></i>
+    <span class="support-btn-text shadow-lg">Need Help?</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize AOS animation library
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+    
+    // Handle sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.lg\\:ml-64');
+      
+      if (sidebar.classList.contains('translate-x-0') || !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        mainContent.classList.remove('lg:ml-64');
+        mainContent.classList.add('ml-0');
+      } else {
+        sidebar.classList.remove('-translate-x-full');
+        mainContent.classList.remove('ml-0');
+        mainContent.classList.add('lg:ml-64');
+      }
+    });
+    
+    // Asset data storage (would be replaced with API calls in a real application)
+    let assets = [
+      {
+        id: 1,
+        name: "Showcase Fridge",
+        type: "Electronics",
+        location: "Storage Room",
+        purchaseDate: "2023-03-01",
+        condition: "Good",
+        status: "Active"
+      },
+      {
+        id: 2,
+        name: "Wooden Shelf",
+        type: "Furniture",
+        location: "Back Area",
+        purchaseDate: "2022-02-14",
+        condition: "Worn",
+        status: "Spare"
+      },
+      {
+        id: 3,
+        name: "Delivery Van",
+        type: "Vehicles",
+        location: "Parking Lot",
+        purchaseDate: "2021-07-20",
+        condition: "Major Damage",
+        status: "Damaged"
+      },
+      {
+        id: 4,
+        name: "POS Terminal",
+        type: "Other",
+        location: "Cashier Desk",
+        purchaseDate: "2024-01-10",
+        condition: "Minor Damage",
+        status: "Active"
+      },
+      {
+        id: 5,
+        name: "Plastic Crate",
+        type: "Other",
+        location: "Warehouse",
+        purchaseDate: "2020-11-05",
+        condition: "Good",
+        status: "Spare"
+      },
+      {
+        id: 6,
+        name: "Hand Pallet Truck",
+        type: "Vehicles",
+        location: "Loading Area",
+        purchaseDate: "2019-09-15",
+        condition: "Worn",
+        status: "Spare"
+      }
+    ];
+    let currentAssetId = null;
+    let editMode = false;
+
+    // DOM Elements
+    const assetForm = document.getElementById('assetForm');
+    const assetTableBody = document.getElementById('assetTableBody');
+    const noAssets = document.getElementById('noAssets');
+    const searchAssetInput = document.getElementById('searchAssetInput');
+    const filterType = document.getElementById('filterType');
+    const filterStatus = document.getElementById('filterStatus');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const addAssetBtn = document.getElementById('addAssetBtn');
+    const assetIdInput = document.getElementById('assetId');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAssets();
+      setupAssetEventListeners();
+    });
+
+    function setupAssetEventListeners() {
+      assetForm.addEventListener('submit', handleAssetFormSubmit);
+      searchAssetInput.addEventListener('input', renderAssets);
+      filterType.addEventListener('change', renderAssets);
+      filterStatus.addEventListener('change', renderAssets);
+      cancelEdit.addEventListener('click', resetAssetForm);
+      addAssetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        assetModal.classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('assetName').focus();
+        }, 200);
+      });
+    }
+
+    function handleAssetFormSubmit(e) {
+      e.preventDefault();
+      const formData = {
+        name: document.getElementById('assetName').value,
+        type: document.getElementById('assetType').value,
+        location: document.getElementById('placementLocation').value,
+        purchaseDate: document.getElementById('purchaseDate').value,
+        condition: document.getElementById('condition').value,
+        status: document.getElementById('assetStatus').value
+      };
+
+      if (editMode && currentAssetId) {
+        const index = assets.findIndex(a => a.id === currentAssetId);
+        if (index !== -1) {
+          assets[index] = { ...assets[index], ...formData };
+        }
+        resetAssetForm();
+      } else {
+        const newAsset = {
+          id: Date.now(),
+          ...formData
+        };
+        assets.push(newAsset);
+        assetForm.reset();
+      }
+      renderAssets();
+      setTimeout(closeModal, 100);
+    }
+
+    function resetAssetForm() {
+      editMode = false;
+      currentAssetId = null;
+      formTitle.textContent = 'Add New Asset';
+      submitBtn.textContent = 'Save';
+      cancelEdit.classList.add('hidden');
+      assetForm.reset();
+    }
+
+    function editAsset(id) {
+      const asset = assets.find(a => a.id === id);
+      if (asset) {
+        document.getElementById('assetName').value = asset.name;
+        document.getElementById('assetType').value = asset.type;
+        document.getElementById('placementLocation').value = asset.location;
+        document.getElementById('purchaseDate').value = asset.purchaseDate;
+        document.getElementById('condition').value = asset.condition;
+        document.getElementById('assetStatus').value = asset.status;
+        assetIdInput.value = asset.id;
+
+        editMode = true;
+        currentAssetId = asset.id;
+        formTitle.textContent = 'Edit Asset';
+        submitBtn.textContent = 'Update';
+        cancelEdit.classList.remove('hidden');
+        assetModal.classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('assetName').focus();
+        }, 200);
+      }
+    }
+
+    function deleteAsset(id) {
+      if (confirm('Are you sure you want to delete this asset?')) {
+        assets = assets.filter(a => a.id !== id);
+        renderAssets();
+        resetAssetForm();
+      }
+    }
+
+    // Utility: get asset age in years
+    function getAssetAge(purchaseDate) {
+      if (!purchaseDate) return 0;
+      const now = new Date();
+      const pd = new Date(purchaseDate);
+      let age = now.getFullYear() - pd.getFullYear();
+      const m = now.getMonth() - pd.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < pd.getDate())) age--;
+      return age < 0 ? 0 : age;
+    }
+
+    // Utility: get lifecycle (simulate 8 years for demo)
+    function getLifecycle(asset) {
+      const age = getAssetAge(asset.purchaseDate);
+      return { age, total: 8 };
+    }
+
+    // Utility: get status badge color
+    function getStatusBadgeProps(status, condition) {
+      if (status === 'Active' && (condition === 'Good' || condition === 'Minor Damage')) {
+        return { color: 'bg-green-500', label: 'Healthy' };
+      }
+      if (status === 'Active' && (condition === 'Major Damage' || condition === 'Worn')) {
+        return { color: 'bg-yellow-400', label: 'Needs Attention' };
+      }
+      if (status === 'Damaged') {
+        return { color: 'bg-red-500', label: 'Critical' };
+      }
+      if (status === 'Spare') {
+        return { color: 'bg-gray-400', label: 'Inactive' };
+      }
+      return { color: 'bg-gray-300', label: status };
+    }
+
+    // Render Asset Health Overview
+    function renderAssetHealthOverview(filteredAssets) {
+      let healthy = 0, attention = 0, critical = 0, inactive = 0;
+      filteredAssets.forEach(a => {
+        const { label } = getStatusBadgeProps(a.status, a.condition);
+        if (label === 'Healthy') healthy++;
+        else if (label === 'Needs Attention') attention++;
+        else if (label === 'Critical') critical++;
+        else if (label === 'Inactive') inactive++;
+      });
+      document.getElementById('countHealthy').textContent = healthy;
+      document.getElementById('countAttention').textContent = attention;
+      document.getElementById('countCritical').textContent = critical;
+      document.getElementById('countInactive').textContent = inactive;
+    }
+
+    // Render Asset Categories
+    function renderAssetCategories(filteredAssets) {
+      const categories = {};
+      filteredAssets.forEach(a => {
+        if (!categories[a.type]) categories[a.type] = 0;
+        categories[a.type]++;
+      });
+      const list = document.getElementById('assetCategoriesList');
+      list.innerHTML = '';
+      const colorMap = {
+        Electronics: 'bg-blue-500',
+        Furniture: 'bg-yellow-600',
+        Vehicles: 'bg-green-600',
+        Other: 'bg-purple-500'
+      };
+      Object.entries(categories).forEach(([cat, count]) => {
+        list.innerHTML += `
+          <li class="flex items-center gap-2">
+            <span class="inline-block w-3 h-3 rounded-full ${colorMap[cat] || 'bg-gray-400'}"></span>
+            <span class="flex-1">${cat}</span>
+            <span class="text-xs text-gray-500">${count}</span>
+          </li>
+        `;
+      });
+      if (Object.keys(categories).length === 0) {
+        list.innerHTML = `<li class="text-gray-400 text-sm">No categories</li>`;
+      }
+    }
+
+    // Render Asset Cards
+    function renderAssetCards(filteredAssets) {
+      const grid = document.getElementById('assetCardGrid');
+      if (filteredAssets.length === 0) {
+        grid.innerHTML = '';
+        noAssets.classList.remove('hidden');
+        return;
+      }
+      noAssets.classList.add('hidden');
+      grid.innerHTML = filteredAssets.map((asset, idx) => {
+        const { color, label } = getStatusBadgeProps(asset.status, asset.condition);
+        const { age, total } = getLifecycle(asset);
+        const percent = Math.min(100, Math.round((age / total) * 100));
+        // Animasi satu-satu dengan delay per card
+        const delay = 100 + idx * 100;
+        return `
+          <div class="relative bg-white border rounded-xl shadow hover:shadow-lg transition-all p-4 flex flex-col gap-2"
+            data-aos="fade-up" data-aos-delay="${delay}" data-aos-once="true">
+            <!-- Status badge -->
+            <div class="absolute top-3 left-3 flex items-center gap-1">
+              <span class="w-3 h-3 rounded-full ${color}"></span>
+              <span class="text-xs font-semibold text-gray-600">${label}</span>
+            </div>
+            <!-- Edit/Delete icons -->
+            <div class="absolute top-3 right-3 flex gap-1">
+              <button onclick="editAsset(${asset.id})" class="text-blue-600 hover:bg-blue-100 p-1 rounded transition-all" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteAsset(${asset.id})" class="text-red-600 hover:bg-red-100 p-1 rounded transition-all" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="mt-6 mb-2">
+              <div class="text-lg font-bold text-gray-800 flex items-center gap-2">${asset.name}
+                <span class="text-xs text-gray-400 font-normal ml-2">#${asset.id}</span>
+              </div>
+              <div class="text-xs text-gray-500">${asset.type} &bull; ${asset.location}</div>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+              <div><i class="fas fa-calendar-alt mr-1"></i> ${asset.purchaseDate}</div>
+              <div><i class="fas fa-cog mr-1"></i> ${asset.condition}</div>
+              <div><i class="fas fa-hourglass-half mr-1"></i> Age: ${age} yrs</div>
+            </div>
+            <!-- Lifecycle Progress Bar -->
+            <div class="mt-2">
+              <div class="flex justify-between text-xs text-gray-400 mb-1">
+                <span>Lifecycle</span>
+                <span>${age} / ${total} yrs</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full ${percent < 70 ? 'bg-green-400' : percent < 90 ? 'bg-yellow-400' : 'bg-red-400'}" style="width:${percent}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      // Refresh AOS for new elements
+      if (window.AOS) AOS.refresh();
+    }
+
+    // Main render function
+    function renderAssets() {
+      let filteredAssets = [...assets];
+      const searchTerm = searchAssetInput.value.toLowerCase().trim();
+      const typeFilter = filterType.value;
+      const statusFilter = filterStatus.value;
+
+      if (searchTerm) {
+        filteredAssets = filteredAssets.filter(a =>
+          a.name.toLowerCase().includes(searchTerm)
+        );
+      }
+      if (typeFilter) {
+        filteredAssets = filteredAssets.filter(a => a.type === typeFilter);
+      }
+      if (statusFilter) {
+        filteredAssets = filteredAssets.filter(a => a.status === statusFilter);
+      }
+
+      renderAssetHealthOverview(filteredAssets);
+      renderAssetCategories(filteredAssets);
+      renderAssetCards(filteredAssets);
+
+      // Update dashboard stats
+      document.getElementById('totalProducts').textContent = assets.length;
+      document.getElementById('totalStock').textContent = assets.filter(a => a.status === 'Active').length;
+      document.getElementById('avgPrice').textContent = assets.filter(a => a.condition === 'Major Damage' || a.status === 'Damaged').length;
+    }
+
+    // Modal logic
+    const assetModal = document.getElementById('assetModal');
+    const closeAssetModal = document.getElementById('closeAssetModal');
+
+    // Hide modal on close button or after submit/reset/cancel
+    function closeModal() {
+      assetModal.classList.add('hidden');
+    }
+    closeAssetModal.addEventListener('click', closeModal);
+
+    // Hide modal if click outside modal content
+    assetModal.addEventListener('mousedown', function(e) {
+      if (e.target === assetModal) closeModal();
+    });
+
+    // Hide modal after submit/reset/cancel
+    assetForm.addEventListener('submit', function() {
+      setTimeout(closeModal, 100);
+    });
+    assetForm.addEventListener('reset', function() {
+      setTimeout(closeModal, 100);
+    });
+    cancelEdit.addEventListener('click', function() {
+      setTimeout(closeModal, 100);
+    });
+
+    // When editing asset, open modal and fill form
+    window.editAsset = function(id) {
+      const asset = assets.find(a => a.id === id);
+      if (asset) {
+        document.getElementById('assetName').value = asset.name;
+        document.getElementById('assetType').value = asset.type;
+        document.getElementById('placementLocation').value = asset.location;
+        document.getElementById('purchaseDate').value = asset.purchaseDate;
+        document.getElementById('condition').value = asset.condition;
+        document.getElementById('assetStatus').value = asset.status;
+        assetIdInput.value = asset.id;
+
+        editMode = true;
+        currentAssetId = asset.id;
+        formTitle.textContent = 'Edit Asset';
+        submitBtn.textContent = 'Update';
+        cancelEdit.classList.remove('hidden');
+        assetModal.classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('assetName').focus();
+        }, 200);
+      }
+    };
+
+    // Expose editAsset/deleteAsset to global for inline onclick
+    window.deleteAsset = deleteAsset;
+  </script>
+</body>
+</html>

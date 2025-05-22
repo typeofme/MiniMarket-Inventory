@@ -1,0 +1,172 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Status</h3>
+    <i class="fas fa-boxes text-blue-500"></i>
+  </div>
+  
+  <div class="flex flex-col items-center">
+    <!-- Inventory Status Pie Chart -->
+    <div class="w-full h-48 mb-4 relative">
+      <canvas id="inventory-status-chart"></canvas>
+      <div id="status-loader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+      <div id="status-error" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+        <div class="text-center text-gray-500">
+          <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+          <p class="text-sm">Unable to load chart</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-2 w-full text-xs text-center gap-2">
+      <div class="bg-green-50 p-2 rounded-lg">
+        <p class="text-gray-600">Healthy Stock</p>
+        <p class="font-bold text-green-600 healthy-stock">92 items</p>
+      </div>
+      <div class="bg-amber-50 p-2 rounded-lg">
+        <p class="text-gray-600">Medium Stock</p>
+        <p class="font-bold text-amber-600 medium-stock">34 items</p>
+      </div>
+      <div class="bg-red-50 p-2 rounded-lg">
+        <p class="text-gray-600">Low Stock</p>
+        <p class="font-bold text-red-600 low-stock">8 items</p>
+      </div>
+      <div class="bg-blue-50 p-2 rounded-lg">
+        <p class="text-gray-600">Total SKUs</p>
+        <p class="font-bold text-blue-600 total-stock">134 items</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      // Function to initialize the inventory status chart
+      function initInventoryStatusChart() {
+        const loader = document.getElementById('status-loader');
+        const errorDisplay = document.getElementById('status-error');
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+          console.warn('Chart.js not loaded yet for inventory status. Retrying in 500ms...');
+          setTimeout(initInventoryStatusChart, 500);
+          return;
+        }
+        
+        try {
+          // Get the chart canvas element
+          const ctx = document.getElementById('inventory-status-chart');
+          
+          if (!ctx) {
+            console.error('Cannot find canvas element for inventory status chart');
+            showError();
+            return;
+          }
+          
+          // Initial data
+          const statusData = [92, 34, 8];
+          
+          // Create the doughnut chart
+          const inventoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Healthy Stock', 'Medium Stock', 'Low Stock'],
+              datasets: [{
+                data: statusData,
+                backgroundColor: [
+                  'rgba(34, 197, 94, 0.8)',  // Green - Healthy
+                  'rgba(245, 158, 11, 0.8)', // Amber - Medium
+                  'rgba(239, 68, 68, 0.8)'   // Red - Low
+                ],
+                borderWidth: 1,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '70%',
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                    boxWidth: 12,
+                    font: {
+                      size: 10
+                    }
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      const label = context.label || '';
+                      const value = context.parsed || 0;
+                      const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                      const percentage = Math.round((value / total) * 100);
+                      return `${label}: ${value} items (${percentage}%)`;
+                    }
+                  }
+                }
+              },
+              animation: {
+                animateRotate: true,
+                animateScale: true,
+                onComplete: function() {
+                  // Hide loader when animation completes
+                  if (loader) loader.style.display = 'none';
+                }
+              }
+            }
+          });
+          
+          // Function to update the text displays
+          function updateInventoryStatusDisplay() {
+            const cardElement = ctx.closest('.dashboard-card');
+            if (!cardElement) return;
+            
+            // Get the data from the chart
+            const data = inventoryChart.data.datasets[0].data;
+            const total = data.reduce((acc, val) => acc + val, 0);
+            
+            // Update the text displays using classes for easier targeting
+            const healthyEl = cardElement.querySelector('.healthy-stock');
+            const mediumEl = cardElement.querySelector('.medium-stock');
+            const lowEl = cardElement.querySelector('.low-stock');
+            const totalEl = cardElement.querySelector('.total-stock');
+            
+            if (healthyEl) healthyEl.textContent = `${data[0]} items`;
+            if (mediumEl) mediumEl.textContent = `${data[1]} items`;
+            if (lowEl) lowEl.textContent = `${data[2]} items`;
+            if (totalEl) totalEl.textContent = `${total} items`;
+          }
+          
+          // Initial display update
+          updateInventoryStatusDisplay();
+          
+          // Attach update function to chart for future use
+          ctx.updateChart = function(newData) {
+            inventoryChart.data.datasets[0].data = newData;
+            inventoryChart.update();
+            updateInventoryStatusDisplay();
+          };
+          
+        } catch (error) {
+          console.error('Error creating inventory status chart:', error);
+          showError();
+        }
+        
+        function showError() {
+          if (loader) loader.style.display = 'none';
+          if (errorDisplay) errorDisplay.classList.remove('hidden');
+        }
+      }
+      
+      // Initialize the chart when the document is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initInventoryStatusChart, 200));
+      } else {
+        setTimeout(initInventoryStatusChart, 200);
+      }
+    })();
+  </script>
+</div>
