@@ -32,8 +32,15 @@ app.use('/profile', (req, res) => {
 
 app.use('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
-}
-);
+});
+
+app.use('/suppliers', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'datasupply.html'));
+});
+
+app.use('/users', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'user.html'));
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

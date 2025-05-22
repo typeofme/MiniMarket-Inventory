@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data user</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --background: #f8fafc;
+      --card-bg: #fff;
+      --card-border: #e2e8f0;
+      --header-font: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      --body-font: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      --header-weight: 600;
+      --body-weight: 400;
+      --small-text: #64748b;
+      --radius: 10px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.10);
+      --transition: all 0.2s ease;
+      --avatar-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    }
+    html, body {
+      background: var(--background);
+      font-family: var(--body-font);
+      font-weight: var(--body-weight);
+      color: #1e293b;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--header-font);
+      font-weight: var(--header-weight);
+      letter-spacing: -0.01em;
+    }
+    .dashboard-card,
+    .dashboard-card.bg-white {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    .dashboard-card:hover {
+      box-shadow: 0 4px 12px rgba(59,130,246,0.08);
+      border-color: var(--primary);
+      transform: translateY(-2px) scale(1.01);
+    }
+    .content-wrapper {
+      background: var(--background);
+    }
+    .sidebar {
+      background: var(--avatar-gradient);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      box-shadow: 5px 0 25px rgba(0,0,0,0.08);
+    }
+    .nav-icon {
+      background: rgba(255,255,255,0.12);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+    .nav-item:hover .nav-icon {
+      background: rgba(255,255,255,0.22);
+      transform: rotate(5deg);
+    }
+    .support-btn {
+      background: var(--avatar-gradient);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.10);
+      transition: var(--transition);
+    }
+    .support-btn:hover {
+      box-shadow: 0 6px 18px rgba(59,130,246,0.18);
+      transform: translateY(-3px) scale(1.04);
+    }
+    /* Card grid */
+    #userCardGrid > div {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+    #userCardGrid > div:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(59,130,246,0.10);
+      transform: translateY(-2px) scale(1.01);
+    }
+    /* Avatar gradient */
+    .user-avatar-gradient {
+      background: var(--avatar-gradient);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      box-shadow: 0 1px 3px rgba(59,130,246,0.10);
+      border: 2px solid #fff;
+    }
+    /* Status badges */
+    .badge-success {
+      background: #d1fae5;
+      color: var(--success);
+      border: 1px solid #6ee7b7;
+    }
+    .badge-warning {
+      background: #fef3c7;
+      color: var(--warning);
+      border: 1px solid #fcd34d;
+    }
+    .badge-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+    }
+    .badge-default {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    /* Buttons */
+    button, .btn {
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      font-family: var(--body-font);
+      font-weight: 500;
+    }
+    button:focus, .btn:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .bg-blue-100, .bg-blue-50 {
+      background: #eff6ff !important;
+      color: var(--primary) !important;
+    }
+    .bg-red-50 {
+      background: #fef2f2 !important;
+      color: var(--danger) !important;
+    }
+    .bg-green-100 {
+      background: #d1fae5 !important;
+      color: var(--success) !important;
+    }
+    .bg-yellow-100 {
+      background: #fef3c7 !important;
+      color: var(--warning) !important;
+    }
+    /* Table */
+    table {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+    }
+    th, td {
+      font-family: var(--body-font);
+      font-weight: var(--body-weight);
+      color: #1e293b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      font-weight: var(--header-weight);
+      background: #f1f5f9;
+    }
+    /* Small text */
+    .text-xs, .text-sm, .small, small {
+      color: var(--small-text) !important;
+      font-weight: 400;
+    }
+    /* Inputs */
+    input, select, textarea {
+      border-radius: var(--radius-sm);
+      border: 1px solid #e2e8f0;
+      font-family: var(--body-font);
+      font-weight: 400;
+      transition: var(--transition);
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px #3b82f633;
+      outline: none;
+    }
+    /* Misc */
+    .rounded-xl, .rounded-2xl {
+      border-radius: var(--radius) !important;
+    }
+    .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+      box-shadow: var(--shadow) !important;
+    }
+    /* Transition for hover states */
+    .transition-all, .transition {
+      transition: var(--transition) !important;
+    }
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --sidebar-width: 16rem;
+      --sidebar-width-collapsed: 5rem;
+      --header-height: 73px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header hide on scroll styling - updated to match dashboard exactly */
+    .nav-header, nav.top-nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: var(--sidebar-width); 
+      z-index: 50;
+      transition: var(--transition-smooth);
+      transform: translateY(0);
+      background-color: white;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+      width: auto; /* Let it calculate width based on left and right */
+    }
+    
+    .nav-header.header-hidden, nav.top-nav.header-hidden {
+      transform: translateY(-100%);
+      box-shadow: none;
+    }
+    
+    /* Make header follow the sidebar state */
+    body.sidebar-closed .nav-header, 
+    body.sidebar-closed .top-nav {
+      left: 0;
+    }
+    
+    /* Remove the content-wrapper adjustments for header as they're not in dashboard */
+    .content-wrapper {
+      margin-top: 73px;
+      margin-left: var(--sidebar-width);
+      transition: var(--transition-smooth);
+      flex: 1;
+      padding: 1.5rem;
+      padding-top: 2rem; /* Ensure content is visible below the header */
+    }
+
+    /* Add styles for a mini header that appears on scroll (optional) */
+    .mini-header {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: var(--sidebar-width);
+      background: white;
+      z-index: 59;
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .mini-header.visible {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 1024px) {
+      .mini-header {
+        left: var(--sidebar-width-collapsed);
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .mini-header {
+        left: 0;
+      }
+    }
+    
+    .dashboard-card {
+      transition: var(--transition-smooth);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background: var(--primary-gradient);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibm9pc2UiLz48ZmVCbGVuZCBtb2RlPSJzb2Z0LWxpZ2h0IiBpbj0ibm9pc2UiIGluMj0iU291cmNlR3JhcGhpYyIgcmVzdWx0PSJibGVuZCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA3NiIvPjwvc3ZnPg==');
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-item:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      z-index: -1;
+      border-radius: 6px;
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activity-item {
+      transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .pulse {
+      animation: pulse-animation 2s infinite;
+    }
+    
+    @keyframes pulse-animation {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Enhanced support button */
+    .support-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .support-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+    }
+    
+    .support-btn::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.6);
+      z-index: -1;
+      animation: pulse-support 2s infinite;
+    }
+    
+    @keyframes pulse-support {
+      0% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .support-btn-text {
+      position: absolute;
+      right: 70px;
+      background: #1d4ed8;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .support-btn:hover .support-btn-text {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Add this for proper sidebar toggling */
+    body.sidebar-closed .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    body.sidebar-closed .content-wrapper {
+      margin-left: 0;
+    }
+    
+    .content-wrapper {
+      transition: var(--transition-smooth);
+      margin-left: var(--sidebar-width);  /* Changed from 16rem to use the CSS variable */
+    }
+
+    /* Responsive header */
+    header {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 50;
+      transition: var(--transition-smooth);
+      padding-left: var(--sidebar-width);
+    }
+    
+    /* Responsive content wrapper */
+    .content-wrapper {
+      margin-top: 73px;
+      margin-left: var(--sidebar-width);
+      transition: var(--transition-smooth);
+      flex: 1;
+      padding: 1.5rem;
+    }
+    
+    /* Improved responsiveness for sidebar and layout */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: var(--sidebar-width-collapsed);
+      }
+      
+      .sidebar .nav-icon {
+        margin-right: 0;
+      }
+      
+      .sidebar nav a span:not(.nav-icon *) {
+        display: none;
+      }
+      
+      .sidebar h1 {
+        display: none;
+      }
+      
+      header {
+        padding-left: var(--sidebar-width-collapsed);
+      }
+      
+      .content-wrapper {
+        margin-left: var(--sidebar-width-collapsed);
+      }
+      
+      /* Adjust grid layout for products */
+      .flex.flex-col.lg\\:flex-row {
+        flex-direction: column !important;
+      }
+      
+      .lg\\:w-1\/3, .lg\\:w-2\/3 {
+        width: 100% !important;
+      }
+    }
+    
+    /* Mobile layout */
+    @media (max-width: 640px) {
+      body {
+        position: relative;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        position: fixed;
+        z-index: 60;
+      }
+      
+      .sidebar.mobile-active {
+        transform: translateX(0);
+      }
+      
+      /* Make nav text visible when sidebar is active on mobile */
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+      
+      header {
+        padding-left: 0;
+      }
+      
+      .content-wrapper {
+        margin-left: 0;
+        padding: 1rem;
+      }
+      
+      .support-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+      }
+      
+      .support-btn-text {
+        display: none;
+      }
+      
+      /* Mobile search */
+      input#search-global {
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-search-collapsed input#search-global {
+        width: 40px;
+        background: transparent;
+      }
+      
+      .mobile-search-collapsed input#search-global:focus {
+        width: 180px;
+        background: #f3f4f6;
+      }
+      
+      /* Stack the search and sort options */
+      .flex.justify-between.items-center.mb-4 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+      }
+      
+      .flex.justify-between.items-center.mb-4 .flex.gap-2 {
+        width: 100%;
+        flex-direction: column;
+      }
+      
+      .flex.justify-between.items-center.mb-4 input,
+      .flex.justify-between.items-center.mb-4 select {
+        width: 100%;
+      }
+      
+      /* Smaller product cards */
+      .dashboard-card {
+        padding: 0.75rem !important;
+      }
+      
+      /* Fix for table headers */
+      .overflow-x-auto {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+      }
+      
+      /* Adjust table for mobile */
+      table.min-w-full th,
+      table.min-w-full td {
+        padding: 0.5rem !important;
+      }
+
+      /* Update header for mobile specifically */
+      .nav-header, nav.top-nav {
+        left: 0;
+        width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      /* Adjust the search input on mobile */
+      .mobile-search {
+        position: static;
+      }
+      
+      .mobile-search input {
+        width: 100% !important;
+        max-width: 160px;
+      }
+      
+      /* Make the content respect header space */
+      .content-wrapper {
+        margin-top: var(--header-height);
+        padding-top: 1rem;
+      }
+    }
+    
+    /* Also ensure proper display at tablet size */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .sidebar.mobile-active nav a span:not(.nav-icon *),
+      .sidebar.mobile-active h1 {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active {
+        width: var(--sidebar-width);
+      }
+
+      .nav-header, nav.top-nav {
+        left: var(--sidebar-width-collapsed);
+      }
+      
+      body.sidebar-closed .nav-header,
+      body.sidebar-closed .top-nav {
+        left: 0;
+      }
+    }
+    
+    /* Sidebar toggle state styling */
+    body.sidebar-closed .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    body.sidebar-closed header,
+    body.sidebar-closed .content-wrapper {
+      margin-left: 0;
+      padding-left: 0;
+    }
+    
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 55;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Remove number input spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    /* For Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Modern Custom Dropdown Styling */
+    .custom-select-container {
+      position: relative;
+      min-width: 180px;
+    }
+    
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .custom-select-trigger:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .custom-select-trigger.active {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .custom-select-options {
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      overflow: hidden;
+    }
+    
+    .custom-select-options.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .custom-option {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    
+    .custom-option:hover {
+      background-color: #f1f5f9;
+    }
+    
+    .custom-option.selected {
+      background-color: #eff6ff;
+      color: #3b82f6;
+      font-weight: 500;
+    }
+    
+    .custom-select-arrow {
+      transition: transform 0.3s ease;
+    }
+    
+    .custom-select-trigger.active .custom-select-arrow {
+      transform: rotate(180deg);
+    }
+    
+    .custom-option-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      border-radius: 4px;
+    }
+
+    /* Card grid hover/elevation */
+    #userCardGrid > div {
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    #userCardGrid > div:hover {
+      box-shadow: 0 8px 24px 0 rgba(59,130,246,0.10), 0 1.5px 6px 0 rgba(59,130,246,0.06);
+      border-color: #3b82f6;
+    }
+    
+    /* Responsive filter bar */
+    @media (max-width: 640px) {
+      .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between.gap-4.mb-4 {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+      }
+      .flex.gap-2.flex-wrap {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+      }
+      #searchInput {
+        font-size: 1rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+      }
+    }
+    #viewToggleGroup button.active,
+    #viewToggleGroup button.bg-blue-100 {
+      background: #dbeafe !important;
+      color: #2563eb !important;
+      box-shadow: 0 2px 8px 0 rgba(59,130,246,0.08);
+    }
+    #viewToggleGroup button {
+      border: none;
+      outline: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    #userCardGrid,
+    #userTableWrapper {
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    #userCardGrid.hidden,
+    #userTableWrapper.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      height: 0;
+      padding: 0;
+      margin: 0;
+    }
+    #userCardGrid:not(.hidden),
+    #userTableWrapper:not(.hidden) {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      height: auto;
+    }
+
+    /* Responsive Card Grid */
+    #userCardGrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+    @media (max-width: 1024px) {
+      #userCardGrid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      #userCardGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      #userCardGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    /* Responsive Search & Filter Bar */
+    .user-search-filter-bar {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 640px) {
+      .user-search-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+    }
+
+    /* Responsive View Toggle & Actions */
+    .user-view-toggle-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 640px) {
+      .user-view-toggle-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+    }
+
+    /* Touch-friendly buttons */
+    button, .btn, .custom-select-trigger, .custom-option, select {
+      min-height: 44px;
+      min-width: 44px;
+      font-size: 1rem;
+      /* ...existing code... */
+    }
+
+    /* Responsive Table Wrapper */
+    #userTableWrapper .overflow-x-auto {
+      width: 100%;
+      overflow-x: auto;
+    }
+    @media (max-width: 768px) {
+      #userTableWrapper table {
+        font-size: 0.95rem;
+      }
+    }
+    @media (max-width: 640px) {
+      #userTableWrapper table {
+        font-size: 0.9rem;
+      }
+      #userTableWrapper th, #userTableWrapper td {
+        padding: 0.5rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  
+  <!-- Side Navigation -->
+  <aside class="sidebar text-white w-64 min-h-screen p-4 fixed left-0 top-0 z-50">
+    <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+      <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+        <i class="fas fa-store text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold">MiniMarket</h1>
+    </div>
+    
+    <nav class="space-y-2">
+      <a href="/" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="100">
+        <div class="nav-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <span>Dashboard</span>
+      </a>
+      
+      <a href="/products" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="150">
+        <div class="nav-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <span class="font-medium">Products</span>
+      </a>
+      
+      <a href="/reports" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="200">
+        <div class="nav-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <span>Reports</span>
+      </a>
+      
+      <a href="/restock" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="250">
+        <div class="nav-icon">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <span>Restock</span>
+      </a>
+      
+      <a href="/invoices" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="300">
+        <div class="nav-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <span>Invoices</span>
+      </a>
+      
+      <a href="/User" class="bg-white/10 rounded-xl p-3 flex items-center text-blue-100 backdrop-blur-sm" 
+           data-aos="fade-right" data-aos-delay="350">
+        <div class="nav-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <span>User Data</span>
+      </a>
+      
+      <a href="/settings" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+           data-aos="fade-right" data-aos-delay="400">
+        <div class="nav-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="content-wrapper flex-1">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center top-nav">
+      <div class="flex items-center">
+        <button id="sidebar-toggle" class="mr-3 text-gray-700 hover:bg-gray-100 p-2 rounded-xl transition-all">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold text-gray-800 fade-in">Data User</h1>
+          <p class="text-xs md:text-sm text-gray-500 hidden sm:block">Welcome back, <span class="text-blue-600 font-medium">John</span>!</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <div class="relative">
+          <button class="p-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition duration-200 relative" id="notification-btn">
+            <i class="fas fa-bell text-sm"></i>
+          </button>
+        </div>
+        <a href="/profile" class="hidden sm:flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+          <div>
+            <span class="text-sm font-medium text-gray-700">Adit</span>
+            <p class="text-xs text-gray-500">Store Manager</p>
+          </div>
+        </a>
+        <a href="/profile" class="sm:hidden p-2.5 round1ed-xl bg-gray-100">
+          <i class="fas fa-user-circle"></i>
+        </a>
+      </div>
+    </nav>
+
+    <main class="p-6">
+  <!-- 1. Dashboard Statistics -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="userStatsDashboard">
+    <div class="bg-white dashboard-card flex items-center p-5 border-l-4 border-blue-500">
+      <div>
+        <div id="statTotalUsers" class="text-3xl font-bold text-gray-800">0</div>
+        <div class="text-gray-500 text-sm mt-1">Total Users</div>
+      </div>
+    </div>
+    <div class="bg-white dashboard-card flex items-center p-5 border-l-4 border-green-500">
+      <div>
+        <div id="statActiveUsers" class="text-3xl font-bold text-gray-800">0</div>
+        <div class="text-gray-500 text-sm mt-1">Active Users</div>
+      </div>
+    </div>
+    <div class="bg-white dashboard-card flex items-center p-5 border-l-4 border-yellow-400">
+      <div>
+        <div id="statInactiveUsers" class="text-3xl font-bold text-gray-800">0</div>
+        <div class="text-gray-500 text-sm mt-1">Inactive Users</div>
+      </div>
+    </div>
+    <div class="bg-white dashboard-card flex items-center p-5 border-l-4 border-purple-500">
+      <div>
+        <div id="statNewUsers" class="text-3xl font-bold text-gray-800">0</div>
+        <div class="text-gray-500 text-sm mt-1">New Users (30d)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Enhanced Header: Search, Filters, View Toggle, Add Button -->
+  <section class="user-search-filter-bar mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex-1 flex items-center gap-3">
+      <div class="relative w-full max-w-md">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Cari user berdasarkan nama, job, atau username..."
+          class="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white shadow-sm"
+        />
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <i class="fas fa-search text-lg"></i>
+        </span>
+      </div>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <select id="statusFilter" class="border border-gray-300 rounded-xl px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white shadow-sm">
+        <option value="">Status: Semua</option>
+        <option value="y">Active</option>
+        <option value="n">Inactive</option>
+      </select>
+      <select id="jobFilter" class="border border-gray-300 rounded-xl px-4 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white shadow-sm">
+        <option value="">Job: Semua</option>
+        <option value="Staff">Staff</option>
+        <option value="Manager">Manager</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </div>
+    <div class="user-view-toggle-actions flex gap-2 items-center">
+      <button id="gridViewBtn" type="button" class="px-3 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold flex items-center gap-1 shadow-sm transition-all active">
+        <i class="fas fa-th-large"></i>
+        <span class="hidden sm:inline">Grid</span>
+      </button>
+      <button id="tableViewBtn" type="button" class="px-3 py-2 rounded-lg bg-gray-100 text-gray-600 font-semibold flex items-center gap-1 shadow-sm transition-all">
+        <i class="fas fa-list"></i>
+        <span class="hidden sm:inline">Table</span>
+      </button>
+      <button id="addUserBtn" type="button" class="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow hover:opacity-90 transition flex items-center">
+        <i class="fas fa-plus mr-1.5"></i> Add User
+      </button>
+    </div>
+  </section>
+
+  <!-- 3. Card Grid Layout -->
+  <section id="userCardGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 transition-all duration-300"></section>
+
+  <!-- 5. Table View (hidden by default) -->
+  <section id="userTableWrapper" class="transition-all duration-300 hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto text-sm text-left bg-white rounded-xl">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-3 rounded-tl-lg">Name</th>
+            <th class="p-3">Job</th>
+            <th class="p-3">Active</th>
+            <th class="p-3 hidden md:table-cell">Date Make User</th>
+            <th class="p-3 rounded-tr-lg">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody">
+          <!-- Users will be populated via JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <div id="noProducts" class="hidden py-8 text-center text-gray-500">
+    <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+    <p>No users found. Add your first user using the form.</p>
+  </div>
+
+  <!-- 4. Modal Form for Add/Edit User -->
+  <div id="userModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden transition-all">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-8 relative animate-fade-in">
+      <button id="closeUserModal" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold focus:outline-none">&times;</button>
+      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add User</h2>
+      <form id="userForm" class="flex flex-col gap-4">
+        <div>
+          <label for="modalName" class="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+          <input type="text" id="modalName" name="modalName" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="Full Name" />
+        </div>
+        <div>
+          <label for="modalUsername" class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
+          <input type="text" id="modalUsername" name="modalUsername" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="Username" />
+        </div>
+        <div>
+          <label for="modalEmail" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+          <input type="email" id="modalEmail" name="modalEmail" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="Email" />
+        </div>
+        <div>
+          <label for="modalJob" class="block text-sm font-medium text-gray-700 mb-1.5">Job Role</label>
+          <select id="modalJob" name="modalJob" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required>
+            <option value="">Select Job</option>
+            <option value="Staff">Staff</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label for="modalStatus" class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+          <select id="modalStatus" name="modalStatus" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required>
+            <option value="y">Active</option>
+            <option value="n">Inactive</option>
+          </select>
+        </div>
+        <div>
+          <label for="modalDate" class="block text-sm font-medium text-gray-700 mb-1.5">Date Make User</label>
+          <input type="date" id="modalDate" name="modalDate" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required />
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" id="cancelUserModal" class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-200 transition-all font-medium">
+            Cancel
+          </button>
+          <button type="submit" id="saveUserBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition-all font-medium shadow-md">
+            Save
+          </button>
+        </div>
+        <input type="hidden" id="modalUserId" name="modalUserId" />
+      </form>
+    </div>
+  </div>
+</main>
+<!-- ...existing code... -->
+
+<script>
+// ...existing code...
+
+// --- Modal Form Logic ---
+const userModal = document.getElementById('userModal');
+const addUserBtn = document.getElementById('addUserBtn');
+const closeUserModal = document.getElementById('closeUserModal');
+const cancelUserModal = document.getElementById('cancelUserModal');
+const userForm = document.getElementById('userForm');
+let editingUserId = null;
+
+function openUserModal(editUser = null) {
+  userModal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  if (editUser) {
+    document.getElementById('modalTitle').textContent = 'Edit User';
+    document.getElementById('modalName').value = editUser.name || '';
+    document.getElementById('modalUsername').value = editUser.username || '';
+    document.getElementById('modalEmail').value = editUser.email || '';
+    document.getElementById('modalJob').value = editUser.job || '';
+    document.getElementById('modalStatus').value = editUser.status || '';
+    document.getElementById('modalDate').value = editUser.date || '';
+    document.getElementById('modalUserId').value = editUser.id || '';
+    editingUserId = editUser.id;
+  } else {
+    document.getElementById('modalTitle').textContent = 'Add User';
+    userForm.reset();
+    editingUserId = null;
+  }
+}
+function closeUserModalFn() {
+  userModal.classList.add('hidden');
+  document.body.style.overflow = '';
+  userForm.reset();
+  editingUserId = null;
+}
+addUserBtn.addEventListener('click', () => openUserModal());
+closeUserModal.addEventListener('click', closeUserModalFn);
+cancelUserModal.addEventListener('click', closeUserModalFn);
+window.addEventListener('keydown', (e) => {
+  if (!userModal.classList.contains('hidden') && e.key === 'Escape') closeUserModalFn();
+});
+userModal.addEventListener('click', (e) => {
+  if (e.target === userModal) closeUserModalFn();
+});
+
+// --- Data Structure ---
+let users = [
+  {
+    id: 1,
+    name: "Samsul",
+    username: "samsul",
+    email: "samsul@email.com",
+    job: "Staff",
+    status: "y",
+    date: "2024-01-01"
+  }
+];
+
+// --- Statistics Dashboard Logic ---
+function updateUserStats() {
+  const total = users.length;
+  const active = users.filter(u => (u.status || '').toLowerCase() === 'y').length;
+  const inactive = users.filter(u => (u.status || '').toLowerCase() === 'n').length;
+  const now = new Date();
+  const newUsers = users.filter(u => {
+    if (!u.date) return false;
+    const date = new Date(u.date);
+    if (isNaN(date)) return false;
+    const diff = (now - date) / (1000 * 60 * 60 * 24);
+    return diff <= 30;
+  }).length;
+  document.getElementById('statTotalUsers').textContent = total;
+  document.getElementById('statActiveUsers').textContent = active;
+  document.getElementById('statInactiveUsers').textContent = inactive;
+  document.getElementById('statNewUsers').textContent = newUsers;
+}
+
+// --- Card Grid Rendering ---
+function getInitials(name) {
+  if (!name) return "";
+  return name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+}
+function getAvatarColor(name) {
+  return "user-avatar-gradient";
+}
+function getStatusBadge(status) {
+  const s = (status||"").toLowerCase();
+  if (s === "y") return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-success">Active</span>`;
+  if (s === "n") return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-warning">Inactive</span>`;
+  return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-default">-</span>`;
+}
+function renderUserCards(filteredUsers) {
+  const userCardGrid = document.getElementById('userCardGrid');
+  if (filteredUsers.length === 0) {
+    userCardGrid.innerHTML = '';
+    document.getElementById('noProducts').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('noProducts').classList.add('hidden');
+  userCardGrid.innerHTML = filteredUsers.map(user => `
+    <div class="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all hover:border-blue-400 flex flex-col p-5 relative animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold ${getAvatarColor(user.name)} shadow" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+          ${getInitials(user.name)}
+        </div>
+        <div>
+          <div class="font-semibold text-lg text-gray-800">${user.name}</div>
+          <div class="text-sm text-gray-500">${user.job || '-'}</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        ${getStatusBadge(user.status)}
+        <span class="text-xs text-gray-400 ml-auto">${user.date ? user.date : '-'}</span>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="editUser('${user.id}')" class="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition-all">
+          <i class="fas fa-edit"></i>
+          <span class="hidden sm:inline">Edit</span>
+        </button>
+        <button onclick="deleteUser('${user.id}')" class="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-all">
+          <i class="fas fa-trash"></i>
+          <span class="hidden sm:inline">Delete</span>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// --- Table View Rendering ---
+function renderUserTable(filteredUsers) {
+  const userTableBody = document.getElementById('userTableBody');
+  if (filteredUsers.length === 0) {
+    userTableBody.innerHTML = '';
+    document.getElementById('noProducts').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('noProducts').classList.add('hidden');
+  userTableBody.innerHTML = filteredUsers.map(user => `
+    <tr class="border-t hover:bg-gray-50 transition-colors">
+      <td class="p-3 font-medium">${user.name}</td>
+      <td class="p-3">${user.job || '-'}</td>
+      <td class="p-3">${getStatusBadge(user.status)}</td>
+      <td class="p-3 hidden md:table-cell text-gray-600">${user.date || '-'}</td>
+      <td class="p-3">
+        <button onclick="editUser('${user.id}')" class="text-blue-600 hover:bg-blue-100 p-2 rounded-lg mr-1 transition-all">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button onclick="deleteUser('${user.id}')" class="text-red-600 hover:bg-red-100 p-2 rounded-lg transition-all">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// --- Search & Filter Logic ---
+function filterUsers() {
+  let filtered = [...users];
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const status = document.getElementById('statusFilter').value;
+  const job = document.getElementById('jobFilter').value;
+  if (search) {
+    filtered = filtered.filter(u =>
+      (u.name && u.name.toLowerCase().includes(search)) ||
+      (u.job && u.job.toLowerCase().includes(search)) ||
+      (u.username && u.username.toLowerCase().includes(search))
+    );
+  }
+  if (status) filtered = filtered.filter(u => (u.status || '').toLowerCase() === status);
+  if (job) filtered = filtered.filter(u => (u.job || '').toLowerCase() === job.toLowerCase());
+  return filtered;
+}
+function renderView() {
+  updateUserStats();
+  const filtered = filterUsers();
+  if (currentView === 'grid') {
+    document.getElementById('userCardGrid').classList.remove('hidden');
+    document.getElementById('userTableWrapper').classList.add('hidden');
+    renderUserCards(filtered);
+  } else {
+    document.getElementById('userCardGrid').classList.add('hidden');
+    document.getElementById('userTableWrapper').classList.remove('hidden');
+    renderUserTable(filtered);
+  }
+}
+
+// --- View Toggle Functionality ---
+let currentView = 'grid';
+document.getElementById('gridViewBtn').addEventListener('click', function() {
+  currentView = 'grid';
+  this.classList.add('bg-blue-100', 'text-blue-700', 'active');
+  document.getElementById('tableViewBtn').classList.remove('bg-blue-100', 'text-blue-700', 'active');
+  renderView();
+});
+document.getElementById('tableViewBtn').addEventListener('click', function() {
+  currentView = 'table';
+  this.classList.add('bg-blue-100', 'text-blue-700', 'active');
+  document.getElementById('gridViewBtn').classList.remove('bg-blue-100', 'text-blue-700', 'active');
+  renderView();
+});
+
+// --- Add/Edit/Delete User Logic ---
+function editUser(id) {
+  const user = users.find(u => u.id == id);
+  if (!user) return;
+  openUserModal({
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    job: user.job,
+    status: user.status,
+    date: user.date
+  });
+}
+function deleteUser(id) {
+  if (!confirm('Are you sure you want to delete this user?')) return;
+  users = users.filter(u => u.id != id);
+  renderView();
+}
+userForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('modalUserId').value;
+  const name = document.getElementById('modalName').value.trim();
+  const username = document.getElementById('modalUsername').value.trim();
+  const email = document.getElementById('modalEmail').value.trim();
+  const job = document.getElementById('modalJob').value;
+  const status = document.getElementById('modalStatus').value;
+  const date = document.getElementById('modalDate').value;
+  if (!name || !username || !email || !job || !status || !date) {
+    alert('Please fill all fields');
+    return;
+  }
+  if (id) {
+    // Edit
+    users = users.map(u => u.id == id ? { ...u, name, username, email, job, status, date } : u);
+  } else {
+    // Add
+    users.push({
+      id: Date.now(),
+      name, username, email, job, status, date
+    });
+  }
+  closeUserModalFn();
+  renderView();
+});
+
+// --- Search/Filter Events ---
+document.getElementById('searchInput').addEventListener('input', renderView);
+document.getElementById('statusFilter').addEventListener('change', renderView);
+document.getElementById('jobFilter').addEventListener('change', renderView);
+
+// --- Initial Render ---
+document.addEventListener('DOMContentLoaded', renderView);
+
+// --- Animations ---
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes fade-in { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: none; } }
+.animate-fade-in { animation: fade-in 0.3s cubic-bezier(0.25,1,0.5,1); }
+`;
+document.head.appendChild(style);
+
+// ...existing code...
+</script>
+<!-- ...existing code... -->
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 class="text-lg font-bold mb-4">Confirm Deletion</h3>
+      <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-all">Cancel</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Support Button -->
+  <div class="support-btn">
+    <i class="fas fa-headset text-xl"></i>
+    <span class="support-btn-text shadow-lg">Need Help?</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <!-- Replace embedded notification code with dynamic script loading -->
+  
+  <script>
+    // Dynamic script loader function
+    function loadScript(url, callback) {
+      console.log('Loading script:', url);
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      
+      // Execute callback when script is loaded
+      script.onload = function() {
+        console.log('Script loaded successfully:', url);
+        if (callback) callback();
+      };
+      
+      script.onerror = function() {
+        console.error('Error loading script:', url);
+      };
+      
+      document.head.appendChild(script);
+    }
+    
+    // Initialize AOS animation library
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+
+    // Load notification modal script dynamically
+    loadScript('/components/notification-modal.js', function() {
+      console.log('Initializing notification system');
+      
+      // Check if NotificationModal is available
+      if (typeof NotificationModal === 'undefined') {
+        console.error('NotificationModal not loaded properly');
+        return;
+      }
+      
+      // Initialize notification system
+      const notificationSystem = new NotificationModal({
+        position: 'top-right',
+        maxNotifications: 10,
+        autoHideTimeout: 3000
+      });
+      
+      // Set the notification button as trigger
+      notificationSystem.setTrigger('#notification-btn');
+      
+      // Add product-specific notifications
+      notificationSystem.add({
+        title: 'New Order Received',
+        message: 'Customer John Doe placed an order for 5 items',
+        type: 'success',
+        time: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
+        onClick: (notification) => {
+          console.log('Clicked on notification:', notification);
+        }
+      });
+      
+      notificationSystem.add({
+        title: 'Low Stock Alert',
+        message: 'Indomie Goreng is running low on stock (5 remaining)',
+        type: 'warning',
+        time: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      });
+      
+      notificationSystem.add({
+        title: 'System Maintenance',
+        message: 'Scheduled maintenance in 2 hours. The system might be slow.',
+        type: 'info',
+        time: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago,
+      });
+      
+      // Make notification functions globally available
+      window.addProductNotification = function(product) {
+        notificationSystem.add({
+          title: 'Product Added',
+          message: `${product.name} has been added to your inventory`,
+          type: 'success',
+          time: new Date(),
+        });
+      };
+      
+      window.editProductNotification = function(product) {
+        notificationSystem.add({
+          title: 'Product Updated',
+          message: `${product.name} has been updated in your inventory`,
+          type: 'info',
+          time: new Date(),
+        });
+      };
+      
+      window.deleteProductNotification = function(product) {
+        notificationSystem.add({
+          title: 'Product Deleted',
+          message: `${product.name} has been removed from your inventory`,
+          type: 'error',
+          time: new Date(),
+        });
+      };
+    });
+
+    // Enhanced sidebar toggle functionality
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      // For mobile devices
+      if (window.innerWidth <= 640) {
+        sidebar.classList.toggle('mobile-active');
+        overlay.classList.toggle('active');
+      } else {
+        // For larger screens
+        document.body.classList.toggle('sidebar-closed');
+      }
+    });
+    
+    // Close sidebar when clicking on overlay
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+      document.querySelector('.sidebar').classList.remove('mobile-active');
+      this.classList.remove('active');
+    });
+    
+    // Handle responsive behavior on resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <= 640) {
+        document.body.classList.remove('sidebar-closed');
+      } else if (window.innerWidth <= 1024) {
+        document.querySelector('.sidebar').classList.remove('mobile-active');
+        document.getElementById('sidebar-overlay').classList.remove('active');
+      }
+    });
+    
+    // Product data storage (would be replaced with API calls in a real application)
+    let products = [
+      {
+        id: 1,
+        name: "Samsul",
+        stock: "Staff",
+        price: "Y",
+        description: "2024-01-01"
+      }
+    ];
+    let currentProductId = null;
+    let editMode = false;
+    
+    // DOM Elements
+    const productForm = document.getElementById('productForm');
+    const productTableBody = document.getElementById('productTableBody');
+    const noProducts = document.getElementById('noProducts');
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const searchInput = document.getElementById('searchInput');
+    const productImage = document.getElementById('productImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEdit = document.getElementById('cancelEdit');
+    const totalProductsEl = document.getElementById('totalProducts');
+    const totalStockEl = document.getElementById('totalStock');
+    const avgPriceEl = document.getElementById('avgPrice');
+    const statusFilter = document.getElementById('statusFilter');
+    const jobFilter = document.getElementById('jobFilter');
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts();
+      updateUserStats();
+      setupEventListeners();
+    });
+    
+    function setupEventListeners() {
+      // Form submission
+      productForm.addEventListener('submit', handleFormSubmit);
+      
+      // File input change
+      productImage.addEventListener('change', handleImagePreview);
+      
+      // Search and sort
+      searchInput.addEventListener('input', renderProducts);
+      
+      // Modal buttons
+      cancelDelete.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+        currentProductId = null;
+      });
+      
+      confirmDelete.addEventListener('click', confirmDeleteProduct);
+      
+      // Cancel edit button
+      cancelEdit.addEventListener('click', () => {
+        resetForm();
+      });
+      
+      // Enhanced file input handling
+      const dragDropArea = document.getElementById('drag-drop-area');
+      const removeImage = document.getElementById('removeImage');
+      
+      // Add drag and drop functionality
+      dragDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.add('border-blue-500', 'bg-blue-50');
+      });
+      
+      dragDropArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.remove('border-blue-500', 'bg-blue-50');
+      });
+      
+      dragDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragDropArea.classList.remove('border-blue-500', 'bg-blue-50');
+        
+        if (e.dataTransfer.files.length) {
+          productImage.files = e.dataTransfer.files;
+          handleImagePreview();
+        }
+      });
+      
+      // Enhanced remove image button
+      removeImage.addEventListener('click', () => {
+        resetImagePreview();
+        productImage.value = '';
+      });
+
+      // Add event listeners for new filters
+      statusFilter.addEventListener('change', renderProducts);
+      jobFilter.addEventListener('change', renderProducts);
+    }
+    
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('productName').value,
+        stock: document.getElementById('productStock').value,
+        price: document.getElementById('productPrice').value,
+        description: document.getElementById('productDescription').value
+      };
+      
+      if (editMode && currentProductId) {
+        // Update existing user
+        const index = products.findIndex(p => p.id === currentProductId);
+        if (index !== -1) {
+          products[index] = { ...products[index], ...formData };
+          if (typeof editProductNotification === 'function') {
+            editProductNotification(products[index]);
+          }
+        }
+        resetForm();
+      } else {
+        // Add new user
+        const newUser = {
+          id: Date.now(),
+          ...formData
+        };
+        products.push(newUser);
+        if (typeof addProductNotification === 'function') {
+          addProductNotification(newUser);
+        }
+        productForm.reset();
+      }
+      
+      renderProducts();
+    }
+    
+    function resetForm() {
+      editMode = false;
+      currentProductId = null;
+      formTitle.textContent = 'Add New Product';
+      submitBtn.textContent = 'Add Product';
+      cancelEdit.classList.add('hidden');
+      productForm.reset();
+      resetImagePreview();
+    }
+    
+    function handleImagePreview() {
+      const file = productImage.files[0];
+      const removeBtn = document.getElementById('removeImage');
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreview.innerHTML = `
+            <div class="h-48 bg-gray-100 rounded-xl overflow-hidden">
+              <img src="${e.target.result}" alt="Preview" class="h-full w-full object-contain mx-auto" />
+            </div>
+          `;
+          removeBtn.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+        
+        // Add visual feedback for the drop area
+        document.getElementById('drag-drop-area').classList.add('border-green-500', 'bg-green-50');
+        setTimeout(() => {
+          document.getElementById('drag-drop-area').classList.remove('border-green-500', 'bg-green-50');
+        }, 1000);
+      } else {
+        resetImagePreview();
+      }
+    }
+    
+    function resetImagePreview() {
+      imagePreview.innerHTML = `
+        <div class="h-48 flex items-center justify-center bg-gray-100 rounded-xl border border-gray-200">
+          <span class="text-gray-400">No image selected</span>
+        </div>
+      `;
+      // Fix: Add null check before accessing removeImage
+      const removeBtn = document.getElementById('removeImage');
+      if (removeBtn) {
+        removeBtn.classList.add('hidden');
+      }
+    }
+    
+    function editProduct(id) {
+      const product = products.find(p => p.id === id);
+      if (product) {
+        document.getElementById('productName').value = product.name;
+        document.getElementById('productStock').value = product.stock;
+        document.getElementById('productPrice').value = product.price;
+        document.getElementById('productDescription').value = product.description || '';
+        document.getElementById('productId').value = product.id;
+        
+        if (product.image) {
+          imagePreview.innerHTML = `<img src="${product.image}" alt="${product.name}" class="h-full object-contain mx-auto" />`;
+        } else {
+          resetImagePreview();
+        }
+        
+        editMode = true;
+        currentProductId = product.id;
+        formTitle.textContent = 'Edit Product';
+        submitBtn.textContent = 'Update Product';
+        cancelEdit.classList.remove('hidden');
+        
+        // Scroll to form on mobile
+        if (window.innerWidth < 1024) {
+          productForm.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+    
+    function deleteProduct(id) {
+      currentProductId = id;
+      deleteModal.classList.remove('hidden');
+    }
+    
+    function confirmDeleteProduct() {
+      if (currentProductId) {
+        const product = products.find(p => p.id === currentProductId);
+        products = products.filter(p => p.id !== currentProductId);
+        deleteModal.classList.add('hidden');
+        
+        // Add notification for product deletion
+        if (product) {
+          deleteProductNotification(product);
+        }
+        
+        currentProductId = null;
+        renderProducts();
+      }
+    }
+    
+    function updateDashboardStats() {
+      // Update total products count with animation
+      animateCounter(totalProductsEl, products.length);
+      
+      // Calculate total stock with animation
+      const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
+      animateCounter(totalStockEl, totalStock);
+      
+      // Calculate average price
+      const totalPrice = products.reduce((sum, product) => sum + product.price, 0);
+      const avgPrice = products.length > 0 ? totalPrice / products.length : 0;
+      animateCurrency(avgPriceEl, avgPrice);
+    }
+    
+    function animateCounter(element, value) {
+      const duration = 1500;
+      const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+      const startTime = performance.now();
+      
+      function updateCounter(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeOutQuart(progress);
+        const currentValue = Math.floor(startValue + easedProgress * (value - startValue));
+        
+        element.textContent = currentValue.toLocaleString();
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        }
+      }
+      
+      requestAnimationFrame(updateCounter);
+    }
+    
+    function animateCurrency(element, value) {
+      const duration = 1500;
+      const startValue = parseFloat(element.textContent.replace(/[^\d.]/g, '')) || 0;
+      const startTime = performance.now();
+      
+      function updateCounter(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeOutQuart(progress);
+        const currentValue = startValue + easedProgress * (value - startValue);
+        
+        element.textContent = `$${currentValue.toFixed(2)}`;
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        }
+      }
+      
+      requestAnimationFrame(updateCounter);
+    }
+    
+    // Easing function for smoother animations
+    function easeOutQuart(x) {
+      return 1 - Math.pow(1 - x, 4);
+    }
+    
+    // Helper: Get initials from name
+    function getInitials(name) {
+      if (!name) return "";
+      return name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+    }
+    // Helper: Avatar color by name hash (now always gradient)
+    function getAvatarColor(name) {
+      return "user-avatar-gradient";
+    }
+    // Helper: Status badge
+    function getStatusBadge(status) {
+      const s = (status||"").toLowerCase();
+      if (s === "y") return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-success">Active</span>`;
+      if (s === "n") return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-warning">Inactive</span>`;
+      return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold badge-default">-</span>`;
+    }
+
+    // Render user cards instead of table
+    function renderProducts() {
+      let filteredProducts = [...products];
+      // Search
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      if (searchTerm) {
+        filteredProducts = filteredProducts.filter(p =>
+          (p.name && p.name.toLowerCase().includes(searchTerm)) ||
+          (p.stock && p.stock.toLowerCase().includes(searchTerm)) ||
+          (p.productName && p.productName.toLowerCase().includes(searchTerm))
+        );
+      }
+      // Status filter
+      const statusVal = statusFilter.value;
+      if (statusVal) {
+        filteredProducts = filteredProducts.filter(p => (p.price || '').toLowerCase() === statusVal);
+      }
+      // Job filter
+      const jobVal = jobFilter.value;
+      if (jobVal) {
+        filteredProducts = filteredProducts.filter(p => (p.stock || '').toLowerCase() === jobVal.toLowerCase());
+      }
+      // Card grid rendering
+      if (filteredProducts.length === 0) {
+        userCardGrid.innerHTML = '';
+        userTableBody.innerHTML = '';
+        noProducts.classList.remove('hidden');
+      } else {
+        noProducts.classList.add('hidden');
+        // Card grid
+        userCardGrid.innerHTML = filteredProducts.map(product => `
+          <div class="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all hover:border-blue-400 flex flex-col p-5 relative">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold ${getAvatarColor(product.name)} shadow">
+                ${getInitials(product.name)}
+              </div>
+              <div>
+                <div class="font-semibold text-lg text-gray-800">${product.name}</div>
+                <div class="text-sm text-gray-500">${product.stock || '-'}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              ${getStatusBadge(product.price)}
+              <span class="text-xs text-gray-400 ml-auto">${product.description ? product.description : '-'}</span>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button onclick="editProduct(${product.id})" class="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition-all">
+                <i class="fas fa-edit"></i>
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+              <button onclick="deleteProduct(${product.id})" class="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-all">
+                <i class="fas fa-trash"></i>
+                <span class="hidden sm:inline">Delete</span>
+              </button>
+            </div>
+          </div>
+        `).join('');
+        // Table view
+        userTableBody.innerHTML = filteredProducts.map(product => `
+          <tr class="border-t hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-medium">${product.name}</td>
+            <td class="p-3">${product.stock || '-'}</td>
+            <td class="p-3">${product.price || '-'}</td>
+            <td class="p-3 hidden md:table-cell text-gray-600">${product.description || '-'}</td>
+            <td class="p-3">
+              <button onclick="editProduct(${product.id})" class="text-blue-600 hover:bg-blue-100 p-2 rounded-lg mr-1 transition-all">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:bg-red-100 p-2 rounded-lg transition-all">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+      updateUserStats();
+    }
+
+    // Replace the simple scroll event listener with enhanced header hide/show functionality
+    (function() {
+      const header = document.querySelector('.top-nav');
+      const contentWrapper = document.querySelector('.content-wrapper');
+      let lastScrollTop = 0;
+      let scrollThreshold = 100; // Minimum scroll before hiding header
+      let isHeaderVisible = true;
+      let ticking = false;
+      
+      function handleScroll() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // If we've scrolled past the threshold and are scrolling down, hide the header
+        if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+          if (isHeaderVisible && header) {
+            header.classList.add('header-hidden');
+            if (contentWrapper) contentWrapper.classList.add('header-hidden');
+            isHeaderVisible = false;
+          }
+        } 
+        // If we're scrolling up, show the header
+        else if (scrollTop < lastScrollTop) {
+          if (!isHeaderVisible && header) {
+            header.classList.remove('header-hidden');
+            if (contentWrapper) contentWrapper.classList.remove('header-hidden');
+            isHeaderVisible = true;
+          }
+        }
+        
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+        ticking = false;
+      }
+      
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            handleScroll();
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+    
+    // Adjust behavior on resize for proper header positioning
+    window.addEventListener('resize', function() {
+      // Reset header visibility on resize
+      const header = document.querySelector('.top-nav');
+      header.classList.remove('header-hidden');
+    });
+
+    // Add: Update user statistics dashboard
+    function updateUserStats() {
+      const total = products.length;
+      const active = products.filter(u => (u.price || '').toLowerCase() === 'y').length;
+      const inactive = products.filter(u => (u.price || '').toLowerCase() === 'n').length;
+      const now = new Date();
+      const newUsers = products.filter(u => {
+        if (!u.description) return false;
+        const date = new Date(u.description);
+        if (isNaN(date)) return false;
+        const diff = (now - date) / (1000 * 60 * 60 * 24);
+        return diff <= 30;
+      }).length;
+      document.getElementById('statTotalUsers').textContent = total;
+      document.getElementById('statActiveUsers').textContent = active;
+      document.getElementById('statInactiveUsers').textContent = inactive;
+      document.getElementById('statNewUsers').textContent = newUsers;
+    }
+
+    // Call updateUserStats on load and after user changes
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts();
+      updateUserStats();
+    });
+
+    // Call updateUserStats after add/edit/delete
+    function renderProducts() {
+      let filteredProducts = [...products];
+      
+      // Apply search filter
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      if (searchTerm) {
+        filteredProducts = filteredProducts.filter(p => 
+          p.name.toLowerCase().includes(searchTerm) || 
+          (p.description && p.description.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      // Show/hide no users message
+      if (filteredProducts.length === 0) {
+        productTableBody.innerHTML = '';
+        noProducts.classList.remove('hidden');
+      } else {
+        noProducts.classList.add('hidden');
+        productTableBody.innerHTML = filteredProducts.map(product => `
+          <tr class="border-t hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-medium">${product.name}</td>
+            <td class="p-3">${product.stock || '-'}</td>
+            <td class="p-3">${product.price || '-'}</td>
+            <td class="p-3 hidden md:table-cell text-gray-600">${product.description || '-'}</td>
+            <td class="p-3">
+              <button onclick="editProduct(${product.id})" class="text-blue-600 hover:bg-blue-100 p-2 rounded-lg mr-1 transition-all">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:bg-red-100 p-2 rounded-lg transition-all">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+      updateUserStats();
+    }
+  </script>
+</body>
+</html>
