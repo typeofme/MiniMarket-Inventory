@@ -1,3 +1,7 @@
+# MiniMarket Inventory Management
+## Live Preview
+<h2>https://minimarket.typeof.me</h2>
+
 ## Technology Stack
 
 - **Backend**: Node.js with Express
