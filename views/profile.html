@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - MiniMarket</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/components/componentLoader.js"></script>
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/tokenHandler.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="app-container">
+    <div id="sidebar-component"></div>
+    <div class="content-wrapper">
+      <div id="topnav-component"></div>
+      <main class="main-content">
+        <div class="max-w-4xl mx-auto p-6">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+              <img id="profile-avatar" src="" alt="Profile" class="w-16 h-16 rounded-full object-cover hidden">
+              <span id="profile-initials" class="text-white text-xl font-semibold"></span>
+            </div>
+            <div>
+              <h1 id="profile-name" class="text-2xl font-bold text-gray-800">Loading...</h1>
+              <p id="profile-role" class="text-gray-600">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Personal Information -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-800">
+                <i class="fas fa-user mr-2 text-blue-500"></i>
+                Personal Information
+              </h2>
+              <button id="edit-profile-btn" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                <i class="fas fa-edit mr-1"></i>Edit
+              </button>
+            </div>
+            
+            <form id="profile-form">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                  <input type="text" id="first_name" name="first_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                  <input type="text" id="last_name" name="last_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                  <input type="text" id="username" name="username" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                  <input type="text" id="role" name="role" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <textarea id="address" name="address" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly></textarea>
+                </div>
+              </div>
+              
+              <div id="form-actions" class="mt-6 flex space-x-3 hidden">
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                  <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+                <button type="button" id="cancel-edit-btn" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+                  <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Section -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">
+              <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+              Security
+            </h2>
+            
+            <form id="password-form">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                  <input type="password" id="current_password" name="current_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter current password">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                  <input type="password" id="new_password" name="new_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter new password">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                  <input type="password" id="confirm_password" name="confirm_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Confirm new password">
+                </div>
+                
+                <button type="submit" class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200">
+                  <i class="fas fa-key mr-2"></i>Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    let isEditing = false;
+    let currentUser = null;
+
+    // Initialize components
+    function initializeComponents() {
+      // Check if ComponentLoader is available
+      if (typeof ComponentLoader === 'undefined') {
+        setTimeout(initializeComponents, 100);
+        return;
+      }
+      
+      // Load components immediately without delays
+      ComponentLoader.load('shared/sidebar', 'sidebar-component');
+      ComponentLoader.load('shared/topnav', 'topnav-component');
+      
+      // Load user profile after a short delay to ensure components are ready
+      setTimeout(() => {
+        loadUserProfile();
+        setupEventListeners();
+        
+        // Try activating the sidebar menu item
+        if (window.setActiveMenuItem) {
+          window.setActiveMenuItem();
+        }
+      }, 200);
+    }
+
+    // Load user profile data
+    async function loadUserProfile() {
+      try {
+        if (typeof AuthService !== 'undefined') {
+          currentUser = await AuthService.getCurrentUser();
+          if (currentUser) {
+            populateProfileForm(currentUser);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showNotification('Failed to load profile data', 'error');
+      }
+    }
+
+    // Populate form with user data
+    function populateProfileForm(user) {
+      if (!user) {
+        console.error('No user data provided to populateProfileForm');
+        return;
+      }
+
+      document.getElementById('first_name').value = user.first_name || '';
+      document.getElementById('last_name').value = user.last_name || '';
+      document.getElementById('username').value = user.username || '';
+      document.getElementById('email').value = user.email || '';
+      document.getElementById('phone').value = user.phone || '';
+      document.getElementById('address').value = user.address || '';
+      document.getElementById('role').value = user.role || '';
+
+      // Update profile header
+      document.getElementById('profile-name').textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'User';
+      document.getElementById('profile-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User';
+      
+      // Handle profile avatar
+      const avatar = document.getElementById('profile-avatar');
+      const initials = document.getElementById('profile-initials');
+      
+      if (user.avatar_url) {
+        avatar.src = user.avatar_url;
+        avatar.classList.remove('hidden');
+        initials.style.display = 'none';
+      } else {
+        const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'User';
+        initials.textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        avatar.classList.add('hidden');
+        initials.style.display = 'block';
+      }
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Edit profile button
+      document.getElementById('edit-profile-btn').addEventListener('click', toggleEditMode);
+      
+      // Cancel edit button
+      document.getElementById('cancel-edit-btn').addEventListener('click', cancelEdit);
+      
+      // Profile form submission
+      document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
+      
+      // Password form submission
+      document.getElementById('password-form').addEventListener('submit', handlePasswordUpdate);
+    }
+
+    // Toggle edit mode
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const form = document.getElementById('profile-form');
+      const inputs = form.querySelectorAll('input, textarea');
+      const editBtn = document.getElementById('edit-profile-btn');
+      const formActions = document.getElementById('form-actions');
+
+      if (isEditing) {
+        inputs.forEach(input => {
+          if (input.id !== 'username' && input.id !== 'role') {
+            input.readOnly = false;
+            input.classList.remove('bg-gray-100');
+          }
+        });
+        editBtn.innerHTML = '<i class="fas fa-times mr-1"></i>Cancel';
+        formActions.classList.remove('hidden');
+      } else {
+        cancelEdit();
+      }
+    }
+
+    // Cancel edit mode
+    function cancelEdit() {
+      isEditing = false;
+      const form = document.getElementById('profile-form');
+      const inputs = form.querySelectorAll('input, textarea');
+      const editBtn = document.getElementById('edit-profile-btn');
+      const formActions = document.getElementById('form-actions');
+
+      inputs.forEach(input => {
+        if (input.id !== 'username' && input.id !== 'role') {
+          input.readOnly = true;
+        }
+        if (input.id === 'username' || input.id === 'role') {
+          input.classList.add('bg-gray-100');
+        }
+      });
+      
+      editBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Edit';
+      formActions.classList.add('hidden');
+      
+      // Restore original values
+      if (currentUser) {
+        populateProfileForm(currentUser);
+      }
+    }
+
+    // Handle profile update
+    async function handleProfileUpdate(e) {
+      e.preventDefault();
+      
+      try {
+        const formData = new FormData(e.target);
+        const updateData = Object.fromEntries(formData);
+        
+        const response = await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(updateData)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          showNotification('Profile updated successfully!', 'success');
+          currentUser = { ...currentUser, ...updateData };
+          cancelEdit();
+          // Update topnav if needed
+          if (window.AuthGuard && window.AuthGuard.updateUserDisplay) {
+            window.AuthGuard.updateUserDisplay(currentUser);
+          }
+        } else {
+          showNotification(result.message || 'Failed to update profile', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        showNotification('Failed to update profile', 'error');
+      }
+    }
+
+    // Handle password update
+    async function handlePasswordUpdate(e) {
+      e.preventDefault();
+      
+      const currentPassword = document.getElementById('current_password').value;
+      const newPassword = document.getElementById('new_password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+
+      if (newPassword !== confirmPassword) {
+        showNotification('New passwords do not match', 'error');
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        showNotification('New password must be at least 6 characters long', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          showNotification('Password updated successfully!', 'success');
+          document.getElementById('password-form').reset();
+        } else {
+          showNotification(result.message || 'Failed to update password', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating password:', error);
+        showNotification('Failed to update password', 'error');
+      }
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+      } text-white`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+
+    // Initialize AOS
+    function initializeAOS() {
+      if (typeof AOS !== 'undefined') {
+        AOS.init({
+          duration: 800,
+          once: true,
+          easing: 'ease-out-cubic'
+        });
+      }
+    }
+
+    // Use different initialization based on document ready state
+    if (document.readyState === 'loading') {
+      // Document still loading
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initializeAOS, 100);
+        initializeComponents();
+      });
+    } else {
+      // Document already loaded
+      setTimeout(initializeAOS, 100);
+      initializeComponents();
+    }
+  </script>
+</body>
+</html>

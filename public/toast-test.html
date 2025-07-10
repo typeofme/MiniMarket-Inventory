@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toast System Test</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 50px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+    .success { background: #10b981; }
+    .error { background: #ef4444; }
+    .warning { background: #f59e0b; }
+    .info { background: #3b82f6; }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Toast System Test</h1>
+    <p>Click the buttons below to test different types of toast notifications:</p>
+    
+    <button class="success" onclick="Toast.success('Operation completed successfully!')">
+      <i class="fas fa-check"></i> Success Toast
+    </button>
+    
+    <button class="error" onclick="Toast.error('An error occurred while processing your request!')">
+      <i class="fas fa-times"></i> Error Toast
+    </button>
+    
+    <button class="warning" onclick="Toast.warning('Please save your work before continuing!')">
+      <i class="fas fa-exclamation-triangle"></i> Warning Toast
+    </button>
+    
+    <button class="info" onclick="Toast.info('New updates are available for download.')">
+      <i class="fas fa-info"></i> Info Toast
+    </button>
+    
+    <button style="background: #6b7280;" onclick="Toast.clear()">
+      <i class="fas fa-broom"></i> Clear All Toasts
+    </button>
+    
+    <h3>Usage Examples:</h3>
+    <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; overflow-x: auto;">
+// Success message
+Toast.success('Product saved successfully!');
+
+// Error message  
+Toast.error('Failed to connect to server');
+
+// Warning message
+Toast.warning('Your session will expire in 5 minutes');
+
+// Info message
+Toast.info('New features available in settings');
+
+// Custom duration (default: 5 seconds)
+Toast.success('Message', 3000); // 3 seconds
+
+// Clear all toasts
+Toast.clear();
+    </pre>
+  </div>
+
+  <script src="/js/toast.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<header class="sidebar-expanded"></header>
+  <!-- Top Navigation -->
+  <nav class="bg-white shadow-sm p-4 flex justify-between items-center">
+    <div class="flex items-center">
+      <button id="sidebar-toggle" class="mr-4 text-gray-700 hover:bg-gray-100 p-2.5 rounded-xl transition-all">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div>
+        <div>
+            <h1 class="text-xl font-bold text-gray-800 fade-in">Profile</h1>
+            <p class="text-sm text-gray-500">Welcome back, <span class="text-blue-600 font-medium">Budi</span>! Manage your personal information.</p>
+          </div>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <div class="relative">
+        <input type="text" id="search-global" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-xl bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-60" />
+        <i class="fas fa-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+      </div>
+      <div class="relative">
+        <button class="p-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition duration-200 relative">
+          <i class="fas fa-bell text-sm"></i>
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">3</span>
+        </button>
+      </div>
+      <a href="/profile" class="flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+        <img src="/api/placeholder/100/100" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover">
+        <div>
+          <span class="text-sm font-medium text-gray-700">Aditya </span>
+          <p class="text-xs text-gray-500">Store Manager</p>
+        </div>
+      </a>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management - MiniMarket</title>
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Authentication scripts -->
+    <script src="/js/authService.js"></script>
+    <script src="/js/authGuard.js"></script>
+    
+    <style>
+        .category-color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar placeholder -->
+        <div class="w-64 bg-gray-800 text-white p-4">
+            <h2 class="text-xl font-bold mb-6">MiniMarket Admin</h2>
+            <nav>
+                <a href="/products" class="block py-2 px-4 rounded hover:bg-gray-700">Products</a>
+                <a href="/categories" class="block py-2 px-4 rounded bg-gray-700">Categories</a>
+                <a href="/dashboard" class="block py-2 px-4 rounded hover:bg-gray-700">Dashboard</a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 p-6">
+            <div class="max-w-6xl mx-auto">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">Category Management</h1>
+                    <button id="add-category-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Category
+                    </button>
+                </div>
+
+                <!-- Categories Grid -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="categories-grid">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Category Modal -->
+    <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-lg font-semibold">Add Category</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="category-form">
+                    <input type="hidden" id="category-id">
+                    
+                    <div class="mb-4">
+                        <label for="category-name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input type="text" id="category-name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="category-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="category-description" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="category-icon" class="block text-sm font-medium text-gray-700 mb-1">Icon Class</label>
+                        <input type="text" id="category-icon" placeholder="fas fa-shopping-cart"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="category-color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                        <input type="color" id="category-color" value="#6B7280"
+                               class="w-full h-10 border border-gray-300 rounded-md">
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancel-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Save Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/categoryService.js"></script>
+    <script>
+        const categoryService = new CategoryService();
+        let categories = [];
+
+        // DOM elements
+        const categoriesGrid = document.getElementById('categories-grid');
+        const categoryModal = document.getElementById('category-modal');
+        const categoryForm = document.getElementById('category-form');
+        const addCategoryBtn = document.getElementById('add-category-btn');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const modalTitle = document.getElementById('modal-title');
+
+        // Initialize page
+        async function init() {
+            await loadCategories();
+            setupEventListeners();
+        }
+
+        // Load categories from API
+        async function loadCategories() {
+            try {
+                categories = await categoryService.getCategoriesWithCounts();
+                renderCategories();
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+                showError('Failed to load categories');
+            }
+        }
+
+        // Render categories grid
+        function renderCategories() {
+            const html = categories.map(category => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="${category.icon || 'fas fa-tag'}" style="color: ${category.color}"></i>
+                            <span class="category-color-preview" style="background-color: ${category.color}"></span>
+                        </div>
+                        <div class="flex space-x-1">
+                            <button onclick="editCategory(${category.id})" class="text-blue-600 hover:text-blue-800 p-1">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="toggleCategory(${category.id})" class="text-gray-600 hover:text-gray-800 p-1" title="${category.is_active ? 'Deactivate category' : 'Activate category'}">
+                                <i class="fas fa-${category.is_active ? 'eye-slash' : 'eye'}"></i>
+                            </button>
+                            <button onclick="deleteCategory(${category.id})" class="text-red-600 hover:text-red-800 p-1" title="Permanently delete category">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">${category.name}</h3>
+                    <p class="text-sm text-gray-600 mb-2">${category.description || 'No description'}</p>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                            <i class="fas fa-cube mr-1"></i>
+                            ${category.product_count || 0} product${(category.product_count || 0) !== 1 ? 's' : ''}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>Sort: ${category.sort_order}</span>
+                        <span class="px-2 py-1 rounded-full ${category.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${category.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+
+            categoriesGrid.innerHTML = html;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            addCategoryBtn.addEventListener('click', () => openModal());
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            categoryForm.addEventListener('submit', handleSubmit);
+
+            // Close modal on background click
+            categoryModal.addEventListener('click', (e) => {
+                if (e.target === categoryModal) closeModal();
+            });
+        }
+
+        // Open modal for add/edit
+        function openModal(category = null) {
+            if (category) {
+                modalTitle.textContent = 'Edit Category';
+                document.getElementById('category-id').value = category.id;
+                document.getElementById('category-name').value = category.name;
+                document.getElementById('category-description').value = category.description || '';
+                document.getElementById('category-icon').value = category.icon || '';
+                document.getElementById('category-color').value = category.color;
+            } else {
+                modalTitle.textContent = 'Add Category';
+                categoryForm.reset();
+                document.getElementById('category-id').value = '';
+            }
+            categoryModal.classList.remove('hidden');
+        }
+
+        // Close modal
+        function closeModal() {
+            categoryModal.classList.add('hidden');
+            categoryForm.reset();
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('category-name').value,
+                description: document.getElementById('category-description').value,
+                icon: document.getElementById('category-icon').value,
+                color: document.getElementById('category-color').value
+            };
+
+            const categoryId = document.getElementById('category-id').value;
+
+            try {
+                if (categoryId) {
+                    await categoryService.updateCategory(categoryId, formData);
+                } else {
+                    await categoryService.createCategory(formData);
+                }
+                
+                closeModal();
+                await loadCategories();
+                showSuccess(categoryId ? 'Category updated successfully' : 'Category created successfully');
+            } catch (error) {
+                console.error('Failed to save category:', error);
+                showError('Failed to save category');
+            }
+        }
+
+        // Edit category
+        function editCategory(id) {
+            const category = categories.find(c => c.id === id);
+            if (category) {
+                openModal(category);
+            }
+        }
+
+        // Toggle category active status
+        async function toggleCategory(id) {
+            try {
+                await categoryService.toggleActive(id);
+                await loadCategories();
+                showSuccess('Category status updated');
+            } catch (error) {
+                console.error('Failed to toggle category:', error);
+                showError('Failed to update category status');
+            }
+        }
+
+        // Delete category
+        async function deleteCategory(id) {
+            if (!confirm('Are you sure you want to permanently delete this category? This action cannot be undone.')) return;
+            
+            try {
+                await categoryService.deleteCategory(id);
+                await loadCategories();
+                showSuccess('Category permanently deleted');
+            } catch (error) {
+                console.error('Failed to delete category:', error);
+                showError('Failed to delete category');
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            // Simple alert for now, could be enhanced with a proper notification system
+            alert('✅ ' + message);
+        }
+
+        // Show error message
+        function showError(message) {
+            // Simple alert for now, could be enhanced with a proper notification system
+            alert('❌ ' + message);
+        }
+
+        // Initialize the page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

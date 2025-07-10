@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniMarket</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/toast.js"></script>
+  
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.02);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --sidebar-width: 16rem;
+      --sidebar-width-collapsed: 5rem;
+      --header-height: 73px;
+    }
+    
+    /* Header hide/show on scroll */
+    .header-hidden {
+      transform: translateY(-100%);
+      box-shadow: none;
+    }
+    
+    /* Top Navigation styles moved to /components/shared/topnav.html */
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .dashboard-card {
+      transition: var(--transition-smooth);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background-image: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      z-index: 40;
+      width: var(--sidebar-width);
+      position: relative;
+    }
+    
+    /* Add subtle glow effect to sidebar */
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      background: inherit;
+      filter: blur(15px);
+      opacity: 0.3;
+      z-index: -2;
+      pointer-events: none;
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibm9pc2UiLz48ZmVCbGVuZCBtb2RlPSJzb2Z0LWxpZ2h0IiBpbj0ibm9pc2UiIGluMj0iU291cmNlR3JhcGhpYyIgcmVzdWx0PSJibGVuZCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjA3NiIvPjwvc3ZnPg==');
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateX(3px);
+    }
+    
+    .nav-item:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      z-index: -1;
+      border-radius: 6px;
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .activity-item {
+      transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .pulse {
+      animation: pulse-animation 2s infinite;
+    }
+    
+    @keyframes pulse-animation {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Enhanced support button */
+    .support-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .support-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+    }
+    
+    .support-btn::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.6);
+      z-index: -1;
+      animation: pulse-support 2s infinite;
+    }
+    
+    @keyframes pulse-support {
+      0% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .support-btn-text {
+      position: absolute;
+      right: 70px;
+      background: #1d4ed8;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .support-btn:hover .support-btn-text {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Top Navigation styles moved to /components/shared/topnav.html */
+    
+    /* Responsive header */
+    header {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 50;
+      transition: var(--transition-smooth);
+      padding-left: var(--sidebar-width);
+    }
+    
+    /* Content wrapper styles moved to /components/shared/topnav.html */
+    
+    /* Improved responsiveness for sidebar and layout */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: var(--sidebar-width-collapsed);
+      }
+      
+      .sidebar .nav-icon {
+        margin-right: 0;
+      }
+      
+      .sidebar nav a span:not(.nav-icon *) {
+        display: none;
+      }
+      
+      .sidebar h1 {
+        display: none;
+      }
+      
+      header {
+        padding-left: var(--sidebar-width-collapsed);
+      }
+      
+      /* Content wrapper tablet styles moved to /components/shared/topnav.html */
+    }
+    
+    /* Mobile layout */
+    @media (max-width: 640px) {
+      body {
+        position: relative;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        position: fixed;
+        z-index: 60;
+      }
+      
+      .sidebar.mobile-active {
+        transform: translateX(0);
+      }
+      
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active h1 {
+        display: block;
+      }
+      
+      /* Content wrapper mobile styles moved to /components/shared/topnav.html */
+      
+      /* Make nav text visible when sidebar is active on mobile */
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+      
+      header {
+        padding-left: 0;
+      }
+      
+      /* Content wrapper mobile styles moved to /components/shared/topnav.html */
+      
+      .support-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+      }
+      
+      .support-btn-text {
+        display: none;
+      }
+
+      /* Update header for mobile specifically */
+      .nav-header, nav.top-nav {
+        left: 0;
+        width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      /* Adjust the search input on mobile */
+      .mobile-search {
+        position: static;
+      }
+      
+      .mobile-search input {
+        width: 100% !important;
+        max-width: 160px;
+      }
+      
+      /* Make the content respect header space */
+      .content-wrapper {
+        margin-top: var(--header-height);
+        padding-top: 1rem;
+      }
+      
+      /* Mobile search */
+      input#search-global {
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-search-collapsed input#search-global {
+        width: 40px;
+        background: transparent;
+      }
+      
+      .mobile-search-collapsed input#search-global:focus {
+        width: 180px;
+        background: #f3f4f6;
+      }
+    }
+    
+    /* Also ensure proper display at tablet size */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .sidebar.mobile-active nav a span:not(.nav-icon *),
+      .sidebar.mobile-active h1 {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active {
+        width: var(--sidebar-width);
+      }
+    }
+    
+    /* Sidebar toggle and mobile states */
+    body.sidebar-closed .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    body.sidebar-closed .content-wrapper,
+    body.sidebar-closed .nav-header, 
+    body.sidebar-closed .top-nav {
+      left: 0;
+    }
+    
+    @media (max-width: 640px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        position: fixed;
+        z-index: 60;
+      }
+      
+      .sidebar.mobile-active {
+        transform: translateX(0);
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+      }
+      
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active h1 {
+        display: block;
+      }
+      
+      .content-wrapper {
+        margin-left: 0;
+      }
+    }
+    
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 55;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Improved sidebar and topnav coordination */
+    .sidebar {
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
+      z-index: 60; /* Ensure sidebar is above content */
+    }
+    
+    .content-wrapper {
+      transition: margin-left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: margin-left;
+    }
+    
+    .top-nav, .nav-header {
+      transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s ease;
+      will-change: left, transform;
+      z-index: 55; /* Lower than sidebar to prevent overlap issues */
+    }
+    
+    /* Fix for mobile sidebar */
+    .sidebar.mobile-active {
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+<!-- Mobile Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Side Navigation -->
+<aside class="sidebar text-white w-64 min-h-screen p-4 fixed left-0 top-0 z-50">
+  <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+    <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+      <i class="fas fa-store text-3xl"></i>
+    </div>
+    <h1 class="text-2xl font-bold">MiniMarket</h1>
+  </div>
+  
+  <nav class="space-y-2">
+    <a href="/" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="100">
+      <div class="nav-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <span>Dashboard</span>
+    </a>
+    
+    <a href="/products" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="150">
+      <div class="nav-icon">
+        <i class="fas fa-box"></i>
+      </div>
+      <span>Products</span>
+    </a>
+    
+    <a href="/reports" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="200">
+      <div class="nav-icon">
+        <i class="fas fa-chart-bar"></i>
+      </div>
+      <span>Reports</span>
+    </a>
+    
+    <a href="/restock" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="250">
+      <div class="nav-icon">
+        <i class="fas fa-boxes"></i>
+      </div>
+      <span>Restock</span>
+    </a>
+    
+    <a href="/assets" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="300">
+      <div class="nav-icon">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <span>Asset</span>
+    </a>
+    
+    <a href="/datasupply" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="350">
+      <div class="nav-icon">
+        <i class="fas fa-database"></i>
+      </div>
+      <span>Data Supply</span>
+    </a>
+    
+    <a href="/supply" class="hover:bg-white/10 rounded-xl p-3 flex items-center transition duration-200 cursor-pointer" 
+         data-aos="fade-right" data-aos-delay="400">
+      <div class="nav-icon">
+        <i class="fas fa-truck-loading"></i>
+      </div>
+      <span>Supply</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<div class="content-wrapper flex-1">
+  <!-- Top Navigation -->
+  <nav class="bg-white shadow-sm p-4 flex justify-between items-center top-nav">
+    <div class="flex items-center">
+      <button id="sidebar-toggle" class="mr-3 text-gray-700 hover:bg-gray-100 p-2 rounded-xl transition-all">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div>
+        <h1 class="text-lg md:text-xl font-bold text-gray-800 fade-in">Template Page</h1>
+        <p class="text-xs md:text-sm text-gray-500 hidden sm:block">Welcome back, <span class="text-blue-600 font-medium">Adit</span>!</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 md:space-x-4">
+      <a href="/profile" class="hidden sm:flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+        <div>
+          <span class="text-sm font-medium text-gray-700">Adit</span>
+          <p class="text-xs text-gray-500">Store Manager</p>
+        </div>
+      </a>
+      <a href="/profile" class="sm:hidden p-2.5 rounded-xl bg-gray-100">
+        <i class="fas fa-user-circle"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Content goes here -->
+  <main class="p-6">
+    <!-- Your page content will go here -->
+    <h2 class="text-xl font-bold mb-4">Content Area</h2>
+    <p>Replace this with your page-specific content.</p>
+  </main>
+</div>
+
+<!-- Live Support Button -->
+<div class="support-btn">
+  <i class="fas fa-headset text-xl"></i>
+  <span class="support-btn-text shadow-lg">Need Help?</span>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  // Initialize AOS animation library
+  AOS.init({
+    duration: 800,
+    once: true,
+    easing: 'ease-out-cubic'
+  });
+  
+  // Header scroll hide/show behavior
+  (function() {
+    const header = document.querySelector('.top-nav');
+    const contentWrapper = document.querySelector('.content-wrapper');
+    let lastScrollTop = 0;
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          if (scrollTop > lastScrollTop && scrollTop > 100) {
+            header.classList.add('header-hidden');
+          } else if (scrollTop < lastScrollTop) {
+            header.classList.remove('header-hidden');
+          }
+          lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  })();
+
+  // Header hide/show on scroll functionality
+  let lastScrollTop = 0;
+  const header = document.querySelector('nav.top-nav');
+  
+  window.addEventListener('scroll', function() {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+    if (currentScroll > lastScrollTop && currentScroll > 70) {
+      // Scrolling down, hide header
+      header.classList.add('header-hidden');
+    } else {
+      // Scrolling up, show header
+      header.classList.remove('header-hidden');
+    }
+    
+    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+  });
+  
+  // Sidebar toggle functionality
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const body = document.body;
+  
+  // Create sidebar overlay for mobile
+  const sidebarOverlay = document.createElement('div');
+  sidebarOverlay.className = 'sidebar-overlay';
+  document.body.appendChild(sidebarOverlay);
+  
+  // Toggle sidebar function
+  function toggleSidebar() {
+    if (window.innerWidth <= 640) {
+      // Mobile behavior
+      sidebar.classList.toggle('mobile-active');
+      sidebarOverlay.classList.toggle('active');
+    } else {
+      // Desktop behavior
+      body.classList.toggle('sidebar-closed');
+    }
+  }
+  
+  // Attach event listeners
+  sidebarToggle.addEventListener('click', toggleSidebar);
+  sidebarOverlay.addEventListener('click', function() {
+    sidebar.classList.remove('mobile-active');
+    sidebarOverlay.classList.remove('active');
+  });
+  
+  // Close sidebar when clicking on overlay
+  document.getElementById('sidebar-overlay').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.remove('mobile-active');
+    this.classList.remove('active');
+  });
+  
+  // Handle responsive behavior on resize
+  window.addEventListener('resize', function() {
+    if (window.innerWidth <= 640) {
+      document.body.classList.remove('sidebar-closed');
+    } else if (window.innerWidth <= 1024) {
+      document.querySelector('.sidebar').classList.remove('mobile-active');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<div class="login-form-container">
+    <div class="login-header">
+        <h2 class="login-title">Log in</h2>
+        
+    </div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+    <form id="loginForm">
+        <div class="form-group">
+            <input type="text" id="username" class="form-control" placeholder="Username/Email" required>
+        </div>
+        <div class="form-group">
+            <div class="password-container">
+                <input type="password" id="password" class="form-control" placeholder="Password" required>
+                <span class="password-toggle" onclick="togglePassword()">
+                    <i class="far fa-eye-slash" id="password-eye"></i>
+                </span>
+            </div>
+        </div>
+        <button type="submit" class="login-button" id="loginBtn">LOG IN</button>
+    </form>
+</div>
+
+<script src="/js/authService.js"></script>
+<script>
+// Toggle password visibility
+function togglePassword() {
+    const passwordField = document.getElementById('password');
+    const eyeIcon = document.getElementById('password-eye');
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        eyeIcon.className = 'far fa-eye';
+    } else {
+        passwordField.type = 'password';
+        eyeIcon.className = 'far fa-eye-slash';
+    }
+}
+
+// Handle login form submission - attach immediately when script runs
+(function() {
+    // Wait a short moment for DOM elements to be available
+    setTimeout(function() {
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+            console.log('Login form event listener attached');
+        } else {
+            console.error('Login form not found');
+        }
+    }, 100);
+})();
+
+async function handleLoginSubmit(e) {
+    e.preventDefault();
+    console.log('Login form submitted');
+    
+    // Check if authService is available
+    if (typeof authService === 'undefined') {
+        console.error('AuthService not available');
+        alert('Authentication service is not available. Please refresh the page.');
+        return;
+    }
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('error-message');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    console.log('Login attempt:', { username, password: password ? '***' : 'empty' });
+    
+    // Clear previous errors
+    errorDiv.style.display = 'none';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Logging in...';
+    
+    try {
+        const response = await authService.login(username, password);
+        console.log('Login response:', response);
+        
+        if (response.success) {
+            // Store token in both localStorage and sessionStorage for compatibility
+            if (response.token) {
+                localStorage.setItem('minimarket_token', response.token);
+                sessionStorage.setItem('authToken', response.token);
+                console.log('Token stored in both localStorage and sessionStorage');
+            }
+            
+            // Store user info
+            if (response.user) {
+                localStorage.setItem('minimarket_user', JSON.stringify(response.user));
+            }
+            
+            // Check if there's a redirect URL stored
+            const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/';
+            localStorage.removeItem('redirectAfterLogin');
+            
+            console.log('Redirecting to:', redirectUrl);
+            // Redirect to main page (dashboard)
+            window.location.href = redirectUrl;
+        } else {
+            throw new Error(response.message || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        errorDiv.textContent = error.message || 'Login failed. Please try again.';
+        errorDiv.style.display = 'block';
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'LOG IN';
+    }
+}
+
+// Show register form (placeholder)
+function showRegisterForm() {
+    alert('Registration feature coming soon!');
+}
+
+// Check if user is already logged in - only check client-side tokens
+function checkAuthStatus() {
+    // Only check client-side tokens to avoid redirect loops
+    const localToken = localStorage.getItem('minimarket_token');
+    const sessionToken = sessionStorage.getItem('authToken');
+    
+    if (localToken || sessionToken) {
+        // Check if authService is available and token is valid
+        if (typeof authService !== 'undefined' && authService.isAuthenticated()) {
+            window.location.href = '/';
+            return;
+        }
+    }
+    
+    // Don't check server-side on login page to avoid redirect loops
+    // Server-side check will be handled by the login route itself
+}
+
+// Only check once when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(checkAuthStatus, 500);
+});
+</script>

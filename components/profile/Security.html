@@ -1,0 +1,163 @@
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fas fa-lock"></i> Security</h2>
+  </div>
+  <div class="card-body">
+    <div id="password-error-message" class="error-message" style="display: none;"></div>
+    <div id="password-success-message" class="success-message" style="display: none;"></div>
+    
+    <form id="password-change-form">
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter your current password" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Enter new password" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm new password" required>
+        </div>
+      </div>
+      <div style="margin-top: 20px;">
+        <button type="submit" class="btn btn-primary" id="update-password-btn">Update Password</button>
+      </div>
+    </form>
+    
+    <hr style="margin: 30px 0;">
+    
+    <div class="security-info">
+      <h3>Security Information</h3>
+      <div class="info-row">
+        <span>Last Login:</span>
+        <span class="last-login-display">Loading...</span>
+      </div>
+      <div class="info-row">
+        <span>Account Created:</span>
+        <span class="account-created-display">Loading...</span>
+      </div>
+      <div class="info-row">
+        <span>Login Sessions:</span>
+        <span>1 active session</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Handle password change form
+document.getElementById('password-change-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const currentPassword = document.getElementById('current_password').value;
+  const newPassword = document.getElementById('new_password').value;
+  const confirmPassword = document.getElementById('confirm_password').value;
+  const errorDiv = document.getElementById('password-error-message');
+  const successDiv = document.getElementById('password-success-message');
+  const submitBtn = document.getElementById('update-password-btn');
+  
+  // Clear previous messages
+  errorDiv.style.display = 'none';
+  successDiv.style.display = 'none';
+  
+  // Validate passwords match
+  if (newPassword !== confirmPassword) {
+    errorDiv.textContent = 'New passwords do not match';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  // Validate password strength
+  if (newPassword.length < 6) {
+    errorDiv.textContent = 'Password must be at least 6 characters long';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Updating...';
+    
+    const response = await authService.changePassword(currentPassword, newPassword);
+    if (response.success) {
+      successDiv.textContent = 'Password updated successfully!';
+      successDiv.style.display = 'block';
+      
+      // Clear form
+      this.reset();
+    } else {
+      throw new Error(response.message || 'Failed to update password');
+    }
+  } catch (error) {
+    errorDiv.textContent = error.message || 'Failed to update password';
+    errorDiv.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Update Password';
+  }
+});
+
+// Load security information
+async function loadSecurityInfo() {
+  try {
+    const user = await authService.getProfile();
+    if (user) {
+      if (user.last_login) {
+        document.querySelector('.last-login-display').textContent = new Date(user.last_login).toLocaleString();
+      }
+      if (user.created_at) {
+        document.querySelector('.account-created-display').textContent = new Date(user.created_at).toLocaleString();
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load security info:', error);
+  }
+}
+
+// Load security info when component loads
+document.addEventListener('DOMContentLoaded', loadSecurityInfo);
+</script>
+
+<style>
+.error-message {
+  background-color: #fee;
+  color: #c53030;
+  padding: 10px;
+  border: 1px solid #feb2b2;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.success-message {
+  background-color: #f0fff4;
+  color: #22c55e;
+  padding: 10px;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.security-info {
+  margin-top: 20px;
+}
+
+.security-info h3 {
+  margin-bottom: 15px;
+  color: #374151;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+</style>

@@ -1,0 +1,77 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="100">
+    <div class="rounded-full bg-blue-100 p-3 mr-4 pulse">
+      <i class="fas fa-box text-blue-600 text-xl"></i>
+    </div>
+    <div>
+      <h3 class="text-gray-500 text-sm">Total Products</h3>
+      <p class="text-2xl font-bold" id="totalProducts">0</p>
+    </div>
+  </div>
+  <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="200">
+    <div class="rounded-full bg-green-100 p-3 mr-4 pulse">
+      <i class="fas fa-layer-group text-green-600 text-xl"></i>
+    </div>
+    <div>
+      <h3 class="text-gray-500 text-sm">Total Stock</h3>
+      <p class="text-2xl font-bold" id="totalStock">0</p>
+    </div>
+  </div>
+  <div class="dashboard-card bg-white p-6 rounded-lg shadow flex items-center" data-aos="fade-up" data-aos-delay="300">
+    <div class="rounded-full bg-purple-100 p-3 mr-4 pulse">
+      <i class="fas fa-tags text-purple-600 text-xl"></i>
+    </div>
+    <div>
+      <h3 class="text-gray-500 text-sm">Avg. Price</h3>
+      <p class="text-2xl font-bold" id="avgPrice">$0.00</p>
+    </div>
+  </div>
+</div>
+<script>
+  function updateDashboardStats() {
+    animateCounter(document.getElementById('totalProducts'), products.length);
+    const totalStock = products.reduce((sum, product) => sum + (product.stock || 0), 0);
+    animateCounter(document.getElementById('totalStock'), totalStock);
+    const totalPrice = products.reduce((sum, product) => {
+      const price = parseFloat(product.price) || 0;
+      return sum + price;
+    }, 0);
+    const avgPrice = products.length > 0 ? totalPrice / products.length : 0;
+    animateCurrency(document.getElementById('avgPrice'), avgPrice);
+  }
+  function animateCounter(element, value) {
+    const duration = 1500;
+    const startValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+    const startTime = performance.now();
+    function updateCounter(timestamp) {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = Math.floor(startValue + easedProgress * (value - startValue));
+      element.textContent = currentValue.toLocaleString();
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      }
+    }
+    requestAnimationFrame(updateCounter);
+  }
+  function animateCurrency(element, value) {
+    const duration = 1500;
+    const startValue = parseFloat(element.textContent.replace(/[^\d.]/g, '')) || 0;
+    const startTime = performance.now();
+    function updateCounter(timestamp) {
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = startValue + easedProgress * (value - startValue);
+      element.textContent = `$${currentValue.toFixed(2)}`;
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      }
+    }
+    requestAnimationFrame(updateCounter);
+  }
+  function easeOutQuart(x) {
+    return 1 - Math.pow(1 - x, 4);
+  }
+</script>

@@ -1,0 +1,29 @@
+<!-- Asset Health Overview Section -->
+<div class="mt-6 md:mt-8 mb-6 md:mb-8" data-aos="fade-up" data-aos-delay="100" data-aos-once="true">
+  <div class="dashboard-card bg-white p-6 flex flex-col gap-4 rounded-lg border border-gray-200">
+    <h2 class="text-xl font-semibold mb-2">Asset Health Overview</h2>
+    <div id="assetHealthOverview" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full">
+      <div class="dashboard-card bg-green-100 p-6 flex items-center rounded-lg border border-green-200">
+        <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
+        <div>
+          <div class="text-lg font-bold text-green-700" id="countHealthy">0</div>
+          <div class="text-xs text-green-700">Healthy</div>
+        </div>
+      </div>
+      <div class="dashboard-card bg-yellow-100 p-6 flex items-center rounded-lg border border-yellow-200">
+        <span class="w-3 h-3 rounded-full bg-yellow-400 mr-3"></span>
+        <div>
+          <div class="text-lg font-bold text-yellow-700" id="countAttention">0</div>
+          <div class="text-xs text-yellow-700">Needs Attention</div>
+        </div>
+      </div>
+      <div class="dashboard-card bg-red-100 p-6 flex items-center rounded-lg border border-red-200">
+        <span class="w-3 h-3 rounded-full bg-red-500 mr-3"></span>
+        <div>
+          <div class="text-lg font-bold text-red-700" id="countCritical">0</div>
+          <div class="text-xs text-red-700">Critical</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

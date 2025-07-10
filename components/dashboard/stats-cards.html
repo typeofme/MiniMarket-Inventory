@@ -1,0 +1,316 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 relative">
+  <!-- Total Products Card -->
+  <div class="stat-stats-card" data-aos="fade-up" data-aos-delay="100">
+    <div class="stat-icon-wrapper bg-blue">
+      <div class="stat-icon-bg">
+        <i class="fas fa-cubes"></i>
+      </div>
+    </div>
+    <div class="stat-stats-content">
+      <p class="stat-stats-label">Total Products</p>
+      <div class="stat-stats-value-container">
+        <h2 class="stat-stats-value">0</h2>
+        <div class="stat-stats-trend positive">
+          <i class="fas fa-check-circle"></i>
+          <span>0</span>
+        </div>
+      </div>
+      <div class="stat-progressbar">
+        <div class="stat-progress stat-blue-bg" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Low Stock Card -->
+  <div class="stat-stats-card" data-aos="fade-up" data-aos-delay="200">
+    <div class="stat-icon-wrapper bg-red">
+      <div class="stat-icon-bg">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+    </div>
+    <div class="stat-stats-content">
+      <p class="stat-stats-label">Low Stock Items</p>
+      <div class="stat-stats-value-container">
+        <h2 class="stat-stats-value">0</h2>
+        <div class="stat-stats-trend negative">
+          <i class="fas fa-exclamation"></i>
+          <span>0</span>
+        </div>
+      </div>
+      <div class="stat-progressbar">
+        <div class="stat-progress stat-red-bg" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Total Sales Card (now Total Value) -->
+  <div class="stat-stats-card" data-aos="fade-up" data-aos-delay="300">
+    <div class="stat-icon-wrapper bg-green">
+      <div class="stat-icon-bg">
+        <i class="fas fa-dollar-sign"></i>
+      </div>
+    </div>
+    <div class="stat-stats-content">
+      <p class="stat-stats-label">Total Inventory Value</p>
+      <div class="stat-stats-value-container">
+        <h2 class="stat-stats-value">$0</h2>
+        <div class="stat-stats-trend positive">
+          <i class="fas fa-percentage"></i>
+          <span>0%</span>
+        </div>
+      </div>
+      <div class="stat-progressbar">
+        <div class="stat-progress stat-green-bg" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Average Price Card (replaces New Orders) -->
+  <div class="stat-stats-card" data-aos="fade-up" data-aos-delay="400">
+    <div class="stat-icon-wrapper bg-purple">
+      <div class="stat-icon-bg">
+        <i class="fas fa-tag"></i>
+      </div>
+    </div>
+    <div class="stat-stats-content">
+      <p class="stat-stats-label">Average Price</p>
+      <div class="stat-stats-value-container">
+        <h2 class="stat-stats-value">$0</h2>
+        <div class="stat-stats-trend positive">
+          <i class="fas fa-boxes"></i>
+          <span>0</span>
+        </div>
+      </div>
+      <div class="stat-progressbar">
+        <div class="stat-progress stat-purple-bg" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add refresh button for manual updates -->
+<div class="flex justify-between items-center mb-4">
+  <h3 class="text-lg font-semibold text-gray-700">Product Statistics</h3>
+  <button id="refresh-stats-btn" class="flex items-center space-x-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Refresh Statistics">
+    <i class="fas fa-sync-alt"></i>
+    <span>Refresh</span>
+  </button>
+</div>
+<small id="stats-last-updated" class="text-xs text-gray-500 ml-2">Last updated: <span id="last-update-time">Never</span></small>
+
+<!-- Stats Cards Loading Overlay -->
+<div id="stats-cards-loading" class="absolute inset-0 z-40 flex items-center justify-center bg-white bg-opacity-80 rounded-xl transition-opacity duration-300 hidden">
+  <div class="text-center">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
+    <p class="text-gray-600" id="stats-cards-loading-message">Loading dashboard stats...</p>
+  </div>
+</div>
+
+<style>
+  .stat-stats-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    height: 100%;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(240, 240, 240, 0.8);
+  }
+  
+  .stat-stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  }
+  
+  .stat-icon-wrapper {
+    width: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-icon-wrapper.bg-blue {
+    background: linear-gradient(135deg, #007AFF, #56CCF2);
+  }
+  
+  .stat-icon-wrapper.bg-red {
+    background: linear-gradient(135deg, #FF453A, #FF9F0A);
+  }
+  
+  .stat-icon-wrapper.bg-green {
+    background: linear-gradient(135deg, #34C759, #30D158);
+  }
+  
+  .stat-icon-wrapper.bg-purple {
+    background: linear-gradient(135deg, #AF52DE, #BF5AF2);
+  }
+  
+  .stat-icon-bg {
+    height: 46px;
+    width: 46px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+  }
+  
+  .stat-stats-content {
+    flex: 1;
+    padding: 1.5rem 1.5rem 1.25rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-stats-label {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    color: #8E8E93;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  
+  .stat-stats-value-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-stats-value {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  
+  .stat-stats-trend {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .stat-stats-trend.positive {
+    background-color: rgba(52, 199, 89, 0.15);
+    color: #34C759;
+  }
+  
+  .stat-stats-trend.negative {
+    background-color: rgba(255, 69, 58, 0.15);
+    color: #FF453A;
+  }
+  
+  .stat-progressbar {
+    height: 4px;
+    width: 100%;
+    background-color: #F2F2F7;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  
+  .stat-progress {
+    height: 100%;
+    border-radius: 9999px;
+    position: relative;
+    animation: stat-progress 1s ease-out forwards;
+  }
+  
+  .stat-blue-bg {
+    background: #007AFF;
+  }
+  
+  .stat-red-bg {
+    background: #FF453A;
+  }
+  
+  .stat-green-bg {
+    background: #34C759;
+  }
+  
+  .stat-purple-bg {
+    background: #AF52DE;
+  }
+  
+  @keyframes stat-progress {
+    from { width: 0; }
+  }
+  
+  @media (max-width: 1280px) {
+    .stat-icon-wrapper {
+      width: 70px;
+    }
+    
+    .stat-icon-bg {
+      height: 40px;
+      width: 40px;
+      font-size: 1.1rem;
+    }
+    
+    .stat-stats-value {
+      font-size: 1.75rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .stat-stats-card {
+      box-shadow: none;
+      border-radius: 16px;
+      border-left: none;
+      position: relative;
+    }
+    
+    .stat-stats-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 4px;
+      border-radius: 4px;
+    }
+    
+    .stat-stats-card:nth-child(1)::before {
+      background: #007AFF;
+    }
+    
+    .stat-stats-card:nth-child(2)::before {
+      background: #FF453A;
+    }
+    
+    .stat-stats-card:nth-child(3)::before {
+      background: #34C759;
+    }
+    
+    .stat-stats-card:nth-child(4)::before {
+      background: #AF52DE;
+    }
+    
+    .stat-icon-wrapper {
+      display: none;
+    }
+    
+    .stat-stats-content {
+      padding-left: 1.25rem;
+    }
+  }
+</style>
+
+<!-- Dynamic Stats Cards Controller -->
+<script src="/components/dashboard/stats-cards.js"></script>

@@ -1,0 +1,195 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Value</h3>
+    <i class="fas fa-dollar-sign text-green-500"></i>
+  </div>
+  
+  <div class="text-center mb-4">
+    <h2 id="inventory-value-amount" class="text-3xl font-bold text-gray-800">Loading...</h2>
+  </div>
+  
+  <div class="h-36 mb-2">
+    <canvas id="inventory-value-chart"></canvas>
+  </div>
+  
+  <div class="grid grid-cols-2 gap-3 mt-4 text-center text-xs">
+    <div>
+      <p class="text-gray-500">Highest Value Category</p>
+      <p id="highest-category" class="font-semibold text-gray-800">Loading...</p>
+    </div>
+    <div>
+      <p class="text-gray-500">Lowest Value Category</p>
+      <p id="lowest-category" class="font-semibold text-gray-800">Loading...</p>
+    </div>
+  </div>
+  
+  <script>
+    (function() {
+      let inventoryValueChart = null;
+      
+      // Fetch inventory value data from API
+      async function fetchInventoryData() {
+        try {
+          const response = await fetch('/api/products/inventory-value');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error('Error fetching inventory data:', error);
+          // Return fallback data
+          return {
+            currentValue: 0,
+            changePercent: 0,
+            historicalData: [
+              { month: 'Jan', value: 0 },
+              { month: 'Feb', value: 0 },
+              { month: 'Mar', value: 0 },
+              { month: 'Apr', value: 0 },
+              { month: 'May', value: 0 },
+              { month: 'Jun', value: 0 },
+              { month: 'Jul', value: 0 }
+            ],
+            highestCategory: { name: 'N/A', value: 0 },
+            lowestCategory: { name: 'N/A', value: 0 }
+          };
+        }
+      }
+      
+      // Update the display with fetched data
+      function updateDisplay(data) {
+        // Update main value
+        const valueElement = document.getElementById('inventory-value-amount');
+        if (valueElement) {
+          valueElement.textContent = '$' + data.currentValue.toLocaleString();
+        }
+        
+        // Update category information
+        const highestCategoryElement = document.getElementById('highest-category');
+        if (highestCategoryElement) {
+          highestCategoryElement.textContent = `${data.highestCategory.name} ($${data.highestCategory.value.toLocaleString()})`;
+        }
+        
+        const lowestCategoryElement = document.getElementById('lowest-category');
+        if (lowestCategoryElement) {
+          lowestCategoryElement.textContent = `${data.lowestCategory.name} ($${data.lowestCategory.value.toLocaleString()})`;
+        }
+      }
+
+      // Wait for DOM and Chart.js to be available
+      async function initChart() {
+        if (typeof Chart === 'undefined') {
+          console.warn('Chart.js not loaded yet. Retrying in 500ms...');
+          setTimeout(initChart, 500);
+          return;
+        }
+
+        try {
+          // Fetch data from API
+          const data = await fetchInventoryData();
+          
+          // Update display elements
+          updateDisplay(data);
+          
+          // Use unique ID for the chart
+          const ctx = document.getElementById('inventory-value-chart');
+          
+          if (!ctx) {
+            console.error('Cannot find canvas element for inventory value chart');
+            return;
+          }
+          
+          const months = data.historicalData.map(item => item.month);
+          const values = data.historicalData.map(item => item.value);
+          
+          inventoryValueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: months,
+              datasets: [{
+                label: 'Total Value ($)',
+                data: values,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'white',
+                pointBorderColor: '#10b981',
+                pointRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return `Value: $${context.raw.toLocaleString()}`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false
+                  }
+                },
+                y: {
+                  ticks: {
+                    callback: function(value) {
+                      return '$' + value.toLocaleString();
+                    }
+                  }
+                }
+              }
+            }
+          });
+          
+          // Add refresh function to the widget element for access (for compatibility)
+          ctx.closest('.dashboard-card')._refreshData = async function() {
+            try {
+              const newData = await fetchInventoryData();
+              updateDisplay(newData);
+              
+              // Update chart data
+              inventoryValueChart.data.labels = newData.historicalData.map(item => item.month);
+              inventoryValueChart.data.datasets[0].data = newData.historicalData.map(item => item.value);
+              inventoryValueChart.update();
+              
+            } catch (error) {
+              console.error('Error refreshing inventory data:', error);
+            }
+          };
+          
+        } catch (error) {
+          console.error('Error initializing inventory value chart:', error);
+          // Show fallback content
+          const canvas = document.getElementById('inventory-value-chart');
+          if (canvas) {
+            const fallback = document.createElement('div');
+            fallback.className = 'flex items-center justify-center h-full text-gray-500';
+            fallback.innerHTML = '<div class="text-center"><i class="fas fa-chart-line text-2xl mb-2"></i><br>Chart unavailable - Data loading failed</div>';
+            canvas.parentNode.replaceChild(fallback, canvas);
+          }
+          
+          // Update display elements with error state
+          const valueElement = document.getElementById('inventory-value-amount');
+          if (valueElement) valueElement.textContent = 'Error loading data';
+        }
+      }
+
+      // Initialize after a short delay to ensure DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initChart, 300));
+      } else {
+        setTimeout(initChart, 300);
+      }
+    })();
+  </script>
+</div>

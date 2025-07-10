@@ -1,0 +1,236 @@
+<!-- Asset Modal - Redesigned -->
+<div id="assetModal" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add New Asset</h2>
+      <button type="button" class="modal-close" onclick="AssetModal.close()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="assetForm" class="flex flex-col gap-4">
+      <div>
+        <label for="assetName" class="block text-sm font-medium text-gray-700">Asset Name</label>
+        <input type="text" id="assetName" name="assetName" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+      </div>
+      <div>
+        <label for="assetType" class="block text-sm font-medium text-gray-700">Asset Category</label>
+        <select id="assetType" name="assetType" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+          <option value="">Select Category</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Equipment">Equipment</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Vehicles">Vehicles</option>
+          <option value="Machinery">Machinery</option>
+          <option value="Tools">Tools</option>
+        </select>
+      </div>
+      <div>
+        <label for="placementLocation" class="block text-sm font-medium text-gray-700">Placement Location</label>
+        <input type="text" id="placementLocation" name="placementLocation" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+      </div>
+      <div class="form-group full-width">
+        <label for="purchaseDate" class="block text-sm font-medium text-gray-700">itu mPurchase Date</label>
+        <input type="date" id="purchaseDate" name="purchaseDate" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+      </div>
+      <div>
+        <label for="condition" class="block text-sm font-medium text-gray-700">Condition</label>
+        <select id="condition" name="condition" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+          <option value="">Select Condition</option>
+          <option value="Excellent">Excellent</option>
+          <option value="Good">Good</option>
+          <option value="Fair">Fair</option>
+          <option value="Poor">Poor</option>
+        </select>
+      </div>
+      <div>
+        <label for="assetStatus" class="block text-sm font-medium text-gray-700">Asset Status</label>
+        <select id="assetStatus" name="assetStatus" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+          <option value="">Select Status</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="flex justify-end gap-2 mt-2">
+        <button type="button" id="cancelEdit" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all hidden">Cancel</button>
+        <button type="button" id="submitBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all ml-auto">Save</button>
+      </div>
+      
+      <input type="hidden" id="assetId" name="id">
+    </form>
+  </div>
+</div>
+
+<!-- Modal Styles -->
+<style>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+/* Override Tailwind hidden class when active */
+.modal-overlay.active.hidden {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-container {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #374151;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 24px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-container {
+    width: 95%;
+    margin: 10px;
+  }
+}
+</style>

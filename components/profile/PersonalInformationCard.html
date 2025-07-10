@@ -1,0 +1,321 @@
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fas fa-id-card"></i> Personal Information</h2>
+    <span class="card-action" onclick="toggleEdit('personal-info')">Edit</span>
+  </div>
+  <form id="personal-info-form">
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" id="first_name" name="first_name" class="form-control user-first-name" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" id="last_name" name="last_name" class="form-control user-last-name" disabled>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="email" name="email" class="form-control user-email-display" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="phone" name="phone" class="form-control user-phone" disabled>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <input type="text" id="address" name="address" class="form-control user-address" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <input type="text" id="role" name="role" class="form-control user-role-display" disabled readonly>
+      </div>
+      <div class="form-actions" id="personal-info-actions" style="display: none;">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelEdit('personal-info')">Cancel</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<style>
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+</style>
+
+<script>
+let isEditing = {
+  'personal-info': false
+};
+
+function toggleEdit(formId) {
+  const form = document.getElementById(formId + '-form');
+  const inputs = form.querySelectorAll('input:not([readonly])');
+  const actions = document.getElementById(formId + '-actions');
+  const editButton = form.querySelector('.card-action');
+  
+  if (!isEditing[formId]) {
+    // Enable editing
+    inputs.forEach(input => input.disabled = false);
+    actions.style.display = 'block';
+    editButton.textContent = 'Cancel';
+    isEditing[formId] = true;
+  } else {
+    // Cancel editing
+    cancelEdit(formId);
+  }
+}
+
+function cancelEdit(formId) {
+  const form = document.getElementById(formId + '-form');
+  const inputs = form.querySelectorAll('input:not([readonly])');
+  const actions = document.getElementById(formId + '-actions');
+  const editButton = form.querySelector('.card-action');
+  
+  // Disable editing
+  inputs.forEach(input => input.disabled = true);
+  actions.style.display = 'none';
+  editButton.textContent = 'Edit';
+  isEditing[formId] = false;
+  
+  // Restore original values
+  loadUserProfile();
+}
+
+async function loadUserProfile() {
+  try {
+    // Use AuthService if available
+    if (typeof AuthService !== 'undefined') {
+      const user = await AuthService.getCurrentUser();
+      if (user) {
+        populateProfileFields(user);
+      }
+    } else {
+      // Fallback API call
+      const response = await fetch('/api/auth/profile', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const user = await response.json();
+        populateProfileFields(user);
+      } else {
+        throw new Error('Failed to load profile');
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load user profile:', error);
+    showErrorMessage('Failed to load profile information. Please refresh the page.');
+  }
+}
+
+function populateProfileFields(user) {
+  const fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'role'];
+  fields.forEach(field => {
+    const element = document.getElementById(field);
+    if (element) {
+      element.value = user[field] || '';
+    }
+  });
+}
+
+// Handle form submission
+document.getElementById('personal-info-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitBtn = this.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'Saving...';
+  submitBtn.disabled = true;
+  
+  try {
+    const formData = new FormData(this);
+    const updateData = Object.fromEntries(formData);
+    
+    // Use AuthService if available
+    if (typeof AuthService !== 'undefined') {
+      const response = await AuthService.updateProfile(updateData);
+      if (response.success || response.message === 'Profile updated successfully') {
+        showSuccessMessage('Profile updated successfully!');
+        cancelEdit('personal-info');
+        setTimeout(() => loadUserProfile(), 500);
+      } else {
+        throw new Error(response.message || 'Failed to update profile');
+      }
+    } else {
+      // Fallback API call
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(updateData)
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        showSuccessMessage('Profile updated successfully!');
+        cancelEdit('personal-info');
+        setTimeout(() => loadUserProfile(), 500);
+      } else {
+        throw new Error(result.message || 'Failed to update profile');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    showErrorMessage('Error updating profile: ' + error.message);
+  } finally {
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+  }
+});
+
+function showSuccessMessage(message) {
+  removeExistingAlerts();
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'alert alert-success';
+  alertDiv.textContent = message;
+  const cardBody = document.querySelector('.card-body');
+  cardBody.insertBefore(alertDiv, cardBody.firstChild);
+  
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 3000);
+}
+
+function showErrorMessage(message) {
+  removeExistingAlerts();
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'alert alert-error';
+  alertDiv.textContent = message;
+  const cardBody = document.querySelector('.card-body');
+  cardBody.insertBefore(alertDiv, cardBody.firstChild);
+  
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 5000);
+}
+
+function removeExistingAlerts() {
+  const existingAlerts = document.querySelectorAll('.alert');
+  existingAlerts.forEach(alert => alert.remove());
+}
+
+// Load profile when component loads
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(loadUserProfile, 100);
+});
+
+// Also try to load when the component is actually inserted
+setTimeout(loadUserProfile, 500);
+</script>
+  const inputs = form.querySelectorAll('input:not([readonly])');
+  const actions = document.getElementById(formId + '-actions');
+  const editButton = form.querySelector('.card-action');
+  
+  if (!isEditing[formId]) {
+    // Enable editing
+    inputs.forEach(input => input.disabled = false);
+    actions.style.display = 'block';
+    editButton.textContent = 'Cancel';
+    isEditing[formId] = true;
+  } else {
+    // Cancel editing
+    cancelEdit(formId);
+  }
+}
+
+function cancelEdit(formId) {
+  const form = document.getElementById(formId + '-form');
+  const inputs = form.querySelectorAll('input:not([readonly])');
+  const actions = document.getElementById(formId + '-actions');
+  const editButton = form.querySelector('.card-action');
+  
+  // Disable editing
+  inputs.forEach(input => input.disabled = true);
+  actions.style.display = 'none';
+  editButton.textContent = 'Edit';
+  isEditing[formId] = false;
+  
+  // Restore original values
+  loadUserProfile();
+}
+
+async function loadUserProfile() {
+  try {
+    const user = await authService.getProfile();
+    if (user) {
+      document.getElementById('first_name').value = user.first_name || '';
+      document.getElementById('last_name').value = user.last_name || '';
+      document.getElementById('email').value = user.email || '';
+      document.getElementById('phone').value = user.phone || '';
+      document.getElementById('address').value = user.address || '';
+      document.getElementById('role').value = user.role || '';
+    }
+  } catch (error) {
+    console.error('Failed to load user profile:', error);
+  }
+}
+
+// Handle form submission
+document.getElementById('personal-info-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  try {
+    const formData = new FormData(this);
+    const updateData = Object.fromEntries(formData);
+    
+    const response = await authService.updateProfile(updateData);
+    if (response.success) {
+      alert('Profile updated successfully!');
+      cancelEdit('personal-info');
+      loadUserProfile();
+    } else {
+      throw new Error(response.message || 'Failed to update profile');
+    }
+  } catch (error) {
+    alert('Error updating profile: ' + error.message);
+  }
+});
+
+// Load profile when component loads
+document.addEventListener('DOMContentLoaded', loadUserProfile);
+</script>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        <input type="text" class="form-control" value="12 April 1985" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <input type="text" class="form-control" value="Male" disabled>
+      </div>
+    </div>
+  </div>
+</div>

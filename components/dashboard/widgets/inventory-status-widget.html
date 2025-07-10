@@ -1,0 +1,44 @@
+<div class="dashboard-card inventory-status-widget bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up" data-widget="inventory-status">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Status</h3>
+    <i class="fas fa-boxes text-blue-500"></i>
+  </div>
+  
+  <div class="flex flex-col items-center">
+    <!-- Inventory Status Pie Chart -->
+    <div class="w-full h-48 mb-4 relative">
+      <canvas id="inventory-status-chart"></canvas>
+      <div id="status-loader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+      <div id="status-error" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+        <div class="text-center text-gray-500">
+          <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+          <p class="text-sm">Unable to load chart</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-2 w-full text-xs text-center gap-2">
+      <div class="bg-green-50 p-2 rounded-lg">
+        <p class="text-gray-600">Healthy Stock</p>
+        <p class="font-bold text-green-600 healthy-stock">-- items</p>
+      </div>
+      <div class="bg-amber-50 p-2 rounded-lg">
+        <p class="text-gray-600">Medium Stock</p>
+        <p class="font-bold text-amber-600 medium-stock">-- items</p>
+      </div>
+      <div class="bg-red-50 p-2 rounded-lg">
+        <p class="text-gray-600">Low Stock</p>
+        <p class="font-bold text-red-600 low-stock">-- items</p>
+      </div>
+      <div class="bg-blue-50 p-2 rounded-lg">
+        <p class="text-gray-600">Total SKUs</p>
+        <p class="font-bold text-blue-600 total-stock">-- items</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Load the inventory status widget JavaScript -->
+  <script src="/components/dashboard/widgets/inventory-status-widget.js"></script>
+</div>

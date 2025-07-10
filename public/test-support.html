@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Button Test</title>
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-8">
+        <h1 class="text-2xl font-bold mb-4">Support Button Test</h1>
+        <p class="mb-4">This page tests the support button functionality.</p>
+        
+        <div id="test-results" class="bg-white p-4 rounded-lg shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Test Results:</h2>
+            <div id="results-content">Running tests...</div>
+        </div>
+        
+        <!-- Manual support button for testing -->
+        <div class="support-btn">
+            <i class="fas fa-headset text-xl"></i>
+            <span class="support-btn-text shadow-lg">Need Help?</span>
+        </div>
+        
+        <div id="support-button-container"></div>
+    </div>
+    
+    <script src="/components/componentLoader.js"></script>
+    <script src="/components/support/supportModal.js"></script>
+    
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            const resultsContent = document.getElementById('results-content');
+            
+            function updateResults(message) {
+                resultsContent.innerHTML += '<p>' + message + '</p>';
+            }
+            
+            // Test 1: Check if support button exists
+            setTimeout(() => {
+                const supportBtns = document.querySelectorAll('.support-btn');
+                updateResults(`✅ Found ${supportBtns.length} support button(s)`);
+                
+                // Test 2: Check if support modal exists
+                const modal = document.getElementById('support-faq-modal');
+                if (modal) {
+                    updateResults('✅ Support modal is loaded');
+                } else {
+                    updateResults('❌ Support modal not found');
+                }
+                
+                // Test 3: Check if CSS styles are applied
+                if (supportBtns.length > 0) {
+                    const btn = supportBtns[0];
+                    const styles = window.getComputedStyle(btn);
+                    const position = styles.position;
+                    const background = styles.background;
+                    
+                    updateResults(`✅ Button position: ${position}`);
+                    updateResults(`✅ Button has background: ${background ? 'Yes' : 'No'}`);
+                    
+                    // Test 4: Check text visibility
+                    const textSpan = btn.querySelector('.support-btn-text');
+                    if (textSpan) {
+                        updateResults('✅ Support button text element found');
+                        const textStyles = window.getComputedStyle(textSpan);
+                        updateResults(`📊 Text opacity: ${textStyles.opacity}`);
+                    } else {
+                        updateResults('❌ Support button text element not found');
+                    }
+                }
+                
+                // Test 5: Try to trigger click event
+                if (supportBtns.length > 0) {
+                    supportBtns[0].addEventListener('click', function() {
+                        updateResults('✅ Support button click event triggered');
+                    });
+                    updateResults('✅ Click event listener attached for testing');
+                }
+                
+                updateResults('🎉 All tests completed!');
+            }, 1000);
+            
+            // Load support button component
+            if (typeof ComponentLoader !== 'undefined') {
+                ComponentLoader.load('shared/support-button', 'support-button-container');
+                updateResults('📦 ComponentLoader found and loading support button...');
+            } else {
+                updateResults('❌ ComponentLoader not found');
+            }
+        });
+    </script>
+</body>
+</html>

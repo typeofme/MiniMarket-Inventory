@@ -1,0 +1,422 @@
+<div class="dashboard-card weather-widget relative overflow-hidden p-0 rounded-3xl shadow-lg h-full" data-aos="fade-up">
+  <!-- Dynamic Weather-style Weather Background -->
+  <div class="weather-background-Weather sunny"></div>
+  
+  <!-- Frosted glass effect overlay -->
+  <div class="Weather-overlay"></div>
+  
+  <!-- Weather Content Container -->
+  <div class="weather-content p-6 relative z-10">
+    <!-- Weather-style Header -->
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-semibold text-white Weather-text">Local Weather</h3>
+      <div class="location-pill bg-white/20 backdrop-blur-lg px-3 py-1.5 rounded-full">
+        <span class="text-xs font-medium text-white flex items-center Weather-text">
+          <i class="fas fa-map-marker-alt mr-1.5 text-white/80"></i>
+          Yogyakarta, ID
+        </span>
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-between mb-5 mt-3">
+      <div>
+        <div class="text-6xl font-light text-white mb-0 Weather-text temp-display leading-none">24°</div>
+        <div class="text-base text-white/90 Weather-text weather-condition mt-1">Sunny</div>
+      </div>
+      <div class="Weather-weather-icon">
+        <i class="fas fa-sun Weather-icon sunny-icon"></i>
+      </div>
+    </div>
+    
+    <!-- Weather Details -->
+    <div class="weather-details bg-white/10 backdrop-blur-md rounded-lg p-2 mb-4 flex justify-around">
+      <div class="text-center">
+        <div class="text-xs text-white/70">Humidity</div>
+        <div class="text-sm font-semibold text-white flex items-center justify-center">
+          <i class="fas fa-tint mr-1 text-blue-300"></i>68%
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="text-xs text-white/70">Wind</div>
+        <div class="text-sm font-semibold text-white flex items-center justify-center">
+          <i class="fas fa-wind mr-1 text-blue-200"></i>5 km/h
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="text-xs text-white/70">Feels</div>
+        <div class="text-sm font-semibold text-white flex items-center justify-center">
+          <i class="fas fa-temperature-high mr-1 text-amber-300"></i>26°
+        </div>
+      </div>
+    </div>
+    
+    <!-- Forecast -->
+    <div class="flex justify-between forecast-container">
+      <div class="forecast-day">
+        <div class="text-xs font-semibold text-white text-center mb-1">Tue</div>
+        <div class="forecast-icon-container">
+          <i class="fas fa-cloud forecast-icon"></i>
+        </div>
+        <div class="text-sm text-white font-bold text-center">22°</div>
+      </div>
+      <div class="forecast-day">
+        <div class="text-xs font-semibold text-white text-center mb-1">Wed</div>
+        <div class="forecast-icon-container">
+          <i class="fas fa-cloud-sun forecast-icon"></i>
+        </div>
+        <div class="text-sm text-white font-bold text-center">25°</div>
+      </div>
+      <div class="forecast-day">
+        <div class="text-xs font-semibold text-white text-center mb-1">Thu</div>
+        <div class="forecast-icon-container">
+          <i class="fas fa-sun forecast-icon"></i>
+        </div>
+        <div class="text-sm text-white font-bold text-center">27°</div>
+      </div>
+      <div class="forecast-day">
+        <div class="text-xs font-semibold text-white text-center mb-1">Fri</div>
+        <div class="forecast-icon-container">
+          <i class="fas fa-cloud-sun-rain forecast-icon"></i>
+        </div>
+        <div class="text-sm text-white font-bold text-center">23°</div>
+      </div>
+    </div>
+    
+    <!-- Last Updated -->
+    <div class="text-xs text-white/60 text-center mt-4">
+      Updated just now
+    </div>
+  </div>
+
+  <style>
+    /* Weather-style fonts */
+    .Weather-text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      letter-spacing: -0.02em;
+    }
+    
+    .weather-widget {
+      transition: all 0.4s ease-out;
+      border-radius: 24px;
+    }
+    
+    /* Weather-style background gradients */
+    .weather-background-Weather {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      transition: all 1s ease;
+    }
+    
+    .weather-background-Weather.sunny {
+      background: linear-gradient(160deg, #61a0ff 0%, #3580e3 100%);
+    }
+    
+    .weather-background-Weather.cloudy {
+      background: linear-gradient(160deg, #7d8597 0%, #414958 100%);
+    }
+    
+    .weather-background-Weather.rainy {
+      background: linear-gradient(160deg, #426a82 0%, #263846 100%);
+    }
+    
+    /* Weather frosted glass overlay */
+    .Weather-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(0px);
+    }
+    
+    /* Weather-style weather icons */
+    .Weather-weather-icon {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s ease;
+      position: relative;
+    }
+    
+    .Weather-icon {
+      font-size: 3.5rem;
+      color: #ffde6a;
+      filter: drop-shadow(0 0 10px rgba(255, 222, 106, 0.4));
+      transition: all 0.4s ease;
+    }
+    
+    .Weather-icon.sunny-icon {
+      animation: Weather-rotate 30s linear infinite;
+    }
+    
+    .forecast-icon-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      margin-bottom: 6px;
+      backdrop-filter: blur(10px);
+    }
+    
+    /* Weather-style animations */
+    @keyframes Weather-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Override existing styles for Weather look */
+    .weather-details {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 10px;
+    }
+    
+    .forecast-day {
+      padding: 6px;
+      border-radius: 12px;
+    }
+    
+    .temp-display {
+      font-weight: 300;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* Weather effects */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .weather-widget::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at top right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+
+  <script>
+    // Weather API using Open-Meteo (free API)
+    class WeatherWidget {
+      constructor() {
+        // Yogyakarta coordinates
+        this.latitude = -7.7956;
+        this.longitude = 110.3695;
+        this.apiUrl = 'https://api.open-meteo.com/v1/forecast';
+        
+        this.weatherCodeMap = {
+          0: { type: 'sunny', icon: 'fa-sun', description: 'Clear sky' },
+          1: { type: 'sunny', icon: 'fa-sun', description: 'Mainly clear' },
+          2: { type: 'cloudy', icon: 'fa-cloud-sun', description: 'Partly cloudy' },
+          3: { type: 'cloudy', icon: 'fa-cloud', description: 'Overcast' },
+          45: { type: 'cloudy', icon: 'fa-smog', description: 'Fog' },
+          48: { type: 'cloudy', icon: 'fa-smog', description: 'Rime fog' },
+          51: { type: 'rainy', icon: 'fa-cloud-drizzle', description: 'Light drizzle' },
+          53: { type: 'rainy', icon: 'fa-cloud-drizzle', description: 'Moderate drizzle' },
+          55: { type: 'rainy', icon: 'fa-cloud-drizzle', description: 'Dense drizzle' },
+          61: { type: 'rainy', icon: 'fa-cloud-rain', description: 'Slight rain' },
+          63: { type: 'rainy', icon: 'fa-cloud-rain', description: 'Moderate rain' },
+          65: { type: 'rainy', icon: 'fa-cloud-rain', description: 'Heavy rain' },
+          71: { type: 'cloudy', icon: 'fa-snowflake', description: 'Slight snow' },
+          73: { type: 'cloudy', icon: 'fa-snowflake', description: 'Moderate snow' },
+          75: { type: 'cloudy', icon: 'fa-snowflake', description: 'Heavy snow' },
+          80: { type: 'rainy', icon: 'fa-cloud-showers-heavy', description: 'Slight rain showers' },
+          81: { type: 'rainy', icon: 'fa-cloud-showers-heavy', description: 'Moderate rain showers' },
+          82: { type: 'rainy', icon: 'fa-cloud-showers-heavy', description: 'Violent rain showers' },
+          95: { type: 'rainy', icon: 'fa-bolt', description: 'Thunderstorm' },
+          96: { type: 'rainy', icon: 'fa-bolt', description: 'Thunderstorm with slight hail' },
+          99: { type: 'rainy', icon: 'fa-bolt', description: 'Thunderstorm with heavy hail' }
+        };
+        
+        this.init();
+      }
+      
+      async init() {
+        try {
+          await this.fetchWeatherData();
+          // Update every 10 minutes
+          setInterval(() => this.fetchWeatherData(), 10 * 60 * 1000);
+        } catch (error) {
+          console.error('Error initializing weather widget:', error);
+          this.showError();
+        }
+      }
+      
+      async fetchWeatherData() {
+        try {
+          const url = `${this.apiUrl}?latitude=${this.latitude}&longitude=${this.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature&daily=weather_code,temperature_2m_max&timezone=Asia/Jakarta&forecast_days=5`;
+          
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          this.updateDisplay(data);
+        } catch (error) {
+          console.error('Error fetching weather data:', error);
+          this.showError();
+        }
+      }
+      
+      updateDisplay(data) {
+        const widget = document.querySelector('.weather-widget');
+        if (!widget) return;
+        
+        const current = data.current;
+        const daily = data.daily;
+        
+        // Get weather info from code
+        const weatherInfo = this.weatherCodeMap[current.weather_code] || this.weatherCodeMap[0];
+        
+        // Update current temperature
+        const tempDisplay = widget.querySelector('.temp-display');
+        if (tempDisplay) {
+          tempDisplay.textContent = `${Math.round(current.temperature_2m)}°`;
+        }
+        
+        // Update weather condition
+        const weatherCondition = widget.querySelector('.weather-condition');
+        if (weatherCondition) {
+          weatherCondition.textContent = weatherInfo.description;
+        }
+        
+        // Update background based on weather type
+        const background = widget.querySelector('.weather-background-Weather');
+        if (background) {
+          background.className = 'weather-background-Weather';
+          background.classList.add(weatherInfo.type);
+        }
+        
+        // Update main weather icon
+        const icon = widget.querySelector('.Weather-icon');
+        if (icon) {
+          icon.className = 'Weather-icon';
+          icon.classList.add(weatherInfo.icon);
+          
+          if (weatherInfo.type === 'sunny') {
+            icon.classList.add('sunny-icon');
+          }
+        }
+        
+        // Update humidity
+        const humidityElement = widget.querySelector('.weather-details .text-center:nth-child(1) .text-sm');
+        if (humidityElement) {
+          humidityElement.innerHTML = `<i class="fas fa-tint mr-1 text-blue-300"></i>${Math.round(current.relative_humidity_2m)}%`;
+        }
+        
+        // Update wind speed
+        const windElement = widget.querySelector('.weather-details .text-center:nth-child(2) .text-sm');
+        if (windElement) {
+          windElement.innerHTML = `<i class="fas fa-wind mr-1 text-blue-200"></i>${Math.round(current.wind_speed_10m)} km/h`;
+        }
+        
+        // Update feels like temperature
+        const feelsLikeElement = widget.querySelector('.weather-details .text-center:nth-child(3) .text-sm');
+        if (feelsLikeElement) {
+          feelsLikeElement.innerHTML = `<i class="fas fa-temperature-high mr-1 text-amber-300"></i>${Math.round(current.apparent_temperature)}°`;
+        }
+        
+        // Update forecast
+        this.updateForecast(daily);
+        
+        // Update timestamp
+        const timestamp = widget.querySelector('.text-xs.text-white\\/60');
+        if (timestamp) {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          timestamp.textContent = `Updated at ${timeStr}`;
+        }
+      }
+      
+      updateForecast(daily) {
+        const forecastDays = document.querySelectorAll('.forecast-day');
+        const today = new Date();
+        
+        forecastDays.forEach((dayElement, index) => {
+          if (index < daily.time.length - 1) { // Skip today, start from tomorrow
+            const forecastDate = new Date(daily.time[index + 1]);
+            const dayName = forecastDate.toLocaleDateString('en-US', { weekday: 'short' });
+            const weatherCode = daily.weather_code[index + 1];
+            const maxTemp = Math.round(daily.temperature_2m_max[index + 1]);
+            const weatherInfo = this.weatherCodeMap[weatherCode] || this.weatherCodeMap[0];
+            
+            // Update day name
+            const dayNameElement = dayElement.querySelector('.text-xs');
+            if (dayNameElement) {
+              dayNameElement.textContent = dayName;
+            }
+            
+            // Update forecast icon
+            const iconElement = dayElement.querySelector('.forecast-icon');
+            if (iconElement) {
+              iconElement.className = `fas ${weatherInfo.icon} forecast-icon`;
+            }
+            
+            // Update temperature
+            const tempElement = dayElement.querySelector('.text-sm.text-white.font-bold');
+            if (tempElement) {
+              tempElement.textContent = `${maxTemp}°`;
+            }
+          }
+        });
+      }
+      
+      showError() {
+        const widget = document.querySelector('.weather-widget');
+        if (!widget) return;
+        
+        const tempDisplay = widget.querySelector('.temp-display');
+        if (tempDisplay) {
+          tempDisplay.textContent = '--°';
+        }
+        
+        const weatherCondition = widget.querySelector('.weather-condition');
+        if (weatherCondition) {
+          weatherCondition.textContent = 'Unable to load weather';
+        }
+        
+        const timestamp = widget.querySelector('.text-xs.text-white\\/60');
+        if (timestamp) {
+          timestamp.textContent = 'Failed to update';
+        }
+      }
+    }
+    
+    // Initialize weather widget when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      new WeatherWidget();
+    });
+    
+    // Initialize immediately if DOM is already loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        new WeatherWidget();
+      });
+    } else {
+      new WeatherWidget();
+    }
+  </script>
+</div>

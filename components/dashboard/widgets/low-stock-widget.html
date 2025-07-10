@@ -1,0 +1,47 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full low-stock-widget" data-widget="low-stock" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Low Stock Alerts</h3>
+    <div class="flex items-center">
+      <button class="refresh-btn text-gray-400 hover:text-gray-600 mr-2" title="Refresh">
+        <i class="fas fa-sync-alt text-sm"></i>
+      </button>
+      <i class="fas fa-exclamation-triangle text-amber-500"></i>
+    </div>
+  </div>
+  
+  <div class="low-stock-items space-y-3 max-h-60 overflow-y-auto pr-1">
+    <!-- Loading state -->
+    <div class="text-center py-4">
+      <i class="fas fa-spinner fa-spin text-gray-400 text-xl mb-2"></i>
+      <p class="text-sm text-gray-500">Loading low stock items...</p>
+    </div>
+  </div>
+  
+  <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+    <a href="/restock" class="text-xs text-blue-600 hover:underline">View all low stock items</a>
+  </div>
+</div>
+
+<!-- Include the JavaScript for this widget -->
+<script src="/components/dashboard/widgets/low-stock-widget.js"></script>
+
+<script>
+  // Initialize refresh button functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const refreshBtn = document.querySelector('.low-stock-widget .refresh-btn');
+    if (refreshBtn && window.lowStockWidget) {
+      refreshBtn.addEventListener('click', () => {
+        // Add spinning animation during refresh
+        const icon = refreshBtn.querySelector('i');
+        icon.classList.add('fa-spin');
+        
+        window.lowStockWidget.refresh();
+        
+        // Remove spinning animation after 1 second
+        setTimeout(() => {
+          icon.classList.remove('fa-spin');
+        }, 1000);
+      });
+    }
+  });
+</script>

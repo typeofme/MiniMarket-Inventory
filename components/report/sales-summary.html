@@ -1,0 +1,329 @@
+<!-- Sales Summary Component -->
+<div
+  class="w-full bg-white rounded-xl shadow-lg p-6 flex flex-col panel-animate animate-fade-in"
+  data-aos="fade-up"
+  data-aos-delay="200"
+>
+  <h3 class="text-xl font-bold mb-4 text-blue-700 flex items-center gap-2">
+    <i class="fas fa-chart-bar text-blue-500 animate-pulse"></i> Sales Summary
+  </h3>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 w-full">
+    <div
+      class="bg-blue-100 rounded-xl p-4 flex flex-col items-center shadow-md animate-fade-in-up w-full"
+    >
+      <div class="text-blue-500 text-sm font-semibold mb-1 w-full text-center">
+        Total Daily Sales
+      </div>
+      <div
+        id="total-daily-sales"
+        class="text-3xl font-extrabold text-blue-700 w-full text-center"
+      >
+        0
+      </div>
+    </div>
+    <div
+      class="bg-green-100 rounded-xl p-4 flex flex-col items-center shadow-md animate-fade-in-up w-full"
+    >
+      <div class="text-green-500 text-sm font-semibold mb-1 w-full text-center">
+        Total Sales (All Time)
+      </div>
+      <div
+        id="total-sales-all-time"
+        class="text-3xl font-extrabold text-green-700 w-full text-center"
+      >
+        0
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col sm:flex-row gap-4 mb-4 items-center">
+    <label class="text-sm text-gray-600 flex items-center gap-2">
+      <i class="fas fa-calendar-alt text-blue-400"></i> Filter by Date:
+      <input
+        type="date"
+        id="report-date-filter"
+        class="border border-blue-200 rounded p-1 text-sm focus:ring-2 focus:ring-blue-400 transition"
+      />
+    </label>
+    <input
+      type="text"
+      id="sales-summary-search"
+      placeholder="Search reports..."
+      class="border ml-[1rem] border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full max-w-xs"
+    />
+    <select
+      id="sales-summary-sort"
+      title="Sort reports"
+      class="border ml-[1rem] border-gray-300 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full max-w-xs"
+    >
+      <option value="date-desc">Date: Newest</option>
+      <option value="date-asc">Date: Oldest</option>
+      <option value="name">Product Name</option>
+      <option value="sold-desc">Sold: High to Low</option>
+      <option value="sold-asc">Sold: Low to High</option>
+      <option value="damaged-desc">Damaged: High to Low</option>
+      <option value="damaged-asc">Damaged: Low to High</option>
+      <option value="missing-desc">Missing: High to Low</option>
+      <option value="missing-asc">Missing: Low to High</option>
+    </select>
+  </div>
+  <div class="overflow-x-auto animate-fade-in-up">
+    <table
+      class="min-w-full table-auto text-sm text-left rounded-xl overflow-hidden shadow-md"
+    >
+      <thead class="bg-blue-100 font-semibold text-blue-700 animate-fade-in-up">
+        <tr>
+          <th class="px-4 py-2">Date</th>
+          <th class="px-4 py-2">Product</th>
+          <th class="px-4 py-2 text-center">Sold</th>
+          <th class="px-4 py-2 text-center">Damaged</th>
+          <th class="px-4 py-2 text-center">Missing</th>
+          <th class="px-4 py-2 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="all-report-table-body">
+        <!-- All time reports will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+  <div
+    class="flex justify-center items-center mt-4 hidden"
+    id="pagination-controls"
+  >
+    <button
+      id="prev-page"
+      class="px-3 py-1 mx-4 rounded bg-blue-200 hover:bg-blue-400 text-blue-800 font-semibold shadow transition animate-fade-in-up"
+    >
+      Previous
+    </button>
+    <span
+      id="page-info"
+      class="text-sm text-blue-700 animate-fade-in-up"
+    ></span>
+    <button
+      id="next-page"
+      class="px-3 py-1 mx-4 rounded bg-blue-200 hover:bg-blue-400 text-blue-800 font-semibold shadow transition animate-fade-in-up"
+    >
+      Next
+    </button>
+  </div>
+</div>
+<style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .animate-fade-in {
+    animation: fadeIn 1s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+</style>
+<script>
+  let allReports = [];
+  let filteredReports = [];
+  let currentPage = 1;
+  const pageSize = 10;
+
+  function renderSalesSummary(reports, page = 1) {
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    let totalDailySales = 0;
+    let totalSalesAllTime = 0;
+    reports.forEach((r) => {
+      totalSalesAllTime += Number(r.sold);
+      const reportDate = r.created_at ? r.created_at.slice(0, 10) : "";
+      if (reportDate === todayStr) {
+        totalDailySales += Number(r.sold);
+      }
+    });
+    document.getElementById("total-daily-sales").textContent = totalDailySales;
+    document.getElementById("total-sales-all-time").textContent =
+      totalSalesAllTime;
+
+    // Pagination
+    const totalPages = Math.ceil(reports.length / pageSize) || 1;
+    currentPage = Math.max(1, Math.min(page, totalPages));
+    const startIdx = (currentPage - 1) * pageSize;
+    const endIdx = startIdx + pageSize;
+    const pageReports = reports.slice(startIdx, endIdx);
+    let allRows = "";
+    pageReports.forEach((r) => {
+      const reportDate = r.created_at ? r.created_at.slice(0, 10) : "";
+      allRows += `<tr><td class='px-4 py-2'>${reportDate}</td><td class='px-4 py-2'>${
+        r.product_name || r.name || ""
+      }</td><td class='px-4 py-2 text-center'>${
+        r.sold
+      }</td><td class='px-4 py-2 text-center'>${
+        r.damaged
+      }</td><td class='px-4 py-2 text-center'>${
+        r.missing
+      }</td><td class='px-4 py-2 text-center space-x-2'>
+        <button onclick="editReportFromSummary(${
+          r.id
+        })" class="text-blue-600 hover:text-blue-800"><i class='fas fa-edit'></i></button>
+        <button onclick="confirmDeleteFromSummary(${
+          r.id
+        })" class="text-red-600 hover:text-red-800"><i class='fas fa-trash-alt'></i></button>
+      </td></tr>`;
+    });
+    document.getElementById("all-report-table-body").innerHTML =
+      allRows ||
+      `<tr><td colspan='6' class='text-center text-gray-400 py-4'>No reports found.</td></tr>`;
+
+    // Pagination controls
+    const pagination = document.getElementById("pagination-controls");
+    const pageInfo = document.getElementById("page-info");
+    if (reports.length > pageSize) {
+      pagination.style.display = "flex";
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    } else {
+      pagination.style.display = "none";
+    }
+    document.getElementById("prev-page").disabled = currentPage === 1;
+    document.getElementById("next-page").disabled = currentPage === totalPages;
+  }
+
+  async function loadReportStats() {
+    try {
+      let res;
+      try {
+        res = await fetch("/api/reports");
+        if (!res.ok) throw new Error("Not found");
+      } catch {
+        res = await fetch("api/reports");
+      }
+      allReports = await res.json();
+      filteredReports = allReports;
+      renderSalesSummary(filteredReports, 1);
+    } catch (err) {
+      document.getElementById("all-report-table-body").innerHTML =
+        `<tr><td colspan='5' class='text-center text-gray-400 py-4'>Failed to load data.</td></tr>`;
+      console.error("Failed to load report stats", err);
+    }
+  }
+
+  // Pagination event listeners
+  document.addEventListener("click", function (e) {
+    if (e.target && e.target.id === "prev-page") {
+      if (currentPage > 1) {
+        renderSalesSummary(filteredReports, currentPage - 1);
+      }
+    } else if (e.target && e.target.id === "next-page") {
+      const totalPages = Math.ceil(filteredReports.length / pageSize) || 1;
+      if (currentPage < totalPages) {
+        renderSalesSummary(filteredReports, currentPage + 1);
+      }
+    }
+  });
+
+  // Date filter event listener
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.id === "report-date-filter") {
+      const date = e.target.value;
+      if (date) {
+        filteredReports = allReports.filter((r) => {
+          const reportDate = r.created_at ? r.created_at.slice(0, 10) : "";
+          return reportDate === date;
+        });
+      } else {
+        filteredReports = allReports;
+      }
+      renderSalesSummary(filteredReports, 1);
+    }
+  });
+
+  // Search and sort logic for sales summary
+  const searchInput = document.getElementById("sales-summary-search");
+  const sortSelect = document.getElementById("sales-summary-sort");
+  if (searchInput && sortSelect) {
+    searchInput.addEventListener("input", function () {
+      filterAndRender();
+    });
+    sortSelect.addEventListener("change", function () {
+      filterAndRender();
+    });
+  }
+  function filterAndRender(page = 1) {
+    let filtered = [...allReports];
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (searchTerm) {
+      filtered = filtered.filter((r) =>
+        (r.product_name || r.name || "").toLowerCase().includes(searchTerm)
+      );
+    }
+    switch (sortSelect.value) {
+      case "name":
+        filtered.sort((a, b) =>
+          (a.product_name || "").localeCompare(b.product_name || "")
+        );
+        break;
+      case "sold-desc":
+        filtered.sort((a, b) => b.sold - a.sold);
+        break;
+      case "sold-asc":
+        filtered.sort((a, b) => a.sold - b.sold);
+        break;
+      case "damaged-desc":
+        filtered.sort((a, b) => b.damaged - a.damaged);
+        break;
+      case "damaged-asc":
+        filtered.sort((a, b) => a.damaged - b.damaged);
+        break;
+      case "missing-desc":
+        filtered.sort((a, b) => b.missing - a.missing);
+        break;
+      case "missing-asc":
+        filtered.sort((a, b) => a.missing - b.missing);
+        break;
+      case "date-desc":
+        filtered.sort((a, b) =>
+          (b.created_at || "").localeCompare(a.created_at || "")
+        );
+        break;
+      case "date-asc":
+        filtered.sort((a, b) =>
+          (a.created_at || "").localeCompare(b.created_at || "")
+        );
+        break;
+    }
+    filteredReports = filtered;
+    renderSalesSummary(filteredReports, page);
+  }
+
+  // Patch edit/delete for sales summary
+  window.editReportFromSummary = function (id) {
+    if (window.editReport && typeof window.editReport === "function") {
+      window.editReport(id);
+    } else {
+      alert("Edit function not available.");
+    }
+  };
+  window.confirmDeleteFromSummary = function (id) {
+    if (window.confirmDelete && typeof window.confirmDelete === "function") {
+      window.confirmDelete(id);
+    } else {
+      alert("Delete function not available.");
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadReportStats);
+  } else {
+    loadReportStats();
+  }
+</script>

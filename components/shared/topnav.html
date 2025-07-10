@@ -1,0 +1,395 @@
+<style>
+  :root {
+    --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 5rem;
+    --header-height: 73px;
+  }
+  
+  /* Fade-in animation used by page title */
+  .fade-in {
+    animation: fadeIn 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Top Navigation Styles */
+  nav.top-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width);
+    z-index: 50;
+    transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s ease;
+    will-change: left, transform;
+    transform: translateY(0);
+    background-color: white;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    width: auto;
+  }
+
+  /* Header hide on scroll */
+  nav.top-nav.header-hidden {
+    transform: translateY(-100%);
+    box-shadow: none;
+  }
+
+  /* Update for when sidebar is closed */
+  body.sidebar-closed .top-nav {
+    left: 0;
+  }
+
+  /* Medium Screen Styles (Tablet) */
+  @media (max-width: 1024px) {
+    nav.top-nav {
+      left: var(--sidebar-width-collapsed);
+    }
+    
+    body.sidebar-closed .top-nav {
+      left: 0;
+    }
+  }
+
+  /* Small Screen Styles (Mobile) */
+  @media (max-width: 640px) {
+    nav.top-nav {
+      left: 0;
+      width: 100%;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    /* Mobile search styles */
+    .mobile-search {
+      position: static;
+    }
+
+    .mobile-search input {
+      width: 100% !important;
+      max-width: 160px;
+    }
+  }
+
+  /* Tablet with active sidebar */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .sidebar.mobile-active nav a span:not(.nav-icon *),
+    .sidebar.mobile-active h1 {
+      display: inline-block;
+    }
+    
+    .sidebar.mobile-active {
+      width: var(--sidebar-width);
+    }
+  }
+
+  /* Content wrapper styles - control the spacing for content below the topnav */
+  .content-wrapper {
+    margin-top: var(--header-height);
+    margin-left: var(--sidebar-width);
+    transition: var(--transition-smooth);
+    flex: 1;
+    padding: 1.5rem;
+    padding-top: 2rem;
+  }
+
+  body.sidebar-closed .content-wrapper {
+    margin-left: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      margin-left: var(--sidebar-width-collapsed);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .content-wrapper {
+      margin-left: 0;
+      padding: 1rem;
+      margin-top: var(--header-height);
+      padding-top: 1rem;
+    }
+  }
+
+  /* Mini header styles (compact header that appears on scroll) */
+  .mini-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: var(--sidebar-width);
+    background: white;
+    z-index: 59;
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .mini-header.visible {
+    transform: translateY(0);
+  }
+
+  /* Responsive mini-header */
+  @media (max-width: 1024px) {
+    .mini-header {
+      left: var(--sidebar-width-collapsed);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .mini-header {
+      left: 0;
+    }
+  }
+</style>
+
+<nav class="bg-white shadow-sm p-4 flex justify-between items-center top-nav">
+  <div class="flex items-center">
+    <button id="sidebar-toggle" class="mr-4 text-gray-700 hover:bg-gray-100 p-2.5 rounded-xl transition-all">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div>
+      <h1 id="page-title" class="text-xl font-bold text-gray-800 fade-in">Loading...</h1>
+      <p id="page-subtitle" class="text-sm text-gray-500 hidden sm:block">Welcome back, <span id="user-name-display" class="text-blue-600 font-medium">Loading...</span>!</p>
+    </div>
+  </div>
+  <div class="flex items-center space-x-4">
+    <a href="/profile" class="hidden sm:flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+      <img id="user-avatar-topnav" src="https://ui-avatars.com/api/?name=Loading&background=1a73e8&color=fff" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover">
+      <div>
+        <span id="user-name-topnav" class="text-sm font-medium text-gray-700">Loading...</span>
+        <p id="user-role-topnav" class="text-xs text-gray-500">Loading...</p>
+      </div>
+    </a>
+    <a href="/profile" class="sm:hidden p-2.5 rounded-xl bg-gray-100">
+      <i class="fas fa-user-circle"></i>
+    </a>
+  </div>
+
+  <script>
+    function setPageTitle() {
+      const path = window.location.pathname;
+      let pageTitle = "Dashboard";
+      let pageSubtitle = "";
+      if (path === '/' || path === '/dashboard') {
+        pageTitle = "Dashboard Overview";
+      } else if (path.includes('products')) {
+        pageTitle = "Product Management";
+      } else if (path.includes('logs')) {
+        pageTitle = "Activity Logs";
+        pageSubtitle = "Track all product updates, edits, and restocks";
+      } else if (path.includes('reports')) {
+        pageTitle = "Reports";
+      } else if (path.includes('restock')) {
+        pageTitle = "Restock Management";
+        pageSubtitle = "Manage your products restock process";
+      } else if (path.includes('assets')) {
+        pageTitle = "Asset Management";
+        pageSubtitle = "Manage your store's physical assets and equipment";
+      } else if (path.includes('datasupply')) {
+        pageTitle = "Data Supply";
+      } else if (path.includes('supply')) {
+        pageTitle = "Supply Management";
+      }
+      const titleElement = document.getElementById('page-title');
+      if (titleElement) {
+        titleElement.textContent = pageTitle;
+      }
+      
+      // Update subtitle properly
+      const subtitleElement = document.getElementById('page-subtitle');
+      if (subtitleElement) {
+        if (pageSubtitle) {
+          subtitleElement.innerHTML = `<span class="text-gray-600">${pageSubtitle}</span>`;
+        } else {
+          subtitleElement.innerHTML = `Welcome back, <span id="user-name-display" class="text-blue-600 font-medium">Loading...</span>!`;
+        }
+      }
+    }
+
+    function setupSidebarToggle() {
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      if (sidebarToggle) {
+        // Remove any existing event listeners to prevent duplicates
+        const newToggle = sidebarToggle.cloneNode(true);
+        sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
+        
+        newToggle.addEventListener('click', function() {
+          const sidebar = document.querySelector('.sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          if (window.innerWidth <= 640) {
+            if (sidebar) sidebar.classList.toggle('mobile-active');
+            if (overlay) overlay.classList.toggle('active');
+          } else {
+            document.body.classList.toggle('sidebar-closed');
+          }
+        });
+      }
+    }
+
+    function setupScrollHiding() {
+      const header = document.querySelector('.top-nav');
+      let lastScrollTop = 0;
+      let ticking = false;
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+              header.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollTop) {
+              header.classList.remove('header-hidden');
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+
+    function loadScript(url, callback) {
+      // Check if script is already loaded
+      const existingScript = document.querySelector(`script[src="${url}"]`);
+      if (existingScript) {
+        if (callback) callback();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      script.onload = function() {
+        if (callback) callback();
+      };
+      script.onerror = function() {
+        // Script failed to load, continue without it
+      };
+      document.head.appendChild(script);
+    }
+
+    // Global function to update topnav user info
+    window.updateTopnavUser = function(user) {
+      console.log('updateTopnavUser called with:', user);
+      if (user) {
+        updateUserDisplay(user);
+      }
+    };
+
+    // Global function to reinitialize sidebar toggle
+    window.initializeSidebarToggle = function() {
+      setupSidebarToggle();
+    };
+
+    function updateUserDisplay(user) {
+      // Update welcome message only if we're not on a page with a custom subtitle
+      const path = window.location.pathname;
+      const hasCustomSubtitle = path.includes('logs') || path.includes('restock') || path.includes('assets');
+      
+      if (!hasCustomSubtitle) {
+        const userNameDisplay = document.getElementById('user-name-display');
+        if (userNameDisplay) {
+          const displayName = user.first_name || user.username || 'User';
+          userNameDisplay.textContent = displayName;
+        }
+      }
+      
+      // Update topnav profile info
+      const userNameTopnav = document.getElementById('user-name-topnav');
+      const userRoleTopnav = document.getElementById('user-role-topnav');
+      const userAvatarTopnav = document.getElementById('user-avatar-topnav');
+      
+      if (userNameTopnav) {
+        const displayName = user.first_name || user.username || 'User';
+        userNameTopnav.textContent = displayName;
+      }
+      
+      if (userRoleTopnav) {
+        const roleText = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User';
+        userRoleTopnav.textContent = roleText;
+      }
+      
+      if (userAvatarTopnav) {
+        if (user.avatar_url) {
+          userAvatarTopnav.src = user.avatar_url;
+        } else {
+          const name = user.first_name && user.last_name ? 
+            `${user.first_name} ${user.last_name}` : 
+            user.username || 'User';
+          userAvatarTopnav.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a73e8&color=fff`;
+        }
+      }
+    }
+
+    // Direct API call to get user data
+    function loadUserFromAPI() {
+      fetch('/api/auth/profile', {
+        credentials: 'include'
+      })
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        if (data.success && data.user) {
+          updateUserDisplay(data.user);
+        } else {
+          setFallbackValues();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading user data:', error);
+        setFallbackValues();
+      });
+    }
+    
+    function setFallbackValues() {
+      const path = window.location.pathname;
+      const hasCustomSubtitle = path.includes('logs') || path.includes('restock') || path.includes('assets');
+      
+      if (!hasCustomSubtitle) {
+        const userNameDisplay = document.getElementById('user-name-display');
+        if (userNameDisplay) userNameDisplay.textContent = 'User';
+      }
+      
+      const userNameTopnav = document.getElementById('user-name-topnav');
+      const userRoleTopnav = document.getElementById('user-role-topnav');
+      
+      if (userNameTopnav) userNameTopnav.textContent = 'User';
+      if (userRoleTopnav) userRoleTopnav.textContent = 'User';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initTopnav();
+    });
+    
+    // Also run immediately in case DOM is already loaded (for dynamic loading)
+    if (document.readyState === 'loading') {
+      // DOM not ready yet
+    } else {
+      // DOM already loaded
+      initTopnav();
+    }
+    
+    function initTopnav() {
+      // Load user data from API
+      loadUserFromAPI();
+      
+      setPageTitle();
+      setTimeout(() => {
+        setupSidebarToggle();
+        setupScrollHiding();
+      }, 100);
+      
+      // Additional delay to ensure sidebar is ready
+      setTimeout(() => {
+        setupSidebarToggle();
+      }, 500);
+    }
+  </script>
+</nav>

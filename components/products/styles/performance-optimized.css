@@ -1,0 +1,555 @@
+/* Performance Optimized CSS for Low-End Devices */
+/* All animations preserved but optimized for smooth performance */
+
+/* GPU Acceleration and Performance Optimizations */
+:root {
+  /* Optimized timing functions for better performance */
+  --transition-fast: all 0.2s ease-out;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bouncy: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Hardware acceleration hints */
+  --gpu-accelerated: transform3d(0, 0, 0);
+}
+
+/* Performance Base Classes */
+.performance-optimized {
+  contain: layout style paint;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: var(--gpu-accelerated);
+}
+
+.animate-on-hover {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.animate-on-hover:hover {
+  will-change: auto;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimized Dashboard Card Animations */
+.dashboard-card {
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform: var(--gpu-accelerated);
+  transition: var(--transition-smooth);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translate3d(0, -5px, 0) scale3d(1.01, 1.01, 1);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.03);
+}
+
+/* Optimized Custom Select Animations */
+.custom-select-arrow {
+  will-change: transform;
+  transition: transform 0.2s ease-out;
+  transform: var(--gpu-accelerated);
+}
+
+.custom-select-trigger.active .custom-select-arrow {
+  transform: translate3d(0, 0, 0) rotate(180deg);
+}
+
+.custom-select-options {
+  contain: layout style paint;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(229, 231, 235);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 20;
+  transform: translate3d(0, -10px, 0);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out, max-height 0.2s ease-out;
+}
+
+.custom-select-options.active {
+  max-height: 300px;
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Optimized Navigation Item Animations */
+.nav-item {
+  contain: layout style paint;
+  will-change: background-color;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  margin-bottom: 0.25rem;
+  border-radius: 10px;
+  transition: background-color 0.2s ease-out;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate3d(-100%, 0, 0);
+  transition: transform 0.3s ease-out;
+  z-index: -1;
+  border-radius: 6px;
+  will-change: transform;
+}
+
+.nav-item:hover::before {
+  transform: translate3d(0, 0, 0);
+}
+
+.nav-icon {
+  will-change: transform, background-color;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-right: 10px;
+  transition: var(--transition-fast);
+  transform: var(--gpu-accelerated);
+}
+
+.nav-item:hover .nav-icon {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate3d(0, 0, 0) rotate(5deg);
+}
+
+/* Optimized Fade-in Animation */
+.fade-in {
+  contain: layout style paint;
+  will-change: opacity, transform;
+  animation: optimizedFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes optimizedFadeIn {
+  0% { 
+    opacity: 0; 
+    transform: translate3d(0, 10px, 0); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translate3d(0, 0, 0); 
+  }
+}
+
+/* Optimized Activity Item Animation */
+.activity-item {
+  will-change: transform;
+  transition: transform 0.2s ease-out;
+  transform: var(--gpu-accelerated);
+}
+
+.activity-item:hover {
+  transform: translate3d(5px, 0, 0);
+}
+
+/* Optimized Pulse Animation */
+.pulse {
+  will-change: transform;
+  animation: optimizedPulse 2s ease-in-out infinite;
+  transform: var(--gpu-accelerated);
+}
+
+@keyframes optimizedPulse {
+  0%, 100% { 
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1); 
+  }
+  50% { 
+    transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1); 
+  }
+}
+
+/* Optimized Product Form Animations */
+.product-form input,
+.product-form textarea,
+.product-form select {
+  will-change: border-color, background-color, box-shadow;
+  transition: var(--transition-fast);
+}
+
+.product-form .btn-primary {
+  will-change: transform, box-shadow, opacity;
+  transition: var(--transition-fast);
+  transform: var(--gpu-accelerated);
+}
+
+.product-form .btn-primary:hover {
+  opacity: 0.9;
+  transform: translate3d(0, -1px, 0);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Optimized Product Table Animations */
+.product-table tbody tr {
+  will-change: background-color, transform;
+  transition: var(--transition-fast);
+  transform: var(--gpu-accelerated);
+}
+
+.product-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translate3d(0, 0, 0) scale3d(1.001, 1.001, 1);
+}
+
+/* Optimized Product Action Buttons */
+.product-actions .action-btn {
+  will-change: transform;
+  transition: transform 0.15s ease-out;
+  transform: var(--gpu-accelerated);
+}
+
+.product-actions .action-btn:hover {
+  transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+}
+
+/* Optimized Product Stats Cards */
+.product-stat-card {
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  transition: var(--transition-smooth);
+  transform: var(--gpu-accelerated);
+}
+
+.product-stat-card:hover {
+  transform: translate3d(0, -5px, 0);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  will-change: transform;
+  animation: optimizedPulseSubtle 2s ease-in-out infinite;
+  transform: var(--gpu-accelerated);
+}
+
+@keyframes optimizedPulseSubtle {
+  0%, 100% { 
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1); 
+  }
+  50% { 
+    transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1); 
+  }
+}
+
+/* Optimized Modal Animations */
+.product-modal-overlay {
+  contain: layout style paint;
+  will-change: opacity, backdrop-filter;
+  transition: opacity 0.25s ease-out, backdrop-filter 0.25s ease-out;
+}
+
+.product-modal {
+  will-change: transform, opacity;
+  transform: translate3d(0, 20px, 0) scale3d(0.9, 0.9, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out;
+}
+
+.product-modal-overlay.active .product-modal {
+  transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+}
+
+/* Optimized File Upload Animation */
+.file-upload-area {
+  will-change: border-color, background-color;
+  transition: var(--transition-fast);
+}
+
+/* Optimized Scrollbar */
+::-webkit-scrollbar-thumb {
+  will-change: background-color;
+  transition: background-color 0.2s ease-out;
+}
+
+/* Optimized Support Button */
+.support-btn {
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+  transition: var(--transition-smooth);
+  transform: var(--gpu-accelerated);
+}
+
+.support-btn:hover {
+  transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* Optimized Spin Animation for Loading */
+@keyframes optimizedSpin {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+}
+
+.spin-optimized {
+  will-change: transform;
+  animation: optimizedSpin 1s linear infinite;
+}
+
+/* Performance hints for specific scenarios */
+.performance-critical {
+  contain: strict;
+  will-change: transform, opacity;
+  transform: var(--gpu-accelerated);
+}
+
+/* Optimize animations on mobile devices */
+@media (max-width: 768px) {
+  .dashboard-card:hover {
+    transform: translate3d(0, -2px, 0) scale3d(1.005, 1.005, 1);
+  }
+  
+  .product-stat-card:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+  
+  /* Reduce animation intensity on mobile */
+  .nav-item:hover .nav-icon {
+    transform: translate3d(0, 0, 0) rotate(2deg);
+  }
+}
+
+/* Additional Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  /* Reduce animation intensity on mobile devices */
+  .dashboard-card,
+  .product-stat-card {
+    will-change: auto;
+  }
+  
+  .dashboard-card:hover {
+    transform: translate3d(0, -2px, 0) scale3d(1.005, 1.005, 1);
+  }
+  
+  .product-stat-card:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+  
+  /* Simplify navigation animations on mobile */
+  .nav-item:hover .nav-icon {
+    transform: translate3d(0, 0, 0) rotate(2deg);
+  }
+  
+  /* Reduce modal animation complexity */
+  .product-modal {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+  
+  /* Optimize table performance on mobile */
+  .product-table tbody tr:hover {
+    transform: none;
+    background-color: rgba(59, 130, 246, 0.03);
+  }
+}
+
+/* Performance optimizations for very small screens */
+@media (max-width: 480px) {
+  /* Disable complex animations on very small screens */
+  .pulse,
+  .stat-icon {
+    animation: none;
+  }
+  
+  /* Simplify hover effects */
+  .product-actions .action-btn:hover {
+    transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1);
+  }
+  
+  /* Reduce transition duration for faster response */
+  * {
+    transition-duration: 0.15s !important;
+  }
+}
+
+/* Battery-aware optimizations */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations for users who prefer reduced motion */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Remove transform animations */
+  .dashboard-card:hover,
+  .product-stat-card:hover,
+  .nav-item:hover .nav-icon,
+  .product-actions .action-btn:hover {
+    transform: none !important;
+  }
+  
+  /* Keep only opacity changes for feedback */
+  .dashboard-card:hover,
+  .product-stat-card:hover {
+    opacity: 0.9;
+  }
+}
+
+/* High contrast mode optimizations */
+@media (prefers-contrast: high) {
+  .dashboard-card,
+  .product-stat-card {
+    border: 2px solid currentColor;
+  }
+  
+  .custom-select-options {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Performance hints for specific use cases */
+.performance-table {
+  contain: layout style paint;
+  will-change: scroll-position;
+}
+
+.performance-form {
+  contain: layout style paint;
+}
+
+.performance-modal {
+  contain: layout style paint;
+  will-change: transform, opacity;
+}
+
+/* Optimize for touch devices */
+@media (pointer: coarse) {
+  /* Increase touch targets */
+  .product-actions .action-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Reduce hover effects since touch devices don't have true hover */
+  .dashboard-card:hover,
+  .product-stat-card:hover {
+    transform: none;
+  }
+  
+  /* Only apply effects on active/focus states */
+  .dashboard-card:active,
+  .product-stat-card:active {
+    transform: translate3d(0, 0, 0) scale3d(0.98, 0.98, 1);
+  }
+}
+
+/* CPU performance optimizations */
+@supports (contain: strict) {
+  .performance-critical {
+    contain: strict;
+  }
+}
+
+/* Memory optimization for low-end devices */
+@media (max-device-memory: 1) {
+  /* Disable backdrop filters on low-memory devices */
+  .custom-select-options,
+  .product-modal-overlay,
+  .sidebar::before {
+    backdrop-filter: none !important;
+  }
+  
+  /* Reduce box-shadow complexity */
+  .dashboard-card,
+  .product-stat-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Simplify gradients */
+  .support-btn {
+    background: #3b82f6 !important;
+  }
+}
+
+/* Network-aware optimizations */
+@media (prefers-reduced-data: reduce) {
+  /* Remove complex visual effects on slow connections */
+  .dashboard-card,
+  .product-modal,
+  .custom-select-options {
+    backdrop-filter: none;
+  }
+  
+  /* Simplify animations */
+  .fade-in {
+    animation: none;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Dark mode performance optimizations */
+@media (prefers-color-scheme: dark) {
+  .performance-optimized {
+    /* Use darker backgrounds to reduce power consumption on OLED screens */
+    background-color: #1a1a1a;
+  }
+}
+
+/* Landscape orientation optimizations for mobile */
+@media (orientation: landscape) and (max-height: 600px) {
+  /* Reduce vertical animations in landscape mode */
+  .dashboard-card:hover,
+  .product-stat-card:hover {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+/* JavaScript performance hints */
+.js-performance-critical {
+  contain: strict;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: var(--gpu-accelerated);
+}
+
+/* Animation performance classes */
+.animate-gpu {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: var(--gpu-accelerated);
+}
+
+.animate-cpu {
+  will-change: auto;
+  contain: layout style paint;
+}

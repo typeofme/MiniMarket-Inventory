@@ -1,0 +1,44 @@
+<!-- Asset Actions & Categories Sidebar -->
+<link href="/components/asset/styles/sidebar-highlight.css" rel="stylesheet" />
+<aside class="flex flex-col gap-6 md:gap-8 w-full lg:w-[280px] min-w-0">
+  <div class="bg-white rounded-lg shadow border p-4 flex flex-col gap-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="rounded-full bg-blue-100 p-2">
+        <i class="fas fa-plus text-blue-600 text-sm"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-700">Asset Actions</h3>
+    </div>
+    <button id="addAssetBtn" onclick="AssetModal.open('add')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2 shadow mb-2">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="rounded-full bg-blue-100 p-2">
+        <i class="fas fa-plus text-blue-600 text-sm"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-700">Asset Actions</h3>
+    </div>
+    <button id="addAssetBtn" onclick="AssetModal.open('add')" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2 shadow mb-2">
+      <i class="fas fa-plus"></i> Add New Asset
+    </button>
+    <div class="grid grid-cols-2 gap-2">
+      
+      <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center" title="View History">
+        <i class="fas fa-history"></i> <span class="hidden md:inline">History</span>
+      </button>
+      <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center" title="Export Assets">
+        <i class="fas fa-download"></i> <span class="hidden md:inline">Export</span>
+      <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center" title="Export Assets">
+        <i class="fas fa-download"></i> <span class="hidden md:inline">Export</span>
+      </button>
+    </div>
+  </div>
+  <div class="bg-white rounded-lg shadow border p-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="250" data-aos-once="true">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="rounded-full bg-green-100 p-2">
+        <i class="fas fa-filter text-green-600 text-sm"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-700">Filter by Category</h3>
+    </div>
+    <ul id="assetCategoriesList" class="flex flex-col gap-1">
+      <!-- Populated by JS -->
+    </ul>
+  </div>
+</aside>

@@ -1,0 +1,335 @@
+<!-- Report List Loading Overlay -->
+<div
+  id="report-list-loading"
+  class="absolute inset-0 z-40 flex items-center justify-center bg-white bg-opacity-80 rounded-xl transition-opacity duration-300 hidden"
+>
+  <div class="text-center">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
+    <p class="text-gray-600" id="report-list-loading-message">
+      Loading reports...
+    </p>
+  </div>
+</div>
+
+<!-- Report Table Component -->
+<div
+  class="lg:h-[310px] bg-white rounded-xl shadow-md p-6 mx-auto w-full flex-1 panel-animate overflow-hidden flex flex-col"
+  data-aos="fade-up"
+  data-aos-delay="200"
+>
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4"
+  >
+    <div class="flex items-center gap-2 mb-0">
+      <i class="fa-solid fa-file text-blue-500 text-xl"></i>
+      <h2 class="text-xl font-semibold">Daily Report</h2>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto md:w-auto">
+      <div class="relative w-full sm:w-56">
+        <input
+          type="text"
+          id="reportSearchInput"
+          placeholder="Search reports..."
+          class="border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full"
+        />
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+      <div class="relative w-full sm:w-44">
+        <select
+          aria-label="sortSelect"
+          id="reportSortSelect"
+          class="border border-gray-300 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm w-full"
+        >
+          <option value="name">Sort by Name</option>
+          <option value="sold-desc">Sold: High to Low</option>
+          <option value="sold-asc">Sold: Low to High</option>
+          <option value="damaged-desc">Damaged: High to Low</option>
+          <option value="damaged-asc">Damaged: Low to High</option>
+          <option value="missing-desc">Missing: High to Low</option>
+          <option value="missing-asc">Missing: Low to High</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="flex-1 min-h-0 overflow-hidden">
+    <div class="overflow-y-auto overflow-x-auto h-full">
+      <table
+        class="min-w-full text-sm text-left text-gray-700 fixed-table-header"
+      >
+        <thead
+          class="bg-gray-100 font-semibold text-gray-600 sticky top-0 z-10"
+        >
+          <tr>
+            <th class="px-4 py-2 rounded-tl-lg">Name</th>
+            <th class="px-4 py-2 text-center">Sold</th>
+            <th class="px-4 py-2 text-center">Damaged</th>
+            <th class="px-4 py-2 text-center">Missing</th>
+            <th class="px-4 py-2 text-center rounded-tr-lg">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody">
+          <!-- Rows will be added here dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("reportForm");
+  const tbody = document.getElementById("reportTableBody");
+  const productName = document.getElementById("productName");
+  const productSold = document.getElementById("productSold");
+  const productDamaged = document.getElementById("productDamaged");
+  const productMissing = document.getElementById("productMissing");
+  const reportSearchInput = document.getElementById("reportSearchInput");
+  const reportSortSelect = document.getElementById("reportSortSelect");
+
+  // Form elements for editing
+  const reportIdInput = document.getElementById("reportId");
+  const formIcon = document.getElementById("formIcon");
+  const formTitle = document.getElementById("formTitle");
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+  // Delete Modal Elements
+  const deleteReportModal = document.getElementById("deleteReportModal");
+  const closeDeleteReportModalBtn = document.getElementById(
+    "closeDeleteReportModal"
+  );
+  const cancelDeleteReportBtn = document.getElementById("cancelDeleteReport");
+  const confirmDeleteReportBtn = document.getElementById("confirmDeleteReport");
+  let pendingDeleteReportId = null;
+
+  let reports = [];
+
+  // --- Render reports to table with search and sort ---
+  function renderReports() {
+    // Filter for today's reports only
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    let filtered = reports.filter((r) => {
+      const reportDate = r.created_at ? r.created_at.slice(0, 10) : "";
+      return reportDate === todayStr;
+    });
+    // Search
+    const searchTerm = reportSearchInput.value.toLowerCase().trim();
+    if (searchTerm)
+      filtered = filtered.filter((r) =>
+        r.product_name.toLowerCase().includes(searchTerm)
+      );
+    // Sort (applied only to today's filtered data)
+    switch (reportSortSelect.value) {
+      case "name":
+        filtered.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        break;
+      case "sold-desc":
+        filtered.sort((a, b) => b.sold - a.sold);
+        break;
+      case "sold-asc":
+        filtered.sort((a, b) => a.sold - b.sold);
+        break;
+      case "damaged-desc":
+        filtered.sort((a, b) => b.damaged - a.damaged);
+        break;
+      case "damaged-asc":
+        filtered.sort((a, b) => a.damaged - b.damaged);
+        break;
+      case "missing-desc":
+        filtered.sort((a, b) => b.missing - a.missing);
+        break;
+      case "missing-asc":
+        filtered.sort((a, b) => a.missing - b.missing);
+        break;
+    }
+    tbody.innerHTML = filtered.length
+      ? filtered
+          .map(
+            (report) => `
+      <tr>
+        <td class="px-4 py-2 font-medium text-gray-900">${report.product_name}</td>
+        <td class="px-4 py-2 text-center">${report.sold}</td>
+        <td class="px-4 py-2 text-center">${report.damaged}</td>
+        <td class="px-4 py-2 text-center">${report.missing}</td>
+        <td class="px-4 py-2 text-center space-x-2">
+          <button onclick="editReport(${report.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+          <button onclick="confirmDelete(${report.id})" class="text-red-600 hover:text-red-800"><i class="fas fa-trash-alt"></i></button>
+        </td>
+      </tr>
+    `
+          )
+          .join("")
+      : `<tr><td colspan="5" class="text-center py-6 text-gray-400">No reports yet.</td></tr>`;
+  }
+
+  // --- Edit and Update ---
+  function editReport(id) {
+    const report = reports.find((r) => r.id === id);
+    if (report) {
+      // Switch form to edit mode
+      reportIdInput.value = report.id;
+      formTitle.textContent = "Edit Report";
+      formIcon.className = "fa-solid fa-edit text-xl text-blue-500";
+      submitBtn.textContent = "Update Report";
+      cancelEditBtn.classList.remove("hidden");
+
+      // Fill form with data
+      productName.value = report.product_id;
+      productSold.value = report.sold;
+      productDamaged.value = report.damaged;
+      productMissing.value = report.missing;
+
+      // Scroll to the form for better UX
+      form.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  function resetForm() {
+    form.reset();
+    reportIdInput.value = "";
+    formTitle.textContent = "Add New Report";
+    formIcon.className = "fa-solid fa-circle-plus text-xl text-blue-500";
+    submitBtn.textContent = "+ Add Report";
+    submitBtn.classList.remove("bg-yellow-500");
+    submitBtn.classList.add("bg-blue-600");
+    cancelEditBtn.classList.add("hidden");
+  }
+
+  // Add safety check before adding event listener
+  if (cancelEditBtn) {
+  cancelEditBtn.addEventListener("click", resetForm);
+  }
+
+  // --- Fetch initial reports ---
+  async function fetchReports() {
+    try {
+      showReportListLoading();
+      const response = await fetch("/api/reports");
+      reports = await response.json();
+      renderReports();
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    } finally {
+      hideReportListLoading();
+    }
+  }
+
+  // --- Form submission (Add/Update) ---
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const reportId = reportIdInput.value;
+    const isEditMode = !!reportId;
+
+    const reportData = {
+      product_id: productName.value,
+      sold: productSold.value,
+      damaged: productDamaged.value,
+      missing: productMissing.value,
+    };
+
+    try {
+      const url = isEditMode ? `/api/reports/${reportId}` : "/api/reports";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save the report.");
+      }
+
+      // Get the saved report (with product_name) from backend
+      const savedReport = await response.json();
+      if (isEditMode) {
+        if (window.editProductNotification) {
+          window.editProductNotification(savedReport);
+        }
+      } else {
+        if (window.addProductNotification) {
+          window.addProductNotification(savedReport);
+        }
+      }
+      await fetchReports();
+      resetForm();
+    } catch (error) {
+      console.error("Submit Error:", error);
+    }
+  });
+
+  // --- Delete ---
+  async function deleteReportFromApi(id) {
+    try {
+      // Find the report to get its name for notification
+      const reportToDelete = reports.find((r) => r.id === id);
+      await fetch(`/api/reports/${id}`, { method: "DELETE" });
+      if (window.deleteProductNotification && reportToDelete) {
+        window.deleteProductNotification(reportToDelete);
+      }
+      await fetchReports();
+    } catch (error) {
+      console.error("Error deleting report:", error);
+    }
+  }
+
+  function confirmDelete(id) {
+    pendingDeleteReportId = id;
+    if (deleteReportModal) {
+      deleteReportModal.classList.remove("invisible", "opacity-0");
+      deleteReportModal.classList.add("visible", "opacity-100");
+    }
+  }
+
+  function hideDeleteModal() {
+    if (deleteReportModal) {
+      deleteReportModal.classList.add("invisible", "opacity-0");
+      deleteReportModal.classList.remove("visible", "opacity-100");
+    }
+    pendingDeleteReportId = null;
+  }
+
+  async function handleConfirmDelete() {
+    if (pendingDeleteReportId !== null) {
+      await deleteReportFromApi(pendingDeleteReportId);
+      hideDeleteModal();
+    }
+  }
+
+  if (deleteReportModal) {
+    if (closeDeleteReportModalBtn)
+      closeDeleteReportModalBtn.addEventListener("click", hideDeleteModal);
+    if (cancelDeleteReportBtn)
+      cancelDeleteReportBtn.addEventListener("click", hideDeleteModal);
+    if (confirmDeleteReportBtn)
+      confirmDeleteReportBtn.addEventListener("click", handleConfirmDelete);
+  }
+
+  reportSearchInput.addEventListener("input", renderReports);
+  reportSortSelect.addEventListener("change", renderReports);
+
+  // --- Initial load ---
+  fetchReports();
+
+  function showReportListLoading(message = "Loading reports...") {
+    const loading = document.getElementById('report-list-loading');
+    const msg = document.getElementById('report-list-loading-message');
+    if (msg) msg.textContent = message;
+    if (loading) {
+      loading.classList.remove('hidden');
+      loading.style.opacity = '1';
+    }
+  }
+  function hideReportListLoading() {
+    const loading = document.getElementById('report-list-loading');
+    if (loading) {
+      loading.style.opacity = '0';
+      setTimeout(() => loading.classList.add('hidden'), 300);
+    }
+  }
+</script>

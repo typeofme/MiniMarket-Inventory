@@ -1,0 +1,53 @@
+<!-- Product List Section for Restock Page -->
+<div class="dashboard-card bg-white p-6 rounded-lg shadow w-full" data-aos="fade-up" data-aos-delay="500">
+  <div class="flex justify-between items-center mb-4">
+    <div class="flex items-center">
+      <i class="fas fa-list text-blue-600 mr-2"></i>
+      <h2 class="text-xl font-semibold">Product List</h2>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-auto text-sm text-left">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="p-3 rounded-tl-lg">Image</th>
+          <th class="p-3">Name</th>
+          <th class="p-3">Current Stock</th>
+          <th class="p-3">Description</th>
+          <th class="p-3">Price</th>
+          <th class="p-3 hidden md:table-cell">Order Qty</th>
+          <th class="p-3">Total</th>
+          <th class="p-3 rounded-tr-lg">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="orderProductList">
+        <!-- Product rows will be rendered by JS -->
+        <tr id="addProductRow">
+          <td colspan="8" class="py-4">
+            <div class="flex items-center gap-2">
+              <label for="productDropdown" class="font-medium text-gray-700">Add Product:</label>
+              <select id="productDropdown" class="border rounded p-2 min-w-[200px]">
+                <option value="">-- Select Product --</option>
+                <!-- Options will be rendered by JS -->
+              </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="orderSummary" class="mt-4 flex flex-row justify-center gap-12 text-lg font-semibold text-gray-700 py-2"></div>
+  </div>
+  <div class="flex justify-center gap-2 mt-2">
+    <button type="button" id="clearAllBtn" class="clearAllBtn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all">Clear All</button>
+    <button type="button" id="submitBtn" class="submitBtn bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all">Order</button>
+  </div>
+  <div id="orderSuccessNotif" class="hidden flex justify-center mt-4">
+    <div class="bg-green-100 text-green-800 px-6 py-3 rounded-lg shadow font-semibold flex items-center gap-2">
+      <i class="fas fa-check-circle"></i> Order successfully created!
+    </div>
+  </div>
+  <div id="noProducts" class="hidden py-8 text-center text-gray-500">
+    <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+    <p>No products found. Add your first product using the form.</p>
+  </div>
+</div>

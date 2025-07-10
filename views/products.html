@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="/components/products/styles/products.css" rel="stylesheet" />
+  <link href="/components/products/styles/product-form.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/toast.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="app-container">
+    <div id="sidebar-component"></div>
+    <div class="content-wrapper">
+      <div id="topnav-component"></div>
+      <div id="loading-screen-container"></div>
+      <main class="main-content">
+        <div id="stats-cards-container"></div>
+        <div class="products-layout">
+          <div id="product-form-container" class="product-form-section"></div>
+          <div id="product-list-container" class="product-list-section"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <div id="support-button-container"></div>
+  <div id="delete-modal-container"></div>
+  <div id="loading-screen-container"></div>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="/js/performanceOptimizer.js"></script>
+  <script src="/components/componentLoader.js"></script>
+  <script src="/components/support/supportModal.js"></script>
+  <script src="/js/categoryService.js"></script>
+  <script src="/js/productService.js"></script>
+  <script src="/components/products/product-module.js"></script>  <script>
+    // Mobile debugging and initialization
+    const isMobile = window.innerWidth <= 640;
+    
+    // Legacy BV system compatibility patch
+    // Creates a dummy bvFilterContainer to prevent errors from legacy code
+    window.addEventListener('DOMContentLoaded', function() {
+      if (!document.getElementById('bvFilterContainer') && 
+          !document.querySelector('[data-id="bvFilterContainer"]')) {
+        const dummyBVFilter = document.createElement('div');
+        dummyBVFilter.id = 'bvFilterContainer';
+        dummyBVFilter.style.display = 'none';
+        dummyBVFilter.dataset.legacy = 'true';
+        document.body.appendChild(dummyBVFilter);
+      }
+    });
+    
+    if (isMobile) {
+      document.body.classList.add('debug-mobile');
+      
+      // Add mobile-specific meta tag if not present
+      if (!document.querySelector('meta[name="viewport"]')) {
+        const viewportMeta = document.createElement('meta');
+        viewportMeta.name = 'viewport';
+        viewportMeta.content = 'width=device-width, initial-scale=1.0';
+        document.head.appendChild(viewportMeta);
+      }
+    }
+    
+    // Ensure all required scripts are loaded before component loading
+    function initializeComponents() {
+      // Check if ComponentLoader is available
+      if (typeof ComponentLoader === 'undefined') {
+        setTimeout(initializeComponents, 100);
+        return;
+      }
+      
+      // Load components immediately without delays
+      ComponentLoader.load('shared/sidebar', 'sidebar-component');
+      ComponentLoader.load('shared/topnav', 'topnav-component');
+      ComponentLoader.load('products/stats-cards', 'stats-cards-container');
+      ComponentLoader.load('products/product-form', 'product-form-container');
+      ComponentLoader.load('products/product-list', 'product-list-container');
+      ComponentLoader.load('products/delete-modal', 'delete-modal-container');
+      ComponentLoader.load('shared/support-button', 'support-button-container');
+      ComponentLoader.load('shared/loading-screen', 'loading-screen-container');
+      
+      // Set up timeout as fallback
+      setTimeout(() => {
+        const containers = ['stats-cards-container', 'product-form-container', 'product-list-container'];
+        containers.forEach(containerId => {
+          const container = document.getElementById(containerId);
+          if (container && container.innerHTML.trim() === '') {
+            console.warn(`Container ${containerId} is still empty after timeout`);
+            container.innerHTML = `
+              <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center">
+                <div class="text-gray-400 mb-2"><i class="fas fa-exclamation-circle text-xl"></i></div>
+                <h4 class="text-gray-700 font-medium mb-2">Component Loading Failed</h4>
+                <p class="text-gray-500 text-sm">Please refresh the page.</p>
+                <button onclick="location.reload()" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+                  Refresh Page
+                </button>
+              </div>
+            `;
+          }
+        });
+      }, 5000); // 5 second timeout
+      
+      ComponentLoader.onAllLoaded(function() {
+        // Remove debug mode after successful load
+        document.body.classList.remove('debug-mobile');
+        
+        // Initialize functionality
+        setTimeout(() => {
+          initializeDropdowns();
+          initializeSearch();
+          initDeleteModal();
+          initFormObserver();
+          
+          // Try activating the sidebar menu item after all components are loaded
+          if (window.setActiveMenuItem) {
+            window.setActiveMenuItem();
+          }
+          
+          // Ensure sidebar toggle is working
+          if (window.initializeSidebarToggle) {
+            window.initializeSidebarToggle();
+          }
+          
+          // Debug category filter dropdown issues
+          setTimeout(() => {
+            if (typeof window.debugCategoryDropdowns === 'function') {
+              window.debugCategoryDropdowns();
+              
+              // Force population of category filter dropdown if needed
+              if (typeof window.populateCategoryFilterDropdown === 'function') {
+                window.populateCategoryFilterDropdown();
+                
+                // Add a simple helper for manual debugging in console
+                window.checkCategoryDropdown = function() {
+                  const categoryFilterOptions = document.getElementById('categoryFilterOptions');
+                  const options = categoryFilterOptions ? categoryFilterOptions.querySelectorAll('.custom-option') : [];
+                
+                  return {
+                    optionsCount: options.length,
+                    categoriesCount: window.categories ? window.categories.length : 0,
+                    options: Array.from(options).map(opt => ({ 
+                      text: opt.textContent.trim(),
+                      value: opt.getAttribute('data-value')
+                    })),
+                    categories: window.categories
+                  };
+                };
+              }
+            }
+          }, 1000);
+          
+          // Ensure support button modal is properly attached
+          setTimeout(() => {
+            const supportBtn = document.querySelector('.support-btn');
+            if (supportBtn && typeof window.__supportFAQInjected !== 'undefined') {
+            }
+          }, 500);
+        }, 100);
+      });
+    }
+    
+    // Performance-aware AOS initialization
+    function initializeAOS() {
+      if (typeof AOS === 'undefined') {
+        console.warn('AOS not loaded, skipping animation initialization');
+        return;
+      }
+      
+      const isLowEndDevice = document.body.classList.contains('low-end-device');
+      const hasReducedMotion = document.body.classList.contains('reduced-motion');
+      
+      // Initialize AOS with performance-appropriate settings
+      if (!isLowEndDevice && !hasReducedMotion) {
+        AOS.init({
+          duration: 600,
+          once: true,
+          easing: 'ease-out-cubic',
+          disable: 'mobile' // Disable on mobile for better performance
+        });
+      } else {
+        // Disable AOS animations for low-end devices
+        AOS.init({
+          duration: 0,
+          once: true,
+          disable: true
+        });
+      }
+    }
+    
+    // Use different initialization based on document ready state
+    if (document.readyState === 'loading') {
+      // Document still loading
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initializeAOS, 100);
+        initializeComponents();
+      });
+    } else {
+      // Document already loaded
+      setTimeout(initializeAOS, 100);
+      initializeComponents();
+    }
+    function initializeDropdowns() {
+      setupCustomDropdown('customSelectContainer', 'customSelectTrigger', 'customSelectOptions', 
+                         'selectedOptionText', 'sortSelect');
+      setupCustomDropdown('categoryFilterContainer', 'categoryFilterTrigger', 'categoryFilterOptions', 
+                         'selectedCategoryText', 'categoryFilterSelect');
+    }
+    function setupCustomDropdown(containerId, triggerId, optionsId, selectedTextId, selectId) {
+      const selectContainer = document.getElementById(containerId);
+      if (!selectContainer) {
+        console.error(`Dropdown container #${containerId} not found`);
+        return;
+      }
+      const selectTrigger = document.getElementById(triggerId);
+      const selectOptions = document.getElementById(optionsId);
+      const selectedText = document.getElementById(selectedTextId);
+      const hiddenSelect = document.getElementById(selectId);
+      if (!selectTrigger || !selectOptions || !selectedText || !hiddenSelect) {
+        console.error(`One or more dropdown elements not found for ${containerId}`);
+        return;
+      }
+      const options = selectOptions.querySelectorAll('.custom-option');
+      selectTrigger.addEventListener('click', function() {
+        selectTrigger.classList.toggle('active');
+        selectOptions.classList.toggle('active');
+      });
+      document.addEventListener('click', function(e) {
+        if (!selectContainer.contains(e.target)) {
+          selectTrigger.classList.remove('active');
+          selectOptions.classList.remove('active');
+        }
+      });
+      options.forEach(option => {
+        option.addEventListener('click', function() {
+          options.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          selectedText.textContent = this.textContent.trim();
+          const value = this.getAttribute('data-value');
+          hiddenSelect.value = value;
+          selectTrigger.classList.remove('active');
+          selectOptions.classList.remove('active');
+          const event = new Event('change');
+          hiddenSelect.dispatchEvent(event);
+        });
+      });
+    }
+    
+    function initializeSearch() {
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          if (typeof window.renderProducts === 'function') {
+            window.renderProducts();
+          }
+        });
+      }
+    }
+    
+    function initDeleteModal() {
+      const deleteModal = document.getElementById('deleteModal');
+      const cancelDeleteBtn = document.getElementById('cancelDelete');
+      const confirmDeleteBtn = document.getElementById('confirmDelete');
+      if (deleteModal && cancelDeleteBtn && confirmDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', function() {
+          deleteModal.classList.add('hidden');
+          window.currentProductId = null;
+        });
+        confirmDeleteBtn.addEventListener('click', function() {
+          if (typeof window.confirmDeleteProduct === 'function') {
+            window.confirmDeleteProduct();
+          }
+        });
+      }
+    }
+    
+    function initFormObserver() {
+      const formContainer = document.getElementById('product-form-container');
+      if (formContainer) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              const btn = document.getElementById('manageCategoriesBtn');
+              if (btn) {
+                console.log('Category management button detected!');
+                observer.disconnect();
+                setTimeout(() => {
+                  if (window.categoryManagement && typeof window.categoryManagement.init === 'function') {
+                    window.categoryManagement.init();
+                  }
+                }, 500);
+              }
+            }
+          });
+        });
+        
+        observer.observe(formContainer, {
+          childList: true,
+          subtree: true
+        });
+      }
+    }
+
+    // Global test function for debugging
+    window.testCategoryButton = function() {
+      const btn = document.getElementById('manageCategoriesBtn');
+      console.log('Button element found:', btn);
+      
+      if (btn) {
+        console.log('Button onclick attribute:', btn.getAttribute('onclick'));
+        console.log('Attempting to click button...');
+        btn.click();
+      } else {
+        console.log('Button not found. Checking all elements with manageCategoriesBtn ID...');
+        const allButtons = document.querySelectorAll('[id*="manageCategor"], [class*="manageCategor"]');
+        console.log('Similar elements found:', allButtons);
+      }
+    };
+  </script>
+</body>
+</html>

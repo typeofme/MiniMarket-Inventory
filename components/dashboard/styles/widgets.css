@@ -1,0 +1,268 @@
+/* Widget Card Styling */
+.widget-card {
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  margin-bottom: 0.5rem; /* Consistent bottom margin */
+}
+
+.widget-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Shadow effect for widget cards */
+.dashboard-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Widget Section styling */
+.widget-section-header {
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.widget-section-header:hover {
+  background-color: #f3f4f6;
+}
+
+.widget-section-header h4 {
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* Widget section content transition */
+.widget-section > div:last-child {
+  transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
+  overflow: hidden;
+}
+
+.widget-section {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Tabs styling */
+.widget-tabs {
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding-bottom: 2px;
+}
+
+.widget-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.widget-tab-btn {
+  transition: all 0.3s ease;
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+}
+
+.widget-tab-btn:hover {
+  background-color: rgba(243, 244, 246, 0.5);
+}
+
+/* Widget customization mode */
+.customizing-widgets .widget-card {
+  cursor: grab;
+}
+
+.customizing-widgets .widget-card:active {
+  cursor: grabbing;
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+/* Widget control buttons */
+.widget-controls button {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.widget-controls button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Placeholder for dragging */
+.widget-placeholder {
+  background-color: rgba(219, 234, 254, 0.5);
+  border: 2px dashed #93c5fd;
+  border-radius: 0.5rem;
+  min-height: 100px;
+}
+
+/* Widget section transitions */
+.widget-section > div:last-child {
+  transition: height 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+}
+
+.widget-section > div:last-child.hidden {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.section-toggle i {
+  transition: transform 0.3s ease;
+}
+
+/* Widget loading state */
+.widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.widget-loading::after {
+  content: '';
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(219, 234, 254, 0.3);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: widget-spinner 1s linear infinite;
+}
+
+@keyframes widget-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Widget empty state */
+.widget-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.widget-empty i {
+  font-size: 1.5rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+/* Chart specific styles */
+canvas {
+  max-width: 100%;
+}
+
+/* Chart containers - consistent heights */
+.dashboard-card .h-44 {
+  min-height: 11rem;
+}
+
+.dashboard-card .h-48 {
+  min-height: 12rem;
+}
+
+.dashboard-card .h-52 {
+  min-height: 13rem;
+}
+
+.dashboard-card .h-36 {
+  min-height: 9rem;
+}
+
+/* Improved spacing between widgets */
+.grid.gap-4 > * {
+  margin-bottom: 0 !important;
+}
+
+/* Widget category badges */
+.category-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.widget-card:hover .category-badge {
+  opacity: 1;
+}
+
+/* Widget container background pattern */
+#widgets-container {
+  background-color: rgba(249, 250, 251, 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.7'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Responsive sidebar for analytics section */
+@media (max-width: 1023px) {
+  .space-y-6 > .dashboard-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Improved sales analytics chart styles */
+#sales-analytics-chart {
+  max-height: 400px;
+}
+
+/* Hover styles for sidebar items */
+.dashboard-card .space-y-3 > div {
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+}
+
+.dashboard-card .space-y-3 > div:hover {
+  background-color: rgba(243, 244, 246, 0.5);
+  transform: translateX(5px);
+}
+
+/* Quick action buttons animation */
+.dashboard-card button:active {
+  transform: scale(0.95);
+}
+
+/* Alert badges animation */
+.bg-red-100.text-red-600 {
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Better spacing for slim sidebar */
+.space-y-6 .dashboard-card {
+  padding: 1rem;
+}
+
+/* Widget sections on mobile */
+@media (max-width: 768px) {
+  .widget-section-header {
+    cursor: pointer;
+  }
+}

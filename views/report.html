@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports</title>
+    <link href="../css/style.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../components/report/styles/report.css" />
+
+    <!-- Authentication scripts -->
+    <script src="/js/toast.js"></script>
+    <script src="/js/authService.js"></script>
+    <script src="/js/authGuard.js"></script>
+  </head>
+  <body class="bg-gray-50 flex">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div id="sidebar-container"></div>
+    <div class="content-wrapper flex-1">
+      <div id="topnav-container"></div>
+      <!-- Main Content -->
+      <main class="p-6 flex flex-col gap-6">
+        <!-- First Section -->
+        <div
+          class="flex flex-col lg:flex-row lg:h-[575px] gap-5 items-stretch main-panels"
+        >
+          <!-- Left Panel -->
+          <div
+            class="lg:w-1/3 w-full bg-white rounded-xl shadow-md p-4 flex flex-col lg:h-full panel-animate"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div id="report-form-container"></div>
+          </div>
+          <!-- Right Panel -->
+          <div class="lg:w-2/3 w-full flex flex-col gap-5 h-full">
+            <div id="charts-container"></div>
+            <div id="report-list-container"></div>
+          </div>
+        </div>
+        <!-- Second Section -->
+        <div id="sales-summary-container"></div>
+      </main>
+    </div>
+    <div id="support-button-container"></div>
+    <div id="delete-modal-container"></div>
+    <div id="loading-screen-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="../components/componentLoader.js"></script>
+    <script src="/components/support/supportModal.js"></script>
+    <script>
+      AOS.init({
+        easing: "ease-out-cubic",
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        ComponentLoader.load("shared/sidebar", "sidebar-container");
+        setTimeout(() => {
+          ComponentLoader.load("shared/topnav", "topnav-container");
+          ComponentLoader.load(
+            "report/support-button",
+            "support-button-container"
+          );
+          ComponentLoader.load("report/delete-modal", "delete-modal-container");
+          ComponentLoader.load("report/charts", "charts-container");
+          ComponentLoader.load("report/report-form", "report-form-container");
+          ComponentLoader.load("report/report-list", "report-list-container");
+          ComponentLoader.load(
+            "report/sales-summary",
+            "sales-summary-container"
+          );
+          ComponentLoader.onAllLoaded(function () {
+            if (window.setActiveMenuItem) {
+              window.setActiveMenuItem();
+            }
+            
+            // Ensure sidebar toggle is working
+            if (window.initializeSidebarToggle) {
+              window.initializeSidebarToggle();
+            }
+            
+            import("../components/report/report-module.js").then((module) => {
+              module.afterComponentsLoaded();
+            });
+          });
+        }, 100);
+      });
+    </script>
+  </body>
+</html>

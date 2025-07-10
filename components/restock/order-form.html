@@ -1,0 +1,31 @@
+<!-- Order Form Section for Restock Page -->
+<div class="dashboard-cards bg-white p-6 rounded-lg shadow w-full" data-aos="fade-up" data-aos-delay="400">
+  <div class="flex items-center mb-4">
+    <h2 class="text-xl font-semibold" id="formTitle">Order Details</h2>
+  </div>
+  <form id="orderForm" class="flex flex-col gap-4">
+    <div class="flex flex-col lg:flex-row gap-4">
+      <div class="flex-1">
+        <label for="supplierSelect" class="block text-sm font-medium text-gray-700">Select Supplier</label>
+        <select id="supplierSelect" name="supplierSelect" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required>
+          <option value="">-- Select a supplier --</option>
+          <option value="automobile">Automobile Supplier</option>
+          <option value="electronics">Electronics Supplier</option>
+          <option value="food-beverages">Food & Beverages Supplier</option>
+          <option value="household">Household Supplier</option>
+          <option value="clothing">Clothing Supplier</option>
+          <option value="books">Books Supplier</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <label for="orderDate" class="block text-sm font-medium text-gray-700">Order Date</label>
+        <input type="date" id="orderDate" name="orderDate" class="w-full mt-1 border border-gray-300 rounded-lg p-2" required />
+      </div>
+      <div class="flex-1">
+        <label for="expectedArrival" class="block text-sm font-medium text-gray-700">Expected Arrival</label>
+        <input type="date" id="expectedArrival" name="expectedArrival" class="w-full mt-1 border border-gray-300 rounded-lg p-2 bg-gray-100" readonly tabindex="-1" />
+      </div>
+    </div>
+    <input type="hidden" id="productId" name="productId" />
+  </form>
+</div>

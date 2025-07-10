@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asset</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/components/asset/styles/asset.css" rel="stylesheet" />
+  <link href="/components/asset/styles/support-button.css" rel="stylesheet" />
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/toast.js"></script>
+  
+  <style>
+    /* Ensure form elements in modal are interactive */
+    #assetModal input, 
+    #assetModal select, 
+    #assetModal textarea, 
+    #assetModal button {
+      pointer-events: auto !important;
+      position: relative;
+      z-index: 100;
+    }
+    
+    #assetModal .bg-white {
+      pointer-events: auto !important;
+    }
+    
+    /* Ensure asset card buttons are clickable */
+    .dashboard-card {
+      position: relative;
+    }
+    
+    .dashboard-card button,
+    .edit-btn,
+    .delete-btn {
+      pointer-events: auto !important;
+      position: relative;
+      z-index: 1000 !important;
+      cursor: pointer !important;
+      user-select: none;
+      border: none !important;
+      outline: none !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-btn:hover {
+      transform: scale(1.1);
+      background-color: #DBEAFE !important;
+    }
+    
+    .delete-btn:hover {
+      transform: scale(1.1);
+      background-color: #FEE2E2 !important;
+    }
+    
+    .edit-btn:active,
+    .delete-btn:active {
+      transform: scale(0.95);
+    }
+    
+    /* Focus styles for better visibility */
+    #assetModal input:focus,
+    #assetModal select:focus,
+    #assetModal textarea:focus {
+      outline: none;
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  </style>
+  <!-- style dihapus, semua css sudah di asset.css -->
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+  <!-- Side Navigation -->
+  <div class="sidebar-overlay hidden" id="sidebar-overlay"></div>
+  <div id="assetSidebar" class="sidebar"></div>
+  <div class="content-wrapper flex-1 min-w-0 flex flex-col">
+    <!-- Top Navigation -->
+    <div id="assetTopnav"></div>
+    <!-- Main Content -->
+    <main class="w-full px-2 sm:px-4 md:px-6 py-4 md:py-6 flex-1">
+      <!-- Dashboard Stats Section -->
+      <div id="assetDashboardCards"></div>
+      <!-- Asset Health Overview Section -->
+      <div id="assetHealthOverviewSection"></div>
+      <!-- Main Layout: Sidebar (Actions & Categories) + Asset List -->
+      <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 md:gap-8 mb-6 md:mb-8 w-full min-w-0" data-aos="fade-up" data-aos-delay="150" data-aos-once="true">
+        <!-- Sidebar Left: Asset Actions & Categories -->
+        <div id="assetActionsCategories">
+          <!-- Asset Actions & Categories Sidebar -->
+          <aside class="flex flex-col gap-6 md:gap-8 w-full lg:w-[280px] min-w-0">
+            <div class="bg-white rounded-lg shadow border p-4 flex flex-col gap-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="rounded-full bg-blue-100 p-2">
+                  <i class="fas fa-plus text-blue-600 text-sm"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700">Asset Actions</h3>
+              </div>
+              <button id="addAssetBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2 shadow mb-2">
+                <i class="fas fa-plus"></i> Add New Asset
+              </button>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center" title="View History">
+                  <i class="fas fa-history"></i> <span class="hidden md:inline">History</span>
+                </button>
+                <button class="bg-gray-100 text-gray-700 px-2 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 border transition-all justify-center" title="Export Assets">
+                  <i class="fas fa-download"></i> <span class="hidden md:inline">Export</span>
+                </button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow border p-4 transition-shadow hover:shadow-lg" data-aos="fade-up" data-aos-delay="250" data-aos-once="true">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="rounded-full bg-green-100 p-2">
+                  <i class="fas fa-filter text-green-600 text-sm"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700">Filter by Type</h3>
+              </div>
+              <ul id="assetCategoriesList" class="flex flex-col gap-1">
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('')">
+                  <i class="fas fa-list mr-2 text-gray-500"></i>All Types
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Electronics')">
+                  <i class="fas fa-laptop mr-2 text-blue-500"></i>Electronics
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Equipment')">
+                  <i class="fas fa-tools mr-2 text-green-500"></i>Equipment
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Furniture')">
+                  <i class="fas fa-chair mr-2 text-purple-500"></i>Furniture
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Vehicles')">
+                  <i class="fas fa-car mr-2 text-red-500"></i>Vehicles
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Machinery')">
+                  <i class="fas fa-cogs mr-2 text-gray-600"></i>Machinery
+                </li>
+                <li class="px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm" onclick="filterAssetsByType('Tools')">
+                  <i class="fas fa-hammer mr-2 text-orange-500"></i>Tools
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+        <!-- Asset List Section (Card Grid) -->
+        <div id="assetList"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Add/Edit Asset -->
+  <div id="assetModalContainer">
+    <!-- Modal Add/Edit Asset -->    <div id="assetModal" class="fixed inset-0 bg-black/40 z-50 hidden overflow-y-auto" style="display: none !important; visibility: hidden !important;">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative z-10" style="backdrop-filter: blur(2px);">
+          <button id="closeAssetModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl z-20">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="flex items-center mb-4">
+            <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+            <h2 class="text-xl font-semibold" id="formTitle">Add New Asset</h2>
+          </div>
+          <form id="assetForm" class="flex flex-col gap-4" style="position: relative; z-index: 15;">
+            <div>
+              <label for="assetName" class="block text-sm font-medium text-gray-700">Asset Name</label>
+              <input type="text" id="assetName" name="assetName" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+            </div>            <div>
+              <label for="assetType" class="block text-sm font-medium text-gray-700">Asset Type</label>
+              <select id="assetType" name="assetType" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                <option value="">Select Type</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Vehicles">Vehicles</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Machinery">Machinery</option>
+                <option value="Tools">Tools</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="placementLocation" class="block text-sm font-medium text-gray-700">Placement Location</label>
+              <input type="text" id="placementLocation" name="placementLocation" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="purchaseDate" class="block text-sm font-medium text-gray-700">Purchase Date</label>
+                <input type="date" id="purchaseDate" name="purchaseDate" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+              <div>
+                <label for="purchasePrice" class="block text-sm font-medium text-gray-700">Purchase Price</label>
+                <input type="number" id="purchasePrice" name="purchasePrice" step="0.01" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" />
+              </div>
+            </div>            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="condition" class="block text-sm font-medium text-gray-700">Condition</label>
+                <select id="condition" name="condition" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                  <option value="">Select Condition</option>
+                  <option value="excellent">Excellent</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="poor">Poor</option>
+                  <option value="needs_repair">Needs Repair</option>
+                </select>
+              </div>
+              <div>
+                <label for="assetStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                <select id="assetStatus" name="assetStatus" class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                  <option value="">Select Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="retired">Retired</option>
+                </select>
+              </div>
+          
+            <div class="flex gap-2 pt-4">
+              <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                Save Asset
+              </button>
+              <button type="button" id="cancelEdit" class="hidden px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors">
+                Cancel Edit
+              </button>
+            </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6">
+      <div class="flex items-center mb-4">
+        <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+        <h2 class="text-xl font-semibold">Delete Asset</h2>
+      </div>
+      <p class="text-gray-600 mb-6">Are you sure you want to delete this asset? This action cannot be undone.</p>
+      <div class="flex gap-3 justify-end">
+        <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Support Button -->
+  <div id="assetSupportButton"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="/components/componentLoader.js"></script>
+  <script src="/components/support/supportModal.js"></script>
+  <script src="/js/assetService.js"></script>
+  <script src="/js/assetModal.js"></script>
+  <script>
+    // Initialize AOS animation library
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Asset page DOM loaded');
+      
+      ComponentLoader.load('shared/sidebar', 'assetSidebar');
+      setTimeout(() => {
+        console.log('Loading asset components...');
+        ComponentLoader.load('shared/topnav', 'assetTopnav');
+        ComponentLoader.load('asset/dashboard-cards', 'assetDashboardCards');
+        ComponentLoader.load('asset/health-overview', 'assetHealthOverviewSection');
+        // actions-categories is now embedded directly
+        ComponentLoader.load('asset/asset-list', 'assetList');
+        // asset-modal is now embedded directly
+        ComponentLoader.load('asset/delete-modal', 'assetDeleteModal');
+        ComponentLoader.load('shared/support-button', 'assetSupportButton');
+        // Pindahkan semua inisialisasi ke dalam onAllLoaded agar pasti setelah semua komponen ready
+        ComponentLoader.onAllLoaded(function() {
+          console.log('All components loaded, initializing asset functionality...');
+          
+          // Check if Add Asset button exists
+          const addAssetBtn = document.getElementById('addAssetBtn');
+          console.log('Add Asset Button found:', addAssetBtn);
+          
+          // Add event listener for Add Asset button
+          if (addAssetBtn) {
+            addAssetBtn.addEventListener('click', function() {
+              console.log('Add Asset button clicked');
+              if (window.assetModalManager) {
+                window.assetModalManager.open('add');
+              } else {
+                console.error('AssetModalManager not initialized');
+                // Fallback: directly open modal
+                const modal = document.getElementById('assetModal');
+                if (modal) {
+                  modal.classList.remove('hidden');
+                  modal.style.display = 'flex';
+                  modal.style.visibility = 'visible';
+                }
+              }
+            });
+          }
+          
+          // Check if modal exists
+          const modal = document.getElementById('assetModal');
+          console.log('Asset Modal found:', modal);
+          
+          // Ensure modal is properly hidden initially
+          if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            console.log('Modal properly hidden');
+          }
+          
+          // Add close modal event listeners
+          const closeModalBtn = document.getElementById('closeAssetModal');
+          if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function() {
+              console.log('Close button clicked');
+              modal.classList.add('hidden');
+              modal.style.display = 'none';
+              modal.style.visibility = 'hidden';
+            });
+          }
+          
+          // Close modal when clicking outside
+          if (modal) {
+            modal.addEventListener('click', function(e) {
+              // Only close if clicking directly on the modal backdrop, not on child elements
+              if (e.target === modal) {
+                console.log('Background clicked, closing modal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                modal.style.visibility = 'hidden';
+              }
+            });
+          }
+
+          // Add delete modal event listeners
+          const deleteModal = document.getElementById('deleteModal');
+          const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+          const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+          
+          if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+              confirmDeleteAsset();
+            });
+          }
+          
+          if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', function() {
+              deleteModal.classList.add('hidden');
+              deleteModal.removeAttribute('style');
+              window.deleteAssetId = null;
+            });
+          }
+          
+          // Close delete modal when clicking outside
+          if (deleteModal) {
+            deleteModal.addEventListener('click', function(e) {
+              if (e.target === deleteModal) {
+                deleteModal.classList.add('hidden');
+                deleteModal.removeAttribute('style');
+                window.deleteAssetId = null;
+              }
+            });
+          }
+          
+          // Initialize AssetModalManager only if not already initialized
+          if (!window.assetModalManager && typeof AssetModalManager !== 'undefined') {
+            window.assetModalManager = new AssetModalManager();
+            console.log('AssetModalManager initialized');
+          }
+
+          // Load assets and stats from database
+          setTimeout(() => {
+            if (window.loadAndRenderAssets) {
+              console.log('Loading assets...');
+              window.loadAndRenderAssets();
+            }
+            if (window.loadAssetStats) {
+              console.log('Loading stats...');
+              window.loadAssetStats();
+            }
+            
+            // Ensure sidebar toggle is working
+            if (window.initializeSidebarToggle) {
+              window.initializeSidebarToggle();
+            }
+          }, 500);
+        });
+      }, 100);
+    });
+
+    // === Asset List Loader with Debounce ===
+    let loadingAssets = false;
+    async function loadAndRenderAssets() {
+      // Prevent multiple simultaneous calls
+      if (loadingAssets) {
+        console.log('❌ Already loading assets, skipping duplicate call...');
+        return;
+      }
+      
+      loadingAssets = true;
+      console.log('🔄 Starting to load and render assets...');
+      const grid = document.getElementById('assetCardGrid');
+      if (!grid) {
+        console.log('❌ Asset grid not found');
+        loadingAssets = false;
+        return;
+      }
+      
+      try {
+        console.log('📊 Fetching assets from API...');
+        const assets = await window.assetService.getAssets();
+        console.log(`✅ Retrieved ${assets.length} assets from database`);
+        
+        // Store all assets for filtering
+        allAssets = assets;
+        
+        if (!assets.length) {
+          document.getElementById('noAssets').style.display = '';
+          grid.innerHTML = '';
+          return;
+        }
+        document.getElementById('noAssets').style.display = 'none';
+        
+        // Clear existing content to prevent duplicates
+        grid.innerHTML = '';
+        
+        grid.innerHTML = assets.map(asset => {
+          const iconClass = getTypeIcon(asset.type);
+          const iconColor = getTypeIconColor(asset.type);
+          const bgColor = getTypeIconBackground(asset.type);
+          
+          return `
+          <div class="dashboard-card bg-white p-6 rounded-lg shadow flex flex-col gap-2 relative" data-asset-id="${asset.id}">
+            <div class="absolute top-3 right-3 flex gap-2" style="z-index: 10000;">
+              <button class="asset-edit-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" 
+                      data-asset-id="${asset.id}" title="Edit Asset">
+                <i class="fas fa-edit text-sm"></i>
+              </button>
+              <button class="asset-delete-btn bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" 
+                      data-asset-id="${asset.id}" title="Delete Asset">
+                <i class="fas fa-trash text-sm"></i>
+              </button>
+            </div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="rounded-full ${bgColor} p-3">
+                <i class="${iconClass} ${iconColor} text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold pr-20">${asset.name}</h3>
+                <div class="text-sm text-gray-500">${asset.type}</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 text-sm text-gray-600 mb-2">
+              <span><b>Location:</b> ${asset.placement_location || 'N/A'}</span>
+              <span><b>Status:</b> ${asset.status}</span>
+              <span><b>Condition:</b> ${asset.condition}</span>
+            </div>
+          </div>`;
+        }).join('');
+        
+        // Set up event delegation for asset buttons
+        setupAssetEventDelegation();
+        
+        // Apply current filter if any
+        if (currentFilter) {
+          renderFilteredAssets(currentFilter);
+        }
+        
+        console.log('✅ Assets rendered successfully!');
+      } catch (err) {
+        console.error('❌ Failed to load assets:', err);
+        grid.innerHTML = '<div class="text-red-500">Failed to load assets</div>';
+      } finally {
+        loadingAssets = false;
+        console.log('🔄 Asset loading process completed');
+      }
+    }
+
+    // Helper functions for asset type icons
+    function getTypeIcon(type) {
+      const icons = {
+        'Electronics': 'fas fa-laptop',
+        'Furniture': 'fas fa-chair',
+        'Vehicles': 'fas fa-car',
+        'Equipment': 'fas fa-tools',
+        'Machinery': 'fas fa-cogs',
+        'Tools': 'fas fa-hammer'
+      };
+      return icons[type] || 'fas fa-box';
+    }
+
+    function getTypeIconColor(type) {
+      const colors = {
+        'Electronics': 'text-blue-500',
+        'Furniture': 'text-purple-500',
+        'Vehicles': 'text-red-500',
+        'Equipment': 'text-green-500',
+        'Machinery': 'text-gray-600',
+        'Tools': 'text-orange-500'
+      };
+      return colors[type] || 'text-gray-500';
+    }
+
+    function getTypeIconBackground(type) {
+      const colors = {
+        'Electronics': 'bg-blue-100',
+        'Furniture': 'bg-purple-100',
+        'Vehicles': 'bg-red-100',
+        'Equipment': 'bg-green-100',
+        'Machinery': 'bg-gray-100',
+        'Tools': 'bg-orange-100'
+      };
+      return colors[type] || 'bg-gray-100';
+    }
+
+    // Dashboard Statistics Functions
+    async function updateDashboardStats() {
+      try {
+        const assets = await window.assetService.getAssets();
+        if (!assets) return;
+        
+        // Calculate stats from assets data
+        const totalAssets = assets.length;
+        const activeAssets = assets.filter(a => a.status === 'active').length;
+        const inactiveAssets = assets.filter(a => a.status === 'inactive').length;
+        
+        // Update statistics in dashboard cards - using the correct IDs
+        const totalElement = document.getElementById('totalAssets');
+        const activeElement = document.getElementById('activeAssets');
+        const inactiveElement = document.getElementById('inactiveAssets');
+        
+        if (totalElement) totalElement.textContent = totalAssets || '0';
+        if (activeElement) activeElement.textContent = activeAssets || '0';
+        if (inactiveElement) inactiveElement.textContent = inactiveAssets || '0';
+      } catch (err) {
+        console.error('Failed to update dashboard stats:', err);
+      }
+    }
+
+    async function updateHealthOverview() {
+      try {
+        const assets = await window.assetService.getAssets();
+        if (!assets || !assets.length) return;
+        
+        // Calculate condition stats from assets data
+        const stats = {
+          excellent: assets.filter(a => a.condition === 'excellent').length,
+          good: assets.filter(a => a.condition === 'good').length,
+          fair: assets.filter(a => a.condition === 'fair').length,
+          poor: assets.filter(a => a.condition === 'poor').length,
+          total: assets.length
+        };
+        
+        // Map conditions to health status
+        const countHealthy = stats.excellent + stats.good;
+        const countAttention = stats.fair;
+        const countCritical = stats.poor;
+        
+        // Update health overview counters
+        const healthyElement = document.getElementById('countHealthy');
+        const attentionElement = document.getElementById('countAttention');
+        const criticalElement = document.getElementById('countCritical');
+        
+        if (healthyElement) healthyElement.textContent = countHealthy || '0';
+        if (attentionElement) attentionElement.textContent = countAttention || '0';
+        if (criticalElement) criticalElement.textContent = countCritical || '0';
+      } catch (err) {
+        console.error('Failed to update health overview:', err);
+      }
+    }
+
+    async function updateAssetCategories() {
+      try {
+        const assets = await window.assetService.getAssets();
+        if (!assets || !assets.length) return;
+        
+        // Extract unique asset types and count them
+        const typeMap = {};
+        assets.forEach(asset => {
+          if (asset.type) {
+            typeMap[asset.type] = (typeMap[asset.type] || 0) + 1;
+          }
+        });
+        
+        // Convert to array of category objects
+        const categories = Object.keys(typeMap).map(name => ({
+          name,
+          count: typeMap[name]
+        }));
+        
+        const categoriesList = document.getElementById('assetCategoriesList');
+        if (!categoriesList) return;
+        
+        // Keep the first "All Types" item
+        const firstItem = categoriesList.querySelector('li');
+        
+        // Clear existing items except first
+        categoriesList.innerHTML = '';
+        if (firstItem) {
+          categoriesList.appendChild(firstItem);
+        }
+        
+        // Add categories
+        categories.forEach(category => {
+          const icon = getTypeIcon(category.name);
+          const color = getTypeIconColor(category.name);
+          
+          const li = document.createElement('li');
+          li.className = 'px-3 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition text-sm';
+          li.onclick = () => filterAssetsByType(category.name);
+          li.innerHTML = `<i class="${icon} mr-2 ${color}"></i>${category.name}`;
+          
+          categoriesList.appendChild(li);
+        });
+      } catch (err) {
+        console.error('Failed to update asset categories:', err);
+      }
+    }
+
+    Promise.all([
+      updateDashboardStats(),
+      updateHealthOverview(),
+      updateAssetCategories(),
+      loadAndRenderAssets()
+    ]).catch(err => {
+      console.error('Failed to initialize components:', err);
+    });
+
+    // Global functions for edit and delete - using AssetModalManager
+    window.editAsset = async function(assetId) {
+      console.log('Editing asset:', assetId);
+      try {
+        // Get asset details
+        const asset = await window.assetService.getAsset(assetId);
+        console.log('Asset data loaded for editing:', asset);
+        
+        // Use the AssetModalManager to open edit modal
+        if (window.assetModalManager) {
+          window.assetModalManager.open('edit', asset);
+        }
+      } catch (error) {
+        console.error('Failed to load asset for editing:', error);
+        alert('Failed to load asset data for editing');
+      }
+    };
+
+    window.deleteAsset = function(assetId) {
+      console.log('Deleting asset:', assetId);
+      window.deleteAssetId = assetId;
+      
+      // Show delete confirmation modal
+      const deleteModal = document.getElementById('deleteModal');
+      deleteModal.classList.remove('hidden');
+      deleteModal.setAttribute('style', 'display: flex !important; visibility: visible !important; opacity: 1 !important;');
+    };
+
+    window.confirmDeleteAsset = async function() {
+      if (!window.deleteAssetId) return;
+      
+      try {
+        await window.assetService.deleteAsset(window.deleteAssetId);
+        
+        // Remove the specific asset card instead of reloading all
+        const grid = document.getElementById('assetCardGrid');
+        const assetCard = grid.querySelector(`[data-asset-id="${window.deleteAssetId}"]`);
+        if (assetCard) {
+          assetCard.remove();
+          console.log('Removed asset card for ID:', window.deleteAssetId);
+        }
+        
+        // Check if there are any assets left
+        const remainingCards = grid.querySelectorAll('[data-asset-id]');
+        if (remainingCards.length === 0) {
+          const noAssets = document.getElementById('noAssets');
+          if (noAssets) {
+            noAssets.style.display = '';
+          }
+        }
+        
+        // Close delete modal
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.classList.add('hidden');
+        deleteModal.removeAttribute('style');
+        
+        // Refresh stats only
+        if (window.loadAssetStats) {
+          window.loadAssetStats();
+        }
+        
+        // Show success message
+        Toast.success('Asset deleted successfully!');
+        
+        window.deleteAssetId = null;
+      } catch (error) {
+        console.error('Failed to delete asset:', error);
+      }
+    };
+
+    window.cancelEdit = function() {
+      // Reset form
+      document.getElementById('assetForm').reset();
+      
+      // Update modal title and hide cancel button
+      document.getElementById('formTitle').textContent = 'Add New Asset';
+      document.getElementById('cancelEdit').classList.add('hidden');
+      
+      // Clear editing state
+      window.editingAssetId = null;
+      
+      // Close modal
+      const modal = document.getElementById('assetModal');
+      modal.classList.add('hidden');
+      modal.removeAttribute('style');
+    };
+
+    // Toast notification function now using global Toast system
+    // Usage: Toast.success(), Toast.error(), Toast.warning(), Toast.info()
+    
+    // Toast notification function now using global Toast system
+    // Usage: Toast.success(), Toast.error(), Toast.warning(), Toast.info()
+    
+    // Helper: tunggu element muncul
+    function waitForElement(selector, callback, maxTries = 100) {
+      let tries = 0;
+      const interval = setInterval(() => {
+        const el = document.querySelector(selector);
+        if (el) {
+          clearInterval(interval);
+          callback(el);
+        } else if (++tries > maxTries) {
+          clearInterval(interval);
+          console.error('Element not found after waiting:', selector);
+        }
+      }, 80);
+    }
+
+    // === Asset Filtering ===
+    let allAssets = []; // Store all assets for filtering
+    let currentFilter = '';
+
+    window.filterAssetsByType = function(type) {
+      currentFilter = type;
+      console.log('Filtering assets by type:', type || 'All');
+      
+      // Update active filter UI
+      const filterItems = document.querySelectorAll('#assetCategoriesList li');
+      filterItems.forEach(item => {
+        item.classList.remove('bg-blue-100', 'text-blue-700');
+        item.classList.add('hover:bg-blue-50');
+      });
+      
+      // Highlight active filter
+      const targetText = type || 'All Types';
+      filterItems.forEach(item => {
+        if (item.textContent.trim().includes(targetText)) {
+          item.classList.add('bg-blue-100', 'text-blue-700');
+          item.classList.remove('hover:bg-blue-50');
+        }
+      });
+      
+      // Filter and render assets
+      renderFilteredAssets(type);
+    };
+
+    function renderFilteredAssets(type) {
+      const grid = document.getElementById('assetCardGrid');
+      if (!grid || !allAssets.length) return;
+      
+      let filteredAssets = allAssets;
+      if (type) {
+        filteredAssets = allAssets.filter(asset => asset.type === type);
+      }
+      
+      console.log(`Showing ${filteredAssets.length} assets (filtered by: ${type || 'none'})`);
+      
+      if (filteredAssets.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500">No ${type || ''} assets found</div>`;
+        return;
+      }
+      
+      // Clear existing content
+      grid.innerHTML = '';
+      
+      grid.innerHTML = filteredAssets.map(asset => {
+        const iconClass = getTypeIcon(asset.type);
+        const iconColor = getTypeIconColor(asset.type);
+        const bgColor = getTypeIconBackground(asset.type);
+        
+        return `
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex flex-col gap-2 relative" data-asset-id="${asset.id}">
+          <div class="absolute top-3 right-3 flex gap-2" style="z-index: 10000;">
+            <button class="asset-edit-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" 
+                    data-asset-id="${asset.id}" title="Edit Asset">
+              <i class="fas fa-edit text-sm"></i>
+            </button>
+            <button class="asset-delete-btn bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors" 
+                    data-asset-id="${asset.id}" title="Delete Asset">
+              <i class="fas fa-trash text-sm"></i>
+            </button>
+          </div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="rounded-full ${bgColor} p-3">
+              <i class="${iconClass} ${iconColor} text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold pr-20">${asset.name}</h3>
+              <div class="text-sm text-gray-500">${asset.type}</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-sm text-gray-600 mb-2">
+            <span><b>Location:</b> ${asset.placement_location || 'N/A'}</span>
+            <span><b>Status:</b> ${asset.status}</span>
+            <span><b>Condition:</b> ${asset.condition}</span>
+          </div>
+          ${asset.purchase_price ? `<div class="text-sm text-green-600 font-medium">$${parseFloat(asset.purchase_price).toFixed(2)}</div>` : ''}
+        </div>`;
+      }).join('');
+      
+      // Re-setup event delegation for the new filtered content
+      setupAssetEventDelegation();
+    }
+
+    // Setup event listeners for asset card buttons
+    function setupAssetCardEventListeners() {
+      // Remove existing listeners to avoid duplicates
+      document.removeEventListener('click', handleAssetCardClick);
+      // Add new listener
+      document.addEventListener('click', handleAssetCardClick);
+    }
+
+    // Set up event delegation for asset buttons - simpler and cleaner approach
+    let eventDelegationSetup = false;
+    function setupAssetEventDelegation() {
+      if (eventDelegationSetup) return; // Only set up once
+      
+      const grid = document.getElementById('assetCardGrid');
+      if (!grid) return;
+      
+      grid.addEventListener('click', function(e) {
+        // Handle edit button clicks
+        if (e.target.closest('.asset-edit-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          const btn = e.target.closest('.asset-edit-btn');
+          const assetId = parseInt(btn.dataset.assetId);
+          console.log('Edit clicked for asset:', assetId);
+          if (window.editAsset) {
+            window.editAsset(assetId);
+          }
+          return;
+        }
+        
+        // Handle delete button clicks
+        if (e.target.closest('.asset-delete-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          const btn = e.target.closest('.asset-delete-btn');
+          const assetId = parseInt(btn.dataset.assetId);
+          console.log('Delete clicked for asset:', assetId);
+          if (window.deleteAsset) {
+            window.deleteAsset(assetId);
+          }
+          return;
+        }
+      });
+      
+      eventDelegationSetup = true;
+      console.log('Asset event delegation set up');
+    }
+    // Initial setup for event delegation
+    document.addEventListener('DOMContentLoaded', function() {
+      setupAssetEventDelegation();
+    });
+  </script>
+</body>
+</html>

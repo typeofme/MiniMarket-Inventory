@@ -1,0 +1,425 @@
+<div class="activity-card" data-aos="fade-up">
+  <div class="activity-header">
+    <div class="flex items-center">
+      <div class="activity-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <h3 class="activity-title">Recent Activity</h3>
+    </div>
+    <div class="activity-nav">
+      <button class="activity-btn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      <button class="activity-btn" title="Filter"><i class="fas fa-filter"></i></button>
+    </div>
+  </div>
+  
+  <div class="activity-body">
+    <ul class="activity-list" id="activity-list">
+      <!-- Activities will be loaded dynamically -->
+    </ul>
+    <div id="activity-loading" class="activity-loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Loading recent activity...</p>
+    </div>
+    <div id="activity-error" class="activity-error" style="display: none;">
+      <p>Failed to load recent activity</p>
+      <button onclick="loadRecentActivity()" class="retry-btn">Retry</button>
+    </div>
+  </div>
+
+  <style>
+    /* Activity Feed Styling */
+    .activity-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-height: 400px; /* Cap the overall height */
+    }
+    
+    .activity-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .activity-icon {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+    
+    .activity-icon i {
+      font-size: 16px;
+    }
+    
+    .activity-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1d;
+      letter-spacing: -0.02em;
+    }
+    
+    .activity-nav {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .activity-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E8E93;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .activity-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #1d1d1d;
+    }
+    
+    .activity-body {
+      flex: 1;
+      padding: 12px 6px 12px 16px;
+      overflow-y: auto;
+      max-height: 280px; /* Set a fixed maximum height */
+    }
+    
+    .activity-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .activity-item {
+      display: flex;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-item:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      transform: translateX(2px);
+    }
+    
+    .activity-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 12px;
+      min-width: 60px;
+    }
+    
+    .activity-time-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-bottom: 4px;
+    }
+    
+    .activity-timestamp {
+      font-size: 11px;
+      font-weight: 500;
+      color: #8E8E93;
+      white-space: nowrap;
+    }
+    
+    .activity-content {
+      flex: 1;
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+      padding-left: 12px;
+    }
+    
+    .activity-action {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d1d1d;
+      margin-bottom: 2px;
+    }
+    
+    .activity-details {
+      font-size: 11px;
+      color: #8E8E93;
+      display: flex;
+      align-items: center;
+    }
+    
+
+    
+    /* New activity highlighting */
+    .activity-item:first-child {
+      background-color: rgba(52, 152, 219, 0.08);
+      border-left: 2px solid #3498db;
+      padding-left: 8px;
+    }
+    
+    .activity-item:first-child .activity-timestamp {
+      color: #3498db;
+      font-weight: 600;
+    }
+    
+    /* Subtle animations */
+    @keyframes subtle-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    
+    .activity-item:first-child {
+      animation: subtle-pulse 3s infinite;
+    }
+    
+    /* Scrollbar styling */
+    .activity-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .activity-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .activity-body::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+    }
+    
+    /* Make sure the scrollbar is always visible */
+    .activity-body {
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: rgba(0, 0, 0, 0.1) transparent; /* Firefox */
+    }
+    
+    /* Loading and error states */
+    .activity-loading,
+    .activity-error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: #6b7280;
+    }
+    
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #e5e7eb;
+      border-top: 2px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 12px;
+    }
+    
+    .retry-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    
+    .retry-btn:hover {
+      background: #2563eb;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes slideInFromTop {
+      0% { 
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      100% { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .new-activity-animation {
+      animation: slideInFromTop 0.5s ease-out;
+    }
+  </style>
+  
+  <script>
+    // Function to load recent activity from logs API
+    async function loadRecentActivity() {
+      const activityList = document.getElementById('activity-list');
+      const loadingElement = document.getElementById('activity-loading');
+      const errorElement = document.getElementById('activity-error');
+      
+      // Show loading state
+      activityList.style.display = 'none';
+      errorElement.style.display = 'none';
+      loadingElement.style.display = 'flex';
+      
+      try {
+        const token = window.authService ? window.authService.getToken() : localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token');
+        }
+
+        const response = await fetch('/api/logs/summary/recent?limit=5', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const activities = await response.json();
+        
+        // Clear current list
+        activityList.innerHTML = '';
+        
+        // Populate with real data
+        activities.forEach(activity => {
+          const activityItem = document.createElement('li');
+          activityItem.className = 'activity-item';
+          activityItem.innerHTML = `
+            <div class="activity-time">
+              <div class="activity-time-dot ${activity.dotClass}"></div>
+              <div class="activity-timestamp">${activity.timestamp}</div>
+            </div>
+            <div class="activity-content">
+              <div class="activity-action">${activity.action}</div>
+              <div class="activity-details">${activity.details}</div>
+            </div>
+          `;
+          activityList.appendChild(activityItem);
+        });
+        
+        // Show success state
+        loadingElement.style.display = 'none';
+        activityList.style.display = 'block';
+        
+      } catch (error) {
+        console.error('Error loading recent activity:', error);
+        // Show error state
+        loadingElement.style.display = 'none';
+        errorElement.style.display = 'flex';
+      }
+    }
+    
+    // Function to check for new activities
+    async function checkForNewActivity() {
+      try {
+        const token = window.authService ? window.authService.getToken() : localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch('/api/logs/summary/recent?limit=1', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) return;
+
+        const activities = await response.json();
+        if (activities.length === 0) return;
+        
+        const latestActivity = activities[0];
+        const activityList = document.getElementById('activity-list');
+        const firstItem = activityList.querySelector('.activity-item');
+        
+        // Check if this is a new activity (different from first item)
+        if (firstItem) {
+          const firstTimestamp = firstItem.querySelector('.activity-timestamp').textContent;
+          if (firstTimestamp === latestActivity.timestamp) {
+            return; // Same activity, no update needed
+          }
+        }
+        
+        // Add new activity at the top
+        const newItem = document.createElement('li');
+        newItem.className = 'activity-item new-activity-animation';
+        newItem.innerHTML = `
+          <div class="activity-time">
+            <div class="activity-time-dot ${latestActivity.dotClass}"></div>
+            <div class="activity-timestamp">${latestActivity.timestamp}</div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-action">${latestActivity.action}</div>
+            <div class="activity-details">${latestActivity.details}</div>
+          </div>
+        `;
+        
+        activityList.insertBefore(newItem, activityList.firstChild);
+        
+        // Remove last item if more than 5
+        if (activityList.children.length > 5) {
+          activityList.removeChild(activityList.lastChild);
+        }
+        
+        // Remove animation class after animation
+        setTimeout(() => {
+          newItem.classList.remove('new-activity-animation');
+        }, 500);
+        
+      } catch (error) {
+        console.error('Error checking for new activity:', error);
+      }
+    }
+    
+    // Load initial data
+    loadRecentActivity();
+    
+    // Check for new activities every 30 seconds
+    setInterval(checkForNewActivity, 30000);
+    
+    // Add interaction to navigation buttons
+    document.querySelectorAll('.activity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (this.title === 'Refresh') {
+          loadRecentActivity();
+        } else if (this.title === 'Filter') {
+          // Navigate to full logs page
+          window.location.href = '/logs';
+        }
+      });
+    });
+  </script>
+</div>

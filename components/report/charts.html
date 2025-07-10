@@ -1,0 +1,504 @@
+<!-- Charts Row Component -->
+<div class="flex gap-5 lg:h-[245px] h-auto charts-row">
+  <div
+    class="bg-white rounded-xl shadow-md p-4 flex-1 flex flex-col panel-animate chart-card-wrapper"
+    style="position: relative"
+  >
+    <div
+      id="lineChart-loading-overlay"
+      class="chart-loading-overlay"
+      style="
+        display: none;
+        position: absolute;
+        z-index: 10;
+        inset: 0;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.7);
+      "
+    >
+      <div class="loader-spinner" style="width: 32px; height: 32px"></div>
+    </div>
+    <h2 class="font-semibold">
+      Inventory Overview
+      <span class="float-right text-xs text-slate-500 select-none">
+        <span
+          class="chart-range cursor-pointer font-bold text-blue-600"
+          data-range="W"
+          >W</span
+        >
+        | <span class="chart-range cursor-pointer" data-range="M">M</span> |
+        <span class="chart-range cursor-pointer" data-range="Y">Y</span>
+      </span>
+    </h2>
+    <div class="flex-1 min-h-[180px]">
+      <canvas id="lineChart" class="w-full h-full mt-5 block"></canvas>
+    </div>
+  </div>
+  <div
+    class="bg-white rounded-xl shadow-md p-4 flex-1 flex flex-col panel-animate chart-card-wrapper"
+    style="position: relative"
+  >
+    <div
+      id="barChart-loading-overlay"
+      class="chart-loading-overlay"
+      style="
+        display: none;
+        position: absolute;
+        z-index: 10;
+        inset: 0;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.7);
+      "
+    >
+      <div class="loader-spinner" style="width: 32px; height: 32px"></div>
+    </div>
+    <h2 class="font-semibold">
+      Sales Overview
+      <span class="float-right text-xs text-slate-500 select-none">
+        <span
+          class="chart-range cursor-pointer font-bold text-blue-600"
+          data-range="W"
+          >W</span
+        >
+        | <span class="chart-range cursor-pointer" data-range="M">M</span> |
+        <span class="chart-range cursor-pointer" data-range="Y">Y</span>
+      </span>
+    </h2>
+    <div class="flex-1 min-h-[180px]">
+      <canvas
+        id="barChart"
+        class="w-full h-full align-middle mt-5 block"
+      ></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chartData = {
+    W: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      sales: [120, 190, 300, 250, 280, 400, 350],
+      damaged: [2, 1, 0, 3, 1, 2, 1],
+      missing: [0, 1, 0, 0, 1, 0, 2],
+    },
+    M: {
+      labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+      sales: [900, 1100, 950, 1200],
+      damaged: [5, 3, 4, 6],
+      missing: [2, 3, 1, 2],
+    },
+    Y: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      sales: [
+        4000, 4200, 3900, 4500, 4700, 4800, 5000, 5100, 4950, 5200, 5300, 5400,
+      ],
+      damaged: [20, 18, 22, 19, 21, 23, 20, 18, 17, 22, 19, 21],
+      missing: [7, 8, 6, 7, 8, 7, 6, 7, 8, 7, 6, 7],
+    },
+  };
+
+  let currentChartRange = "W";
+  let lineChart = null;
+  let barChart = null;
+
+  function getLineChartData(range) {
+    return {
+      labels: chartData[range].labels,
+      datasets: [
+        {
+          label: "Damaged",
+          data: chartData[range].damaged,
+          borderColor: "rgb(239, 68, 68)",
+          backgroundColor: "rgba(239, 68, 68, 0.2)",
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: "Missing",
+          data: chartData[range].missing,
+          borderColor: "rgb(251, 191, 36)",
+          backgroundColor: "rgba(251, 191, 36, 0.2)",
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    };
+  }
+
+  function getBarChartData(range) {
+    return {
+      labels: chartData[range].labels,
+      datasets: [
+        {
+          label: "Sales",
+          data: chartData[range].sales,
+          backgroundColor: "rgba(59, 130, 246, 0.7)",
+          borderColor: "rgb(59, 130, 246)",
+          borderWidth: 1,
+        },
+      ],
+    };
+  }
+
+  // Fetch real report data for charts
+  async function fetchReportDataForCharts(range) {
+    let res;
+    try {
+      res = await fetch("/api/reports");
+      if (!res.ok) throw new Error("Not found");
+    } catch {
+      res = await fetch("api/reports");
+    }
+    const reports = await res.json();
+    const today = new Date();
+    const year = today.getFullYear();
+    let labels = [],
+      sales = [],
+      damaged = [],
+      missing = [];
+    if (range === "W") {
+      // Last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        labels.push(d.toLocaleDateString(undefined, { weekday: "short" }));
+        const dayReports = reports.filter(
+          (r) => r.created_at && r.created_at.slice(0, 10) === dateStr
+        );
+        sales.push(dayReports.reduce((sum, r) => sum + Number(r.sold), 0));
+        damaged.push(dayReports.reduce((sum, r) => sum + Number(r.damaged), 0));
+        missing.push(dayReports.reduce((sum, r) => sum + Number(r.missing), 0));
+      }
+    } else if (range === "M") {
+      // Last 4 weeks
+      for (let w = 3; w >= 0; w--) {
+        const start = new Date(today);
+        start.setDate(today.getDate() - w * 7);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        labels.push(`Week ${4 - w}`);
+        const weekReports = reports.filter((r) => {
+          const d = new Date(r.created_at);
+          return d >= start && d <= end;
+        });
+        sales.push(weekReports.reduce((sum, r) => sum + Number(r.sold), 0));
+        damaged.push(
+          weekReports.reduce((sum, r) => sum + Number(r.damaged), 0)
+        );
+        missing.push(
+          weekReports.reduce((sum, r) => sum + Number(r.missing), 0)
+        );
+      }
+    } else if (range === "Y") {
+      // Each month of this year
+      for (let m = 0; m < 12; m++) {
+        const month = m + 1;
+        labels.push(
+          new Date(year, m).toLocaleString(undefined, { month: "short" })
+        );
+        const monthReports = reports.filter((r) => {
+          if (!r.created_at) return false;
+          const d = new Date(r.created_at);
+          return d.getFullYear() === year && d.getMonth() === m;
+        });
+        sales.push(monthReports.reduce((sum, r) => sum + Number(r.sold), 0));
+        damaged.push(
+          monthReports.reduce((sum, r) => sum + Number(r.damaged), 0)
+        );
+        missing.push(
+          monthReports.reduce((sum, r) => sum + Number(r.missing), 0)
+        );
+      }
+    }
+    return { labels, sales, damaged, missing };
+  }
+
+  async function updateCharts(range = "W") {
+    const lineOverlay = document.getElementById("lineChart-loading-overlay");
+    const barOverlay = document.getElementById("barChart-loading-overlay");
+    if (lineOverlay) lineOverlay.style.display = "flex";
+    if (barOverlay) barOverlay.style.display = "flex";
+    try {
+      currentChartRange = range;
+      const isMobile = window.innerWidth <= 640;
+      const lineCanvas = document.getElementById("lineChart");
+      const barCanvas = document.getElementById("barChart");
+      if (!lineCanvas || !barCanvas || typeof Chart === "undefined")
+        throw new Error("Chart.js or canvas not found");
+        
+      // Ensure any existing charts are properly destroyed
+      if (lineChart instanceof Chart) {
+        lineChart.destroy();
+        lineChart = null;
+      }
+      
+      if (barChart instanceof Chart) {
+        barChart.destroy();
+        barChart = null;
+      }
+      
+      const lineCtx = lineCanvas.getContext("2d");
+      const barCtx = barCanvas.getContext("2d");
+      
+      const data = await fetchReportDataForCharts(range);
+      lineChart = new Chart(lineCtx, {
+        type: "line",
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: "Damaged",
+              data: data.damaged,
+              borderColor: "rgb(239, 68, 68)",
+              backgroundColor: "rgba(239, 68, 68, 0.2)",
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: "Missing",
+              data: data.missing,
+              borderColor: "rgb(251, 191, 36)",
+              backgroundColor: "rgba(251, 191, 36, 0.2)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: "ease-in-out" },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { font: { size: isMobile ? 10 : 12 } },
+            },
+            x: {
+              ticks: { font: { size: isMobile ? 10 : 12 } },
+            },
+          },
+          plugins: {
+            legend: {
+              display: !isMobile,
+              position: "top",
+            },
+          },
+        },
+      });
+      barChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: "Sales",
+              data: data.sales,
+              backgroundColor: "rgba(59, 130, 246, 0.7)",
+              borderColor: "rgb(59, 130, 246)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: "ease-in-out" },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { font: { size: isMobile ? 10 : 12 } },
+            },
+            x: {
+              ticks: { font: { size: isMobile ? 10 : 12 } },
+            },
+          },
+          plugins: {
+            legend: {
+              display: !isMobile,
+              position: "top",
+            },
+          },
+        },
+      });
+
+      // Update active state of range buttons
+      document.querySelectorAll(".chart-range").forEach((el) => {
+        el.classList.remove("font-bold", "text-blue-600");
+        if (el.dataset.range === range) {
+          el.classList.add("font-bold", "text-blue-600");
+        }
+      });
+
+      // After rendering charts, dispatch the event to hide loading screen
+      if (typeof document !== "undefined") {
+        document.dispatchEvent(new Event("report-charts-loaded"));
+      }
+    } catch (err) {
+      // Show error message in chart area
+      const chartsRow = document.querySelector(".charts-row");
+      if (chartsRow) {
+        chartsRow.innerHTML = `<div class='w-full text-center text-red-500 py-8'>Failed to load charts: ${err.message}</div>`;
+      }
+      console.error("Chart loading error:", err);
+    } finally {
+      if (lineOverlay) lineOverlay.style.display = "none";
+      if (barOverlay) barOverlay.style.display = "none";
+    }
+  }
+
+  // Fetch initial data and setup charts
+  async function initCharts() {
+    const range = "W";
+    const data = await fetchReportDataForCharts(range);
+    const lineCanvas = document.getElementById("lineChart");
+    const barCanvas = document.getElementById("barChart");
+    if (!lineCanvas || !barCanvas || typeof Chart === "undefined") return;
+    
+    // Ensure any existing charts are properly destroyed
+    if (lineChart instanceof Chart) {
+      lineChart.destroy();
+      lineChart = null;
+    }
+    
+    if (barChart instanceof Chart) {
+      barChart.destroy();
+      barChart = null;
+    }
+    
+    const lineCtx = lineCanvas.getContext("2d");
+    const barCtx = barCanvas.getContext("2d");
+    lineChart = new Chart(lineCtx, {
+      type: "line",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Damaged",
+            data: data.damaged,
+            borderColor: "rgb(239, 68, 68)",
+            backgroundColor: "rgba(239, 68, 68, 0.2)",
+            tension: 0.4,
+            fill: true,
+          },
+          {
+            label: "Missing",
+            data: data.missing,
+            borderColor: "rgb(251, 191, 36)",
+            backgroundColor: "rgba(251, 191, 36, 0.2)",
+            tension: 0.4,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 900, easing: "ease-in-out" },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { font: { size: 10 } },
+          },
+          x: {
+            ticks: { font: { size: 10 } },
+          },
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+          },
+        },
+      },
+    });
+    barChart = new Chart(barCtx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Sales",
+            data: data.sales,
+            backgroundColor: "rgba(59, 130, 246, 0.7)",
+            borderColor: "rgb(59, 130, 246)",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 900, easing: "ease-in-out" },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { font: { size: 10 } },
+          },
+          x: {
+            ticks: { font: { size: 10 } },
+          },
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+          },
+        },
+      },
+    });
+  }
+
+  // Add click handlers for range buttons
+  function setupChartRangeButtons() {
+    document.querySelectorAll(".chart-range").forEach((el) => {
+      el.addEventListener("click", function () {
+        const range = this.dataset.range;
+        updateCharts(range);
+      });
+    });
+  }
+
+  // If loaded dynamically, ensure Chart.js is available and DOM is ready
+  function tryInitCharts() {
+    if (typeof Chart === "undefined") {
+      setTimeout(tryInitCharts, 100);
+      return;
+    }
+    if (
+      !document.getElementById("lineChart") ||
+      !document.getElementById("barChart")
+    ) {
+      setTimeout(tryInitCharts, 100);
+      return;
+    }
+    setupChartRangeButtons();
+    updateCharts("W");
+  }
+
+  // If loaded as a static page
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", tryInitCharts);
+  } else {
+    tryInitCharts();
+  }
+
+  window.addEventListener("resize", () => {
+    updateCharts(currentChartRange);
+  });
+</script>

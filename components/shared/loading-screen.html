@@ -1,0 +1,37 @@
+<!-- Loading Screen Component -->
+<div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 transition-opacity duration-300">
+  <div class="text-center">
+    <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+    <h2 class="text-xl font-semibold text-gray-800">Loading...</h2>
+    <p class="text-gray-600" id="loading-message">Please wait while we fetch your products</p>
+  </div>
+</div>
+
+<script>
+  // Function to show the loading screen with an optional custom message
+  function showLoading(message = "Please wait...") {
+    const loadingScreen = document.getElementById('loading-screen');
+    const loadingMessage = document.getElementById('loading-message');
+    
+    if (loadingMessage) {
+      loadingMessage.textContent = message;
+    }
+    
+    if (loadingScreen) {
+      loadingScreen.classList.remove('hidden');
+      loadingScreen.style.opacity = '1';
+    }
+  }
+  
+  // Function to hide the loading screen
+  function hideLoading() {
+    const loadingScreen = document.getElementById('loading-screen');
+    
+    if (loadingScreen) {
+      loadingScreen.style.opacity = '0';
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+      }, 300); // Match the duration in the transition-opacity class
+    }
+  }
+</script>

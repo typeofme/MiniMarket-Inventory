@@ -1,0 +1,274 @@
+<div class="sf-market-card" data-aos="fade-up">
+  <!-- Background elements -->
+  <div class="sf-market-bg"></div>
+  <div class="sf-market-blur"></div>
+  
+  <!-- Content container with refined glass effect -->
+  <div class="sf-market-content">
+    <!-- macOS-style header -->
+    <div class="sf-market-header">
+      <div class="sf-title-container">
+        <div class="sf-app-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="sf-title">Market Trends</h3>
+      </div>
+      <div class="sf-header-actions">
+        <button class="sf-action-btn">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="sf-items-container">
+      <!-- Dynamic content will be loaded here -->
+      <div class="sf-trend-item">
+        <div class="sf-category">
+          <div class="sf-category-icon gray">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <span class="sf-category-name">Loading trends...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    /* macOS/iOS refined styling */
+    .sf-market-card {
+      position: relative;
+      height: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04), 
+                  0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .sf-market-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 
+                  0 2px 5px rgba(0, 0, 0, 0.02);
+    }
+    
+    .sf-market-bg {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      z-index: 0;
+    }
+    
+    .sf-market-blur {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1;
+    }
+    
+    .sf-market-content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .sf-market-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .sf-title-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .sf-app-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #2CD884, #20B977);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 10px;
+      box-shadow: 0 2px 6px rgba(32, 185, 119, 0.2);
+      font-size: 0.85rem;
+    }
+    
+    .sf-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: #1d1d1f;
+      margin: 0;
+      letter-spacing: -0.025em;
+    }
+    
+    .sf-action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: #86868b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .sf-action-btn:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #1d1d1f;
+    }
+    
+    .sf-items-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 0; /* Updated from 20px since we removed the chart section */
+    }
+    
+    .sf-trend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .sf-trend-item:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateX(2px) scale(1.01);
+    }
+    
+    .sf-category {
+      display: flex;
+      align-items: center;
+    }
+    
+    .sf-category-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-size: 0.7rem;
+    }
+    
+    .sf-category-icon.blue {
+      background-color: #EBF5FF;
+      color: #0066CC;
+    }
+    
+    .sf-category-icon.green {
+      background-color: #E9F8F2;
+      color: #20B977;
+    }
+    
+    .sf-category-icon.amber {
+      background-color: #FFF5E9;
+      color: #FF9F0A;
+    }
+    
+    .sf-category-icon.purple {
+      background-color: #F2E9FE;
+      color: #9966CC;
+    }
+    
+    .sf-category-name {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 13px;
+      color: #1d1d1f;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    
+    .sf-trend-badge {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: -0.01em;
+    }
+    
+    .sf-trend-badge.positive {
+      color: #20B977;
+      background-color: #E9F8F2;
+    }
+    
+    .sf-trend-badge.negative {
+      color: #FF453A;
+      background-color: #FFF1F0;
+    }
+    
+    .sf-trend-badge i {
+      font-size: 9px;
+    }
+    
+    /* Add subtle animations */
+    @keyframes sf-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    
+    .sf-trend-badge.positive:hover,
+    .sf-trend-badge.negative:hover {
+      animation: sf-pulse 1s infinite;
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize trend update function
+      const updateMarketTrends = () => {
+        const trendElements = document.querySelectorAll('.sf-trend-item');
+        if (trendElements.length < 4) return;
+        
+        trendElements.forEach((element, index) => {
+          // Randomize trend direction and percentage
+          const isPositive = Math.random() > 0.4;
+          const percentage = (Math.random() * 5 + 0.5).toFixed(1);
+          
+          const valueElement = element.querySelector('.sf-trend-badge');
+          if (valueElement) {
+            // Update class and content
+            valueElement.className = isPositive ? 
+              'sf-trend-badge positive' : 
+              'sf-trend-badge negative';
+              
+            valueElement.innerHTML = isPositive ? 
+              `<i class="fas fa-arrow-up"></i> ${percentage}%` : 
+              `<i class="fas fa-arrow-down"></i> ${percentage}%`;
+              
+            // Add subtle animation
+            valueElement.style.animation = 'none';
+            setTimeout(() => {
+              valueElement.style.animation = 'sf-pulse 1s';
+            }, 10);
+          }
+        });
+      };
+      
+      // Update every 5 minutes
+      setInterval(updateMarketTrends, 5 * 60 * 1000);
+    });
+  </script>
+</div>

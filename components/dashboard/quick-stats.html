@@ -1,0 +1,36 @@
+<div class="bg-white p-6 rounded-xl shadow-sm mb-8 flex flex-wrap justify-between items-center relative" data-aos="fade-up">
+  <div>
+    <h2 class="text-xl font-bold text-gray-800">Today: <span id="current-date" class="date-display"></span></h2>
+    <p class="text-sm text-gray-600 mt-1">Your store performance at a glance</p>
+  </div>
+  <div class="flex gap-6 flex-wrap mt-4 sm:mt-0">
+    <div class="flex items-center bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl shadow-sm hover:shadow transition-all stat-card">
+      <div class="bg-green-100 p-3 rounded-xl mr-4 stat-icon shadow-sm">
+        <i class="fas fa-dollar-sign text-green-600"></i>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 font-medium">Today's Sales</p>
+        <p id="today-sales-amount" class="font-bold text-green-600 text-lg">$0.00</p>
+        <p class="text-xs text-gray-500 flex items-center">
+          <i id="today-sales-icon" class="fas fa-arrow-up text-green-500 mr-1"></i>
+          <span id="today-sales-change">0% from yesterday</span>
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl shadow-sm hover:shadow transition-all stat-card">
+      <div class="bg-blue-100 p-3 rounded-xl mr-4 stat-icon shadow-sm">
+        <i class="fas fa-shopping-bag text-blue-600"></i>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 font-medium">Today's Orders</p>
+        <p id="today-orders-amount" class="font-bold text-blue-600 text-lg">0</p>
+        <p class="text-xs text-gray-500 flex items-center">
+          <i id="today-orders-icon" class="fas fa-arrow-up text-blue-500 mr-1"></i>
+          <span id="today-orders-change">0 same as yesterday</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/components/dashboard/quick-stats.js"></script>

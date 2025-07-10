@@ -1,0 +1,96 @@
+<!-- Report Form Component -->
+<div class="flex items-center gap-2 mb-4">
+  <i id="formIcon" class="fa-solid fa-circle-plus text-xl text-blue-500"></i>
+  <h2 id="formTitle" class="text-xl font-semibold">Add New Report</h2>
+</div>
+
+<form id="reportForm" class="flex flex-col gap-4 flex-grow">
+  <input type="hidden" id="reportId" name="reportId" />
+  <div>
+    <label class="text-sm text-gray-600">Product Name</label>
+    <select
+      id="productName"
+      title="Select a product"
+      class="w-full border p-2 rounded-lg"
+      required
+    >
+      <option value="">Select a product</option>
+      <!-- Product options will be populated here -->
+    </select>
+  </div>
+  <div>
+    <label class="text-sm text-gray-600"
+      >Sold <span class="text-xs text-gray-400">(units)</span></label
+    >
+    <input
+      type="number"
+      placeholder="0"
+      id="productSold"
+      class="w-full border p-2 rounded-lg"
+      required
+      min="0"
+    />
+  </div>
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="text-sm text-gray-600"
+        >Damaged <span class="text-xs text-gray-400">(units)</span></label
+      >
+      <input
+        type="number"
+        placeholder="0"
+        id="productDamaged"
+        class="w-full border p-2 rounded-lg"
+        required
+        min="0"
+      />
+    </div>
+    <div>
+      <label class="text-sm text-gray-600"
+        >Missing <span class="text-xs text-gray-400">(units)</span></label
+      >
+      <input
+        type="number"
+        placeholder="0"
+        id="productMissing"
+        class="w-full border p-2 rounded-lg"
+        required
+        min="0"
+      />
+    </div>
+  </div>
+  <div class="lg:mt-48 mt-auto">
+    <button
+      id="submitBtn"
+      type="submit"
+      class="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:opacity-90 shadow-md"
+    >
+      + Add Report
+    </button>
+    <button
+      id="cancelEditBtn"
+      type="button"
+      class="w-full bg-gray-400 text-white py-2.5 rounded-xl hover:opacity-90 shadow-md mt-2 hidden"
+    >
+      Cancel Edit
+    </button>
+  </div>
+</form>
+
+<script>
+  (async () => {
+    const productSelect = document.getElementById("productName");
+    try {
+      const response = await fetch("/api/products");
+      const products = await response.json();
+      products.forEach((product) => {
+        const option = document.createElement("option");
+        option.value = product.id;
+        option.textContent = product.name;
+        productSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  })();
+</script>

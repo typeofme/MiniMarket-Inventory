@@ -1,0 +1,1085 @@
+<div class="dashboard-card bg-white p-6 rounded-lg shadow" data-aos="fade-up" data-aos-delay="400">
+  <div class="flex items-center mb-6">
+    <div class="bg-blue-100 p-2.5 rounded-full mr-3">
+      <i class="fas fa-plus-circle text-blue-600 text-xl"></i>
+    </div>
+    <h2 class="text-xl font-semibold" id="formTitle">Add New Product</h2>
+  </div>
+  
+  <!-- Form with proper enctype for file uploads -->
+  <form id="simple-product-form" class="flex flex-col gap-5" onsubmit="return false;" enctype="multipart/form-data">
+    <!-- Hidden input for product ID when editing -->
+    <input type="hidden" id="productId" name="id" value="" />
+    
+    <div class="flex-1">
+      <label for="productName" class="block text-sm font-medium text-gray-700 mb-1.5">Product Name</label>
+      <input type="text" id="productName" name="name" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="Enter product name" />
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="productStock" class="block text-sm font-medium text-gray-700 mb-1.5">Stock</label>
+        <div class="relative">
+          <input type="number" id="productStock" name="stock" min="0" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="0" />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">units</span>
+        </div>
+      </div>
+      <div>
+        <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-1.5">Price</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+          <input type="number" id="productPrice" name="price" min="0" step="0.01" class="w-full border border-gray-300 rounded-xl p-3 pl-7 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" required placeholder="0.00" />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Image Upload Section -->
+    <div>
+      <label for="productImageUpload" class="block text-sm font-medium text-gray-700 mb-1.5">Product Image</label>
+      <div class="mt-1 flex flex-col gap-4">
+        <!-- Upload Area - Always visible -->
+        <div class="border border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 transition cursor-pointer" id="imageDropArea" onclick="document.getElementById('productImageUpload').click()">
+          <input type="file" id="productImageUpload" name="image" accept="image/*" class="hidden" onchange="previewImage(this)" />
+          <div class="flex flex-col items-center justify-center">
+            <i class="fas fa-cloud-upload-alt text-2xl text-blue-500 mb-2"></i>
+            <p class="text-sm text-gray-600">Drag image here or <button type="button" class="text-blue-500 underline focus:outline-none" onclick="event.stopPropagation(); document.getElementById('productImageUpload').click();">click to upload</button></p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
+          </div>
+        </div>
+        
+        <!-- Image Preview Area -->
+        <div id="imagePreviewContainer" class="mt-2 hidden">
+          <div class="flex flex-col items-center">
+            <div class="relative mb-2">
+              <img src="" id="previewImg" class="h-40 w-64 object-contain rounded-lg border border-gray-300" />
+              <button type="button" onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-red-600 transition">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="text-center">
+              <p id="imageFileName" class="text-sm text-gray-700 font-medium"></p>
+              <p id="imageFileSize" class="text-xs text-gray-500"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div>
+      <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+      <textarea id="productDescription" name="description" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" rows="3" placeholder="Enter product description"></textarea>
+    </div>
+    
+    <div>
+      <div class="flex items-center justify-between mb-1.5">
+        <label for="productCategory" class="block text-sm font-medium text-gray-700">Category</label>
+        <button type="button" id="manageCategoriesBtn" onclick="window.categoryManagement && window.categoryManagement.toggleCategoryManager()" class="text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition-all shadow-sm hover:shadow-blue-300/50 transform hover:scale-105">
+          <i class="fas fa-cog mr-1"></i>Manage Categories
+        </button>
+      </div>
+      <select id="productCategory" name="category_id" class="w-full border border-gray-300 rounded-xl p-3 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none bg-white" required>
+        <option value="">-- Select Category --</option>
+        <!-- Categories will be populated dynamically -->
+      </select>
+    </div>
+    
+    <div class="flex justify-end gap-2 mt-4">
+      <button type="reset" class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-200 transition-all font-medium">
+        <i class="fas fa-redo-alt mr-1.5"></i>Clear
+      </button>
+      <button id="cancelEdit" type="button" onclick="cancelEditProduct()" class="bg-gray-300 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-400 transition-all font-medium hidden">
+        <i class="fas fa-times mr-1.5"></i>Cancel
+      </button>
+      <button id="submitBtn" type="button" onclick="submitProductForm()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition-all font-medium shadow-md">
+        <i class="fas fa-plus mr-1.5"></i>Add Product
+      </button>
+    </div>
+  </form>
+  
+  <div id="form-status" class="mt-4 p-3 hidden"></div>
+</div>
+
+<script>
+  window.previewImage = function(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const base64Image = e.target.result;
+          // Create hidden input for base64 image data
+          const base64Input = document.getElementById('base64ImageInput') || document.createElement('input');
+          base64Input.type = 'hidden';
+          base64Input.id = 'base64ImageInput';
+          base64Input.name = 'image';
+          base64Input.value = base64Image;
+          
+          const form = document.getElementById('simple-product-form');
+          form.appendChild(base64Input);
+          
+          const previewImg = document.getElementById('previewImg');
+          const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+          const imageFileName = document.getElementById('imageFileName');
+          const imageFileSize = document.getElementById('imageFileSize');
+          const imageDropArea = document.getElementById('imageDropArea');
+          
+          if (previewImg) {
+            previewImg.src = base64Image;
+            
+            if (imagePreviewContainer) {
+              imagePreviewContainer.classList.remove('hidden');
+              imagePreviewContainer.style.display = 'block';
+            }
+            
+            if (imageFileName && imageFileSize) {
+              const fileName = file.name;
+              const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+              imageFileName.textContent = fileName;
+              imageFileSize.textContent = fileSize;
+            }
+            
+            if (imageDropArea) {
+              imageDropArea.style.display = 'none';
+            }
+          }
+        };
+        
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  window.removeImage = function() {
+    const fileInput = document.getElementById('productImageUpload');
+    const previewImg = document.getElementById('previewImg');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imageFileName = document.getElementById('imageFileName');
+    const imageFileSize = document.getElementById('imageFileSize');
+    const imageDropArea = document.getElementById('imageDropArea');
+    
+    if (fileInput) fileInput.value = '';
+    
+    if (previewImg) previewImg.src = '';
+    
+    if (imagePreviewContainer) {
+      imagePreviewContainer.classList.add('hidden');
+      imagePreviewContainer.style.display = 'none';
+    }
+    
+    if (imageFileName) imageFileName.textContent = '';
+    if (imageFileSize) imageFileSize.textContent = '';
+    
+    if (imageDropArea) {
+      imageDropArea.style.display = 'block';
+      imageDropArea.classList.remove('border-blue-500', 'bg-blue-50');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageDropArea = document.getElementById('imageDropArea');
+    const fileInput = document.getElementById('productImageUpload');
+    
+    if (imageDropArea) {
+      imageDropArea.style.position = 'relative';
+      imageDropArea.style.zIndex = '10';
+      
+      imageDropArea.onclick = function(e) {
+        if (fileInput) {
+          fileInput.click();
+        }
+      };
+    }
+
+    if (imageDropArea && fileInput) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        imageDropArea.addEventListener(eventName, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }, false);
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        imageDropArea.addEventListener(eventName, function() {
+          imageDropArea.classList.add('border-blue-500', 'bg-blue-50');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        imageDropArea.addEventListener(eventName, function() {
+          imageDropArea.classList.remove('border-blue-500', 'bg-blue-50');
+        }, false);
+      });
+
+      imageDropArea.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length) {
+          fileInput.files = files;
+          previewImage(fileInput);
+        }
+      }, false);
+    }
+  });
+
+  function showStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('form-status');
+    if (!statusDiv) return;
+    
+    const iconClass = type === 'error' ? 'fa-exclamation-circle' :
+                     type === 'success' ? 'fa-check-circle' :
+                     'fa-info-circle';
+    
+    const bgColor = type === 'error' ? 'bg-red-50' :
+                   type === 'success' ? 'bg-green-50' :
+                   type === 'warning' ? 'bg-yellow-50' :
+                   'bg-blue-50';
+    
+    const textColor = type === 'error' ? 'text-red-700' :
+                     type === 'success' ? 'text-green-700' :
+                     type === 'warning' ? 'text-yellow-700' :
+                     'text-blue-700';
+    
+    statusDiv.className = `mt-4 p-3 ${bgColor} ${textColor} rounded-lg`;
+    statusDiv.innerHTML = `<i class="fas ${iconClass} mr-2"></i>${message}`;
+    statusDiv.classList.remove('hidden');
+  }
+  
+  let isSubmitting = false;
+  
+  function submitProductForm() {
+    const form = document.getElementById('simple-product-form');
+    const statusDiv = document.getElementById('form-status');
+    const productIdInput = document.getElementById('productId');
+    const idValue = productIdInput ? productIdInput.value : '';
+    const isEditMode = productIdInput && idValue.trim() !== '';
+    
+    if (isSubmitting) {
+      return;
+    }
+    
+    isSubmitting = true;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    
+    showStatus((isEditMode ? 'Updating' : 'Adding') + ' product...', 'info');
+    
+    const nameInput = document.getElementById('productName');
+    const stockInput = document.getElementById('productStock');
+    const priceInput = document.getElementById('productPrice');
+    const descInput = document.getElementById('productDescription');
+    const categoryInput = document.getElementById('productCategory');
+    
+    if (!nameInput.value) {
+      showStatus('Please enter a product name', 'error');
+      if (typeof window.toast !== 'undefined') {
+        window.toast.warning('Please enter a product name');
+      }
+      resetSubmitState();
+      return;
+    }
+    
+    if (!categoryInput.value) {
+      showStatus('Please select a category', 'error');
+      if (typeof window.toast !== 'undefined') {
+        window.toast.warning('Please select a category');
+      }
+      resetSubmitState();
+      return;
+    }
+    
+    if (!stockInput.value || isNaN(parseInt(stockInput.value))) {
+      showStatus('Please enter valid stock quantity', 'error');
+      if (typeof window.toast !== 'undefined') {
+        window.toast.warning('Please enter a valid stock quantity');
+      }
+      resetSubmitState();
+      return;
+    }
+    
+    if (!priceInput.value || isNaN(parseFloat(priceInput.value))) {
+      showStatus('Please enter valid price', 'error');
+      if (typeof window.toast !== 'undefined') {
+        window.toast.warning('Please enter a valid price');
+      }
+      resetSubmitState();
+      return;
+    }
+    
+    // Ensure price is a valid number before submission
+    priceInput.value = parseFloat(priceInput.value).toFixed(2);
+    stockInput.value = parseInt(stockInput.value);
+    
+    // Create product data object from form fields
+    const productData = {
+      name: nameInput.value,
+      price: parseFloat(priceInput.value),
+      stock: parseInt(stockInput.value),
+      description: descInput.value,
+      category_id: parseInt(categoryInput.value),
+    };
+    
+    // Add base64 image if available
+    const base64Input = document.getElementById('base64ImageInput');
+    if (base64Input && base64Input.value) {
+      productData.image = base64Input.value;
+    }
+    
+    const endpoint = isEditMode ? `/api/products/${productIdInput.value}` : '/api/products';
+    const method = isEditMode ? 'PUT' : 'POST';
+    
+    fetch(endpoint, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(productData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Server returned ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      showStatus(`Product ${isEditMode ? 'updated' : 'added'} successfully!`, 'success');
+      
+      // Call notification functions (which now use toast system)
+      if (isEditMode) {
+        if (typeof window.editProductNotification === 'function') {
+          window.editProductNotification(data);
+        }
+      } else {
+        if (typeof window.addProductNotification === 'function') {
+          window.addProductNotification(data);
+        }
+      }
+      
+      // Add category details to the product data if not already present
+      if (data.category_id && !data.category_name && window.categories) {
+        const categoryInfo = window.categories.find(cat => cat.id == data.category_id);
+        if (categoryInfo) {
+          data.category_name = categoryInfo.name;
+          data.category_icon = categoryInfo.icon;
+          data.category_color = categoryInfo.color;
+          data.category_slug = categoryInfo.slug;
+        }
+      }
+      
+      if (isEditMode) {
+        const index = window.products.findIndex(p => p.id === data.id);
+        if (index !== -1) {
+          window.products[index] = data;
+        }
+      } else {
+        window.products.unshift(data);
+      }
+      
+      if (typeof window.renderProducts === 'function') {
+        window.renderProducts();
+        
+        setTimeout(() => {
+          if (typeof highlightProductInList === 'function') {
+            highlightProductInList(data.id);
+          } else if (typeof window.highlightProductInList === 'function') {
+            window.highlightProductInList(data.id);
+          }
+        }, 100);
+      }
+      
+      // Reload products to get fresh data with proper category information
+      if (window.loadProducts) {
+        window.loadProducts().then(products => {
+        }).catch(error => {
+        });
+      }
+      
+      form.reset();
+      productIdInput.value = '';
+      
+      const formTitle = document.getElementById('formTitle');
+      const submitBtn = document.getElementById('submitBtn');
+      const cancelEdit = document.getElementById('cancelEdit');
+      
+      if (formTitle) formTitle.textContent = 'Add New Product';
+      if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-plus mr-1.5"></i>Add Product';
+      if (cancelEdit) cancelEdit.classList.add('hidden');
+      
+      const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+      if (imagePreviewContainer) {
+        imagePreviewContainer.classList.add('hidden');
+        imagePreviewContainer.style.display = 'none';
+      }
+      
+      const imageDropArea = document.getElementById('imageDropArea');
+      if (imageDropArea) {
+        imageDropArea.style.display = 'block';
+        imageDropArea.classList.remove('border-blue-500', 'bg-blue-50');
+      }
+      
+      resetSubmitState();
+    })
+    .catch(error => {
+      showStatus('An error occurred: ' + error.message, 'error');
+      
+      // Show toast error notification
+      if (typeof window.toast !== 'undefined') {
+        window.toast.error(`Failed to ${isEditMode ? 'update' : 'add'} product. Please try again.`);
+      }
+      
+      resetSubmitState();
+    });
+  }
+  
+  function resetSubmitState() {
+    isSubmitting = false;
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+</script>
+
+<!-- Category Management Modal -->
+<div id="category-management-modal" class="category-management-modal fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="modal-content bg-white rounded-xl w-full max-w-6xl shadow-2xl">
+      <!-- Modal Header -->
+      <div class="bg-blue-600 text-white p-6">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-layer-group text-2xl mr-3"></i>
+            <h3 class="text-2xl font-bold">Category Management</h3>
+          </div>
+          <button id="close-category-modal" class="text-white hover:text-gray-200 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <p class="mt-2 text-blue-100">Organize and manage your product categories</p>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="modal-body flex">
+        <!-- Left Panel - Categories List -->
+        <div class="flex-1 border-r border-gray-200 flex flex-col">
+          <div class="p-6 flex-shrink-0">
+            <div class="flex justify-between items-center mb-6">
+              <h4 class="text-lg font-semibold text-gray-800">Categories</h4>
+              <button id="add-category-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all shadow-md">
+                <i class="fas fa-plus mr-2"></i>Add Category
+              </button>
+            </div>
+          </div>
+          
+          <!-- Categories Grid - Scrollable Area -->
+          <div class="flex-1 px-6 pb-6 overflow-hidden">
+            <div class="h-full overflow-y-auto categories-scrollable" id="categories-grid">
+              <!-- Categories will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Category Form -->
+        <div class="w-96 bg-gray-50">
+          <div class="p-6">
+            <h4 class="text-lg font-semibold text-gray-800 mb-6" id="category-form-title">Add New Category</h4>
+            
+            <form id="category-form" class="space-y-4">
+              <input type="hidden" id="category-id">
+              
+              <div>
+                <label for="category-name" class="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+                <input type="text" id="category-name" required 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                       placeholder="Enter category name">
+              </div>
+
+              <div>
+                <label for="category-description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea id="category-description" rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                          placeholder="Enter category description"></textarea>
+              </div>
+
+              <div>
+                <label for="category-icon" class="block text-sm font-medium text-gray-700 mb-2">Icon Class</label>
+                <div class="relative">
+                  <input type="text" id="category-icon" 
+                         class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                         placeholder="fas fa-shopping-cart">
+                  <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                    <i id="icon-preview" class="fas fa-tag text-gray-400"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Use FontAwesome icon classes</p>
+              </div>
+
+              <div>
+                <label for="category-color" class="block text-sm font-medium text-gray-700 mb-2">Category Color</label>
+                <div class="flex items-center space-x-3">
+                  <input type="color" id="category-color" value="#6B7280"
+                         class="w-16 h-12 border border-gray-300 rounded-lg cursor-pointer">
+                  <div class="flex-1">
+                    <div class="w-full h-12 rounded-lg border border-gray-300 flex items-center px-3" id="color-preview">
+                      <span class="text-sm text-gray-600">Color Preview</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex space-x-3 pt-4">
+                <button type="button" id="cancel-category-btn" class="flex-1 px-4 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" id="save-category-btn" class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shadow-md relative">
+                  <span class="save-btn-text">Save Category</span>
+                  <span class="save-btn-loading hidden">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Saving...
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.category-color-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+}
+
+.category-card {
+  transition: all 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced scrollbar styling for categories grid */
+.categories-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.categories-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.categories-scrollable::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.categories-scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c1c1c1, #a8a8a8);
+  border-radius: 4px;
+  border: 1px solid #f8f9fa;
+}
+
+.categories-scrollable::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a8a8a8, #9a9a9a);
+}
+
+/* Ensure scrollable container takes full height */
+.categories-scrollable {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Loading states */
+#save-category-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-btn-text,
+.save-btn-loading {
+  transition: opacity 0.2s ease;
+}
+
+/* Modal height fix for better scrolling */
+.category-management-modal .modal-content {
+  max-height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* Ensure proper flex layout for scrolling */
+.category-management-modal .modal-body {
+  display: flex;
+  height: calc(90vh - 120px);
+  min-height: 500px;
+}
+
+/* Loading overlay for categories grid */
+.categories-loading {
+  position: relative;
+}
+
+.categories-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.categories-loading::before {
+  content: 'Loading...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+  font-weight: 500;
+  color: #6b7280;
+}
+</style>
+
+<script>
+// Category Management Integration
+if (!window.categoryManagement) {
+  window.categoryManagement = {
+    categories: [],
+    currentEditingId: null,
+    isSubmitting: false, // Initialize submission flag
+
+    init() {
+      this.setupEventListeners();
+      this.setupIconPreview();
+      this.setupColorPreview();
+    },
+
+    setupEventListeners() {
+      // Modal controls
+      const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
+      const closeCategoryModal = document.getElementById('close-category-modal');
+      const addCategoryBtn = document.getElementById('add-category-btn');
+      const cancelCategoryBtn = document.getElementById('cancel-category-btn');
+      const categoryForm = document.getElementById('category-form');
+      const categoryModal = document.getElementById('category-management-modal');
+
+      if (manageCategoriesBtn) {
+        manageCategoriesBtn.addEventListener('click', () => this.openModal());
+      }
+      if (closeCategoryModal) {
+        closeCategoryModal.addEventListener('click', () => this.closeModal());
+      }
+      if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', () => this.resetForm());
+      }
+      if (cancelCategoryBtn) {
+        cancelCategoryBtn.addEventListener('click', () => this.resetForm());
+      }
+      if (categoryForm) {
+        categoryForm.addEventListener('submit', (e) => this.handleSubmit(e));
+      }
+      if (categoryModal) {
+        categoryModal.addEventListener('click', (e) => {
+          if (e.target.id === 'category-management-modal') this.closeModal();
+        });
+      }
+    },
+
+    setupIconPreview() {
+      const iconInput = document.getElementById('category-icon');
+      const iconPreview = document.getElementById('icon-preview');
+      
+      if (iconInput && iconPreview) {
+        iconInput.addEventListener('input', (e) => {
+          const iconClass = e.target.value || 'fas fa-tag';
+          iconPreview.className = iconClass + ' text-gray-400';
+        });
+      }
+    },
+
+    setupColorPreview() {
+      const colorInput = document.getElementById('category-color');
+      const colorPreview = document.getElementById('color-preview');
+      
+      if (colorInput && colorPreview) {
+        colorInput.addEventListener('input', (e) => {
+          const color = e.target.value;
+          colorPreview.style.backgroundColor = color + '20';
+          colorPreview.style.borderColor = color;
+          colorPreview.innerHTML = `<span class="text-sm font-medium" style="color: ${color}">Color Preview</span>`;
+        });
+      }
+    },
+
+    async openModal() {
+      const modal = document.getElementById('category-management-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        await this.loadCategories();
+        this.resetForm();
+      }
+    },
+
+    closeModal() {
+      const modal = document.getElementById('category-management-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        this.resetForm();
+      }
+    },
+
+    resetForm() {
+      const form = document.getElementById('category-form');
+      const formTitle = document.getElementById('category-form-title');
+      const categoryId = document.getElementById('category-id');
+      const iconPreview = document.getElementById('icon-preview');
+      const colorPreview = document.getElementById('color-preview');
+      
+      if (form) form.reset();
+      if (formTitle) formTitle.textContent = 'Add New Category';
+      if (categoryId) categoryId.value = '';
+      
+      // Reset icon preview
+      if (iconPreview) {
+        iconPreview.className = 'fas fa-tag text-gray-400';
+      }
+      
+      // Reset color preview
+      const colorInput = document.getElementById('category-color');
+      if (colorInput && colorPreview) {
+        colorInput.value = '#6B7280';
+        colorPreview.style.backgroundColor = '#6B728020';
+        colorPreview.style.borderColor = '#6B7280';
+        colorPreview.innerHTML = '<span class="text-sm text-gray-600">Color Preview</span>';
+      }
+      
+      // Reset form state
+      this.currentEditingId = null;
+      this.isSubmitting = false;
+      this.setSaveButtonLoading(false);
+    },
+
+    editCategory(category) {
+      const formTitle = document.getElementById('category-form-title');
+      const categoryId = document.getElementById('category-id');
+      const categoryName = document.getElementById('category-name');
+      const categoryDescription = document.getElementById('category-description');
+      const categoryIcon = document.getElementById('category-icon');
+      const categoryColor = document.getElementById('category-color');
+      const iconPreview = document.getElementById('icon-preview');
+      const colorPreview = document.getElementById('color-preview');
+      
+      if (formTitle) formTitle.textContent = 'Edit Category';
+      if (categoryId) categoryId.value = category.id;
+      if (categoryName) categoryName.value = category.name || '';
+      if (categoryDescription) categoryDescription.value = category.description || '';
+      if (categoryIcon) categoryIcon.value = category.icon || '';
+      if (categoryColor) categoryColor.value = category.color || '#6B7280';
+      
+      // Update icon preview
+      if (iconPreview) {
+        iconPreview.className = (category.icon || 'fas fa-tag') + ' text-gray-400';
+      }
+      
+      // Update color preview
+      if (colorPreview && categoryColor) {
+        const color = categoryColor.value;
+        colorPreview.style.backgroundColor = color + '20';
+        colorPreview.style.borderColor = color;
+        colorPreview.innerHTML = `<span class="text-sm font-medium" style="color: ${color}">Color Preview</span>`;
+      }
+      
+      this.currentEditingId = category.id;
+    },
+
+    renderCategories() {
+      const grid = document.getElementById('categories-grid');
+      if (!grid || !this.categories) return;
+      
+      const html = this.categories.map((category, index) => `
+        <div class="category-card bg-white rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow duration-200">
+          <!-- Category Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <!-- Category Icon -->
+              <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: ${category.color}15; border: 1px solid ${category.color}30;">
+                <i class="${category.icon || 'fas fa-tag'} text-lg" style="color: ${category.color};"></i>
+              </div>
+              
+              <!-- Category Info -->
+              <div>
+                <h3 class="font-semibold text-gray-900 text-lg">${category.name}</h3>
+                <p class="text-sm text-gray-600">${category.description || 'No description'}</p>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-1">
+              <button onclick="window.categoryManagement.editCategory(${JSON.stringify(category).replace(/"/g, '&quot;')})" 
+                      class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" 
+                      title="Edit Category">
+                <i class="fas fa-edit"></i>
+              </button>
+              
+              <button onclick="window.categoryManagement.toggleCategory(${category.id})" 
+                      class="p-2 rounded-lg transition-colors duration-200 ${
+                        category.is_active 
+                          ? 'text-orange-600 hover:bg-orange-50' 
+                          : 'text-green-600 hover:bg-green-50'
+                      }" 
+                      title="${category.is_active ? 'Pause' : 'Activate'} Category">
+                <i class="fas fa-${category.is_active ? 'pause' : 'play'}"></i>
+              </button>
+              
+              <button onclick="window.categoryManagement.deleteCategory(${category.id})" 
+                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200" 
+                      title="Delete Category">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Category Stats -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div class="flex items-center space-x-4">
+              <!-- Product Count -->
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700">
+                <i class="fas fa-cube mr-1 text-xs"></i>
+                ${category.product_count || 0} product${(category.product_count || 0) !== 1 ? 's' : ''}
+              </span>
+              
+              <!-- Status Badge -->
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                category.is_active 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-gray-100 text-gray-600'
+              }">
+                <span class="w-2 h-2 rounded-full mr-2 ${
+                  category.is_active ? 'bg-green-500' : 'bg-gray-400'
+                }"></span>
+                ${category.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            
+            <!-- Color Preview -->
+            <div class="flex items-center space-x-2">
+              <span class="text-sm text-gray-500">Color:</span>
+              <div class="w-6 h-6 rounded border border-gray-200" style="background-color: ${category.color};"></div>
+              <span class="text-xs text-gray-400 font-mono">${category.color}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      grid.innerHTML = html;
+    },
+
+    async loadCategories() {
+      try {
+        // Show loading state
+        this.setGridLoading(true);
+        
+        if (window.categoryService) {
+          this.categories = await window.categoryService.getCategoriesWithCounts();
+          this.renderCategories();
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+        this.showNotification('Failed to load categories', 'error');
+      } finally {
+        // Hide loading state
+        this.setGridLoading(false);
+      }
+    },
+
+    setGridLoading(isLoading) {
+      const grid = document.getElementById('categories-grid');
+      if (!grid) return;
+      
+      if (isLoading) {
+        grid.classList.add('categories-loading');
+        grid.innerHTML = '<div class="flex items-center justify-center h-32"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i></div>';
+      } else {
+        grid.classList.remove('categories-loading');
+      }
+    },
+
+    setSaveButtonLoading(isLoading) {
+      const saveBtn = document.getElementById('save-category-btn');
+      const saveText = saveBtn?.querySelector('.save-btn-text');
+      const saveLoading = saveBtn?.querySelector('.save-btn-loading');
+      
+      if (!saveBtn || !saveText || !saveLoading) return;
+      
+      if (isLoading) {
+        saveBtn.disabled = true;
+        saveText.classList.add('hidden');
+        saveLoading.classList.remove('hidden');
+      } else {
+        saveBtn.disabled = false;
+        saveText.classList.remove('hidden');
+        saveLoading.classList.add('hidden');
+      }
+    },
+
+    async handleSubmit(e) {
+      e.preventDefault();
+      
+      // Prevent multiple submissions
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
+      
+      const categoryName = document.getElementById('category-name');
+      const categoryDescription = document.getElementById('category-description');
+      const categoryIcon = document.getElementById('category-icon');
+      const categoryColor = document.getElementById('category-color');
+
+      if (!categoryName || !categoryColor) {
+        this.isSubmitting = false;
+        return;
+      }
+
+      // Show loading state
+      this.setSaveButtonLoading(true);
+
+      const formData = {
+        name: categoryName.value,
+        description: categoryDescription ? categoryDescription.value : '',
+        icon: categoryIcon ? categoryIcon.value : '',
+        color: categoryColor.value
+      };
+
+      try {
+        if (this.currentEditingId) {
+          await window.categoryService.updateCategory(this.currentEditingId, formData);
+          this.showNotification('Category updated successfully!', 'success');
+        } else {
+          await window.categoryService.createCategory(formData);
+          this.showNotification('Category created successfully!', 'success');
+        }
+        
+        await this.loadCategories();
+        this.resetForm();
+        
+        // Refresh the product category dropdown
+        if (window.populateCategories) {
+          window.populateCategories();
+        }
+      } catch (error) {
+        console.error('Failed to save category:', error);
+        this.showNotification('Failed to save category', 'error');
+      } finally {
+        // Hide loading state and reset submission flag
+        this.setSaveButtonLoading(false);
+        this.isSubmitting = false;
+      }
+    },
+
+    async toggleCategory(id) {
+      try {
+        await window.categoryService.toggleActive(id);
+        await this.loadCategories();
+        this.showNotification('Category status updated!', 'success');
+        
+        // Refresh the product category dropdown
+        if (window.populateCategories) {
+          window.populateCategories();
+        }
+      } catch (error) {
+        console.error('Failed to toggle category:', error);
+        this.showNotification('Failed to update category status', 'error');
+      }
+    },
+
+    async deleteCategory(id) {
+      if (!confirm('Are you sure you want to permanently delete this category? This action cannot be undone.')) return;
+      
+      try {
+        await window.categoryService.deleteCategory(id);
+        await this.loadCategories();
+        this.showNotification('Category deleted successfully!', 'success');
+        
+        // Refresh the product category dropdown
+        if (window.populateCategories) {
+          window.populateCategories();
+        }
+      } catch (error) {
+        console.error('Failed to delete category:', error);
+        this.showNotification('Failed to delete category. It may have associated products.', 'error');
+      }
+    },
+
+    showNotification(message, type = 'info') {
+      // Create a beautiful notification
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 z-[60] px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+      }`;
+      
+      notification.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+          <span class="font-medium">${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+      
+      // Animate out and remove
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+  };
+}
+
+// Global function to open category modal
+window.openCategoryModal = function() {
+  console.log('Opening category modal...');
+  const modal = document.getElementById('category-management-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    if (window.categoryManagement && typeof window.categoryManagement.loadCategories === 'function') {
+      window.categoryManagement.loadCategories();
+    }
+  } else {
+    console.error('Category modal not found');
+  }
+};
+
+// Initialize category management when this component loads
+setTimeout(() => {
+  if (window.categoryManagement && typeof window.categoryManagement.init === 'function') {
+    window.categoryManagement.init();
+  }
+}, 100);
+</script>

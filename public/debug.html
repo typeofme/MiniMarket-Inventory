@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MiniMarket Debug</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; }
+    h1 { margin-bottom: 20px; }
+    pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>MiniMarket Debug</h1>
+  <div style="margin-bottom: 20px;">
+    <h2>Database Operations</h2>
+    <button id="testDB">Test Database Connection</button>
+    <button id="loadProducts">Load Products</button>
+    <button id="debugID">Debug Product ID</button>
+  </div>
+  
+  <div style="margin-bottom: 20px;">
+    <h2>Edit Function Debug</h2>
+    <button id="testEditFunction">Test Edit Function</button>
+    <button id="checkProductStructure">Check Product Structure</button>
+    <button id="debugCompare">Compare ID Types</button>
+  </div>
+  
+  <pre id="output">Results will appear here...</pre>
+
+  <script>
+    document.getElementById('testDB').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        output.textContent = "Testing database connection...";
+        const response = await fetch('/api/products/debug/connection');
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = "Error: " + error.message;
+      }
+    });
+
+    document.getElementById('loadProducts').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        output.textContent = "Loading products...";
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = "Error: " + error.message;
+      }
+    });
+
+    document.getElementById('debugID').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        const id = prompt("Enter product ID to debug:", "1");
+        if (!id) return;
+        
+        output.textContent = "Loading product...";
+        const response = await fetch(`/api/products/${id}`);
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = "Error: " + error.message;
+      }
+    });
+
+    document.getElementById('testEditFunction').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        const id = prompt("Enter product ID to test edit function:", "1");
+        if (!id) return;
+        
+        output.textContent = "Loading products first...";
+        // First load products to populate window.products
+        await fetch('/api/products')
+          .then(res => res.json())
+          .then(products => {
+            window.products = products;
+          });
+
+        output.textContent = `Testing edit function with ID: ${id}\n`;
+        output.textContent += `Products loaded: ${window.products.length}\n`;
+        
+        const mockEditProduct = function(productId) {
+          try {
+            output.textContent += `\nCalling edit with ID: ${productId} (${typeof productId})\n`;
+            
+            // Find the product
+            const product = window.products.find(p => {
+              const result = p.id === productId;
+              output.textContent += `Comparing: ${p.id} (${typeof p.id}) === ${productId} (${typeof productId}): ${result}\n`;
+              return result;
+            });
+            
+            output.textContent += `\nFound product: ${product ? 'YES' : 'NO'}\n`;
+            if (product) {
+              output.textContent += JSON.stringify(product, null, 2);
+            } else {
+              output.textContent += `\nAttempting with == instead of ===\n`;
+              const looseProduct = window.products.find(p => p.id == productId);
+              output.textContent += `Found with loose equality: ${looseProduct ? 'YES' : 'NO'}\n`;
+              if (looseProduct) {
+                output.textContent += JSON.stringify(looseProduct, null, 2);
+              }
+            }
+          } catch (error) {
+            output.textContent += `\nError in mock edit: ${error.message}\n`;
+          }
+        };
+        
+        mockEditProduct(id);
+        
+      } catch (error) {
+        output.textContent += `\nError: ${error.message}`;
+      }
+    });
+
+    document.getElementById('checkProductStructure').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        output.textContent = "Loading products...";
+        const response = await fetch('/api/products');
+        const products = await response.json();
+        
+        // Check the first product in detail
+        if (products.length > 0) {
+          const firstProduct = products[0];
+          output.textContent = "First product structure:\n";
+          output.textContent += `id: ${firstProduct.id} (${typeof firstProduct.id})\n`;
+          output.textContent += `name: ${firstProduct.name} (${typeof firstProduct.name})\n`;
+          output.textContent += `price: ${firstProduct.price} (${typeof firstProduct.price})\n`;
+          output.textContent += `stock: ${firstProduct.stock} (${typeof firstProduct.stock})\n`;
+          output.textContent += `description: ${firstProduct.description} (${typeof firstProduct.description})\n`;
+          output.textContent += `image: ${firstProduct.image} (${typeof firstProduct.image})\n`;
+          output.textContent += `\nFull JSON:\n${JSON.stringify(firstProduct, null, 2)}`;
+        } else {
+          output.textContent = "No products found.";
+        }
+      } catch (error) {
+        output.textContent = "Error: " + error.message;
+      }
+    });
+
+    document.getElementById('debugCompare').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      try {
+        const id = prompt("Enter product ID to debug comparison:", "1");
+        if (!id) return;
+        
+        output.textContent = "Loading products...";
+        const response = await fetch('/api/products');
+        const products = await response.json();
+        
+        window.products = products;
+        
+        output.textContent = `Comparing ID: ${id} (${typeof id})\n\n`;
+        output.textContent += "Results:\n";
+        
+        let found = false;
+        for (let i = 0; i < products.length; i++) {
+          const p = products[i];
+          const strictEqual = p.id === id;
+          const looseEqual = p.id == id;
+          const stringMatch = String(p.id) === String(id);
+          
+          if (strictEqual || looseEqual) {
+            found = true;
+            output.textContent += `\nFound match at index ${i}:\n`;
+            output.textContent += `Product ID: ${p.id} (${typeof p.id})\n`;
+            output.textContent += `Test ID: ${id} (${typeof id})\n`;
+            output.textContent += `Strict equality (===): ${strictEqual}\n`;
+            output.textContent += `Loose equality (==): ${looseEqual}\n`;
+            output.textContent += `String match: ${stringMatch}\n`;
+            output.textContent += `\nFull product: ${JSON.stringify(p, null, 2)}\n`;
+          }
+        }
+        
+        if (!found) {
+          output.textContent += `\nNo matching product found for ID: ${id}`;
+        }
+        
+      } catch (error) {
+        output.textContent = "Error: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

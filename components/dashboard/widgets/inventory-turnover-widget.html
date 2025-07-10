@@ -1,0 +1,32 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Inventory Turnover</h3>
+    <i class="fas fa-sync text-green-500"></i>
+  </div>
+  
+  <div class="h-44 mb-2 relative">
+    <canvas id="inventory-turnover-chart"></canvas>
+    <div id="turnover-loader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+    </div>
+    <div id="turnover-error" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+      <div class="text-center text-gray-500">
+        <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+        <p class="text-sm">Chart could not be loaded</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-2 gap-3 mt-2">
+    <div class="bg-blue-50 p-2 rounded-lg text-center">
+      <p class="text-xs text-gray-600">Average Turnover</p>
+      <p class="font-bold text-blue-700">Loading...</p>
+    </div>
+    <div class="bg-green-50 p-2 rounded-lg text-center">
+      <p class="text-xs text-gray-600">Fastest Category</p>
+      <p class="font-bold text-green-700">Loading...</p>
+    </div>
+  </div>
+  
+  <script src="/components/dashboard/widgets/inventory-turnover-widget.js"></script>
+</div>

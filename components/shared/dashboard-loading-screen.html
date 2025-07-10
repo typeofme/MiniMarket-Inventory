@@ -1,0 +1,37 @@
+<!-- Dashboard Loading Screen Component -->
+<div id="dashboard-loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 transition-opacity duration-300">
+  <div class="text-center">
+    <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+    <h2 class="text-xl font-semibold text-gray-800">Loading Dashboard</h2>
+    <p class="text-gray-600" id="dashboard-loading-message">Please wait while we fetch your dashboard data</p>
+  </div>
+</div>
+
+<script>
+  // Function to show the loading screen with an optional custom message
+  function showDashboardLoading(message = "Please wait...") {
+    const loadingScreen = document.getElementById('dashboard-loading-screen');
+    const loadingMessage = document.getElementById('dashboard-loading-message');
+    
+    if (loadingMessage) {
+      loadingMessage.textContent = message;
+    }
+    
+    if (loadingScreen) {
+      loadingScreen.classList.remove('hidden');
+      loadingScreen.style.opacity = '1';
+    }
+  }
+  
+  // Function to hide the loading screen
+  function hideDashboardLoading() {
+    const loadingScreen = document.getElementById('dashboard-loading-screen');
+    
+    if (loadingScreen) {
+      loadingScreen.style.opacity = '0';
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+      }, 300); // Match the duration in the transition-opacity class
+    }
+  }
+</script>

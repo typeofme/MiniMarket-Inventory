@@ -1,0 +1,56 @@
+<div class="dashboard-card bg-white p-4 rounded-lg shadow h-full" data-aos="fade-up">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="font-semibold text-gray-700">Category Distribution</h3>
+    <div class="flex items-center space-x-2">
+      <button id="refresh-chart-btn" class="text-purple-500 hover:text-purple-700 transition-colors" title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <i class="fas fa-chart-pie text-purple-500"></i>
+    </div>
+  </div>
+  
+  <div class="h-52 relative">
+    <canvas id="category-distribution-chart"></canvas>
+    <div id="chart-loader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+    <div id="chart-error" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+      <div class="text-center text-gray-500">
+        <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+        <p class="text-sm">Unable to load chart</p>
+        <button id="retry-chart-btn" class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors">
+          Retry
+        </button>
+      </div>
+    </div>
+    <div id="chart-no-data" class="absolute inset-0 flex items-center justify-center bg-white hidden">
+      <div class="text-center text-gray-500">
+        <i class="fas fa-inbox text-xl mb-2"></i>
+        <p class="text-sm">No category data available</p>
+      </div>
+    </div>
+  </div>
+  
+  <div id="category-legend" class="grid grid-cols-2 gap-2 mt-3 text-xs">
+    <!-- Legend items will be populated dynamically -->
+  </div>
+  
+  <div id="category-details" class="mt-3 p-2 bg-gray-50 rounded-lg hidden">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <span id="selected-category-icon" class="text-lg mr-2"></span>
+        <div>
+          <h4 id="selected-category-name" class="font-medium text-gray-800"></h4>
+          <p id="selected-category-desc" class="text-xs text-gray-600"></p>
+        </div>
+      </div>
+      <div class="text-right">
+        <div id="selected-category-count" class="font-bold text-lg"></div>
+        <div class="text-xs text-gray-600">products</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Interactive category distribution widget with live data -->
+  <script src="/components/dashboard/widgets/category-distribution-widget.js"></script>
+</div>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activity Logs - MiniMarket</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="/components/logs/styles/logs.css" rel="stylesheet" />
+  <link href="../components/logs/styles/support-button.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Authentication scripts -->
+  <script src="/js/toast.js"></script>
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="app-container">
+    <div id="sidebar-component"></div>
+    <div class="content-wrapper">
+      <div id="topnav-component"></div>
+      <main class="main-content">
+        <!-- Header Section -->
+        <div class="page-header" data-aos="fade-up">
+          <div class="page-header-content">
+            <div class="page-title-section">
+              <h1 class="page-title">Activity Logs</h1>
+              <p class="page-subtitle">Track all product updates, edits, and restocks</p>
+            </div>
+            <div class="page-actions">
+              <button id="refresh-logs" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+              </button>
+              <button id="export-logs" class="btn btn-primary">
+                <i class="fas fa-download"></i>
+                <span>Export</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div id="stats-cards-container" data-aos="fade-up" data-aos-delay="100"></div>
+
+        <!-- Filters Section -->
+        <div class="filters-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="filters-header">
+            <h3 class="filters-title">
+              <i class="fas fa-filter"></i>
+              Filters
+            </h3>
+          </div>
+          <div class="filters-content">
+            <div class="filter-group">
+              <label for="search-logs" class="filter-label">Search</label>
+              <div class="search-input-wrapper">
+                <input
+                  type="text"
+                  id="search-logs"
+                  placeholder="Search by description, user, or product..."
+                  class="filter-input search-input"
+                />
+                <i class="fas fa-search search-icon"></i>
+              </div>
+            </div>
+            
+            <div class="filter-group">
+              <label for="filter-action" class="filter-label">Action</label>
+              <select id="filter-action" class="filter-input filter-select">
+                <option value="">All Actions</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="edit">Edit</option>
+                <option value="restock">Restock</option>
+                <option value="delete">Delete</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label for="filter-date-from" class="filter-label">From Date</label>
+              <input
+                type="date"
+                id="filter-date-from"
+                class="filter-input filter-date"
+              />
+            </div>
+            
+            <div class="filter-group">
+              <label for="filter-date-to" class="filter-label">To Date</label>
+              <input
+                type="date"
+                id="filter-date-to"
+                class="filter-input filter-date"
+              />
+            </div>
+            
+            <div class="filter-group filter-actions">
+              <button id="clear-filters" class="btn btn-outline">
+                <i class="fas fa-times"></i>
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="logs-table-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="table-header">
+            <div class="table-title-section">
+              <h3 class="table-title">
+                <i class="fas fa-clipboard-list"></i>
+                Activity History
+              </h3>
+            </div>
+            <div class="table-controls">
+              <div class="per-page-control">
+                <span class="per-page-label">Show</span>
+                <select id="logs-per-page" class="per-page-select">
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                <span class="per-page-label">per page</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table class="logs-table">
+              <thead class="table-head">
+                <tr>
+                  <th class="table-header-cell">Date & Time</th>
+                  <th class="table-header-cell">User</th>
+                  <th class="table-header-cell">Action</th>
+                  <th class="table-header-cell">Product</th>
+                  <th class="table-header-cell">Description</th>
+                  <th class="table-header-cell">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body" class="table-body">
+                <!-- Logs will be loaded here -->
+              </tbody>
+            </table>
+            
+            <!-- Loading State -->
+            <div id="logs-loading" class="table-state hidden">
+              <div class="state-content">
+                <div class="loader-spinner"></div>
+                <p class="state-text">Loading activity logs...</p>
+              </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="logs-empty" class="table-state hidden">
+              <div class="state-content">
+                <i class="fas fa-clipboard-list state-icon"></i>
+                <h3 class="state-title">No activity logs found</h3>
+                <p class="state-text">No logs match the current filters.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pagination -->
+          <div id="logs-pagination" class="table-pagination">
+            <div class="pagination-info">
+              <p class="pagination-text">
+                Showing <span id="showing-from" class="pagination-number">0</span> to 
+                <span id="showing-to" class="pagination-number">0</span> of 
+                <span id="total-logs" class="pagination-number">0</span> results
+              </p>
+            </div>
+            <div class="pagination-controls">
+              <button id="prev-page" class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div id="page-numbers" class="page-numbers">
+                <!-- Page numbers will be generated here -->
+              </div>
+              <button id="next-page" class="pagination-btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Support Button -->
+  <div id="support-button-container"></div>
+
+  <!-- Log Detail Modal -->
+  <div id="log-detail-modal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-info-circle"></i>
+          Log Details
+        </h3>
+        <button id="close-log-modal" class="modal-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="log-detail-content" class="modal-content">
+        <!-- Log details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="/js/performanceOptimizer.js"></script>
+  <script src="/components/componentLoader.js"></script>
+  <script src="/components/support/supportModal.js"></script>
+  <script src="/components/logs/logs-module.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing logs page...');
+      
+      // Check if ComponentLoader is available
+      if (typeof ComponentLoader === 'undefined') {
+        console.error('ComponentLoader not available');
+        return;
+      }
+
+      // Load shared components first, following the exact pattern from products page
+      ComponentLoader.load('shared/sidebar', 'sidebar-component');
+      ComponentLoader.load('shared/topnav', 'topnav-component');
+      ComponentLoader.load('logs/stats-cards', 'stats-cards-container');
+      ComponentLoader.load('logs/support-button', 'support-button-container');
+
+      // Initialize when all components are loaded
+      ComponentLoader.onAllLoaded(function() {
+        console.log('All components loaded, initializing logs module...');
+        
+        // Initialize AOS
+        AOS.init({
+          duration: 600,
+          easing: 'ease-in-out',
+          once: true,
+          offset: 50
+        });
+        
+        // Initialize logs module
+        try {
+          window.logsModule = new LogsModule();
+          console.log('Logs module initialized successfully');
+        } catch (error) {
+          console.error('Error initializing logs module:', error);
+        }
+
+        // Mobile compatibility
+        if (window.innerWidth <= 640) {
+          document.body.classList.add('debug-mobile');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

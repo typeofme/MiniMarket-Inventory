@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/components/dashboard/styles/dashboard.css" rel="stylesheet">
+  <link href="/components/dashboard/styles/widgets.css" rel="stylesheet">
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/tokenHandler.js"></script>
+</head>
+<body class="bg-gray-50 flex">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div id="sidebar-component"></div>
+  <div id="loading-screen-container"></div>
+  <div class="content-wrapper flex-1">
+    <div id="topnav-component"></div>
+    <main class="p-6">
+      <div id="quick-stats-component"></div>
+      <div id="stats-cards-component"></div>
+      <div class="mb-8 bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center mb-4 pb-2 border-b">
+          <h3 class="text-lg font-semibold text-gray-700">Dashboard Widgets</h3>
+        </div>
+        <div id="widgets-container">
+          <div class="widget-section mb-6">
+            <div class="flex items-center mb-3 widget-section-header px-2 bg-gray-50 rounded-lg py-2" data-section="general">
+              <h4 class="text-sm font-medium text-gray-600 flex items-center">
+                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                General Information
+              </h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div id="weather-widget-component" class="widget-card animate-widget"></div>
+              <div id="activity-feed-component" class="widget-card animate-widget animation-delay-100"></div>
+              <div id="market-trends-widget-component" class="widget-card animate-widget animation-delay-200"></div>
+            </div>
+          </div>
+          <div class="widget-section mb-6">
+            <div class="flex items-center mb-3 widget-section-header px-2 bg-gray-50 rounded-lg py-2" data-section="inventory-status">
+              <h4 class="text-sm font-medium text-gray-600 flex items-center">
+                <i class="fas fa-boxes text-amber-400 mr-2"></i>
+                Inventory Status
+              </h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div id="inventory-status-widget-component" class="widget-card animate-widget"></div>
+              <div id="low-stock-widget-component" class="widget-card animate-widget animation-delay-100"></div>
+              <div id="category-distribution-widget-component" class="widget-card animate-widget animation-delay-200"></div>
+            </div>
+          </div>
+          <div class="widget-section mb-6">
+            <div class="flex items-center mb-3 widget-section-header px-2 bg-gray-50 rounded-lg py-2" data-section="inventory-analytics">
+              <h4 class="text-sm font-medium text-gray-600 flex items-center">
+                <i class="fas fa-chart-line text-green-400 mr-2"></i>
+                Inventory Analytics
+              </h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div id="inventory-turnover-widget-component" class="widget-card animate-widget"></div>
+              <div id="vendor-performance-widget-component" class="widget-card animate-widget animation-delay-100"></div>
+              <div id="inventory-value-widget-component" class="widget-card animate-widget animation-delay-200"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="support-button-component"></div>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/components/componentLoader.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+    
+    // Show loading immediately when JavaScript loads
+    window.addEventListener('load', function() {
+      if (typeof showLoading === 'function') {
+        showLoading("Loading dashboard...");
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load components
+      ComponentLoader.load('shared/sidebar', 'sidebar-component');
+      ComponentLoader.load('shared/loading-screen', 'loading-screen-container');
+      
+      // Then load other components after a short delay
+      setTimeout(() => {
+      ComponentLoader.load('shared/topnav', 'topnav-component');
+      ComponentLoader.load('dashboard/quick-stats', 'quick-stats-component');
+      ComponentLoader.load('dashboard/stats-cards', 'stats-cards-component');
+      ComponentLoader.load('dashboard/widgets/weather-widget', 'weather-widget-component');
+      ComponentLoader.load('dashboard/widgets/activity-feed-widget', 'activity-feed-component');
+      ComponentLoader.load('dashboard/widgets/market-trends-widget', 'market-trends-widget-component');
+      ComponentLoader.load('dashboard/widgets/inventory-status-widget', 'inventory-status-widget-component');
+      ComponentLoader.load('dashboard/widgets/low-stock-widget', 'low-stock-widget-component');
+      ComponentLoader.load('dashboard/widgets/category-distribution-widget', 'category-distribution-widget-component');
+      ComponentLoader.load('dashboard/widgets/inventory-turnover-widget', 'inventory-turnover-widget-component');
+      ComponentLoader.load('dashboard/widgets/vendor-performance-widget', 'vendor-performance-widget-component');
+      ComponentLoader.load('dashboard/widgets/inventory-value-widget', 'inventory-value-widget-component');
+      ComponentLoader.load('shared/support-button', 'support-button-component');
+      ComponentLoader.onAllLoaded(function() {
+        // Initialize dashboard functions
+        initializeDashboard();
+        initWidgetControls();
+        
+        // Try activating the sidebar menu item after all components are loaded
+        if (window.setActiveMenuItem) {
+          window.setActiveMenuItem();
+        }
+        
+        // Ensure sidebar toggle is working
+        if (window.initializeSidebarToggle) {
+          window.initializeSidebarToggle();
+        }
+        
+        // Hide loading screen when everything is ready
+        if (typeof hideLoading === 'function') {
+          hideLoading();
+        }
+      });
+      }, 100);
+    });
+    function initWidgetControls() {
+      const sectionHeaders = document.querySelectorAll('.widget-section-header');
+      sectionHeaders.forEach(header => {
+        const toggleIcon = header.querySelector('.section-toggle');
+        const sectionContent = header.nextElementSibling;
+        if (toggleIcon && sectionContent) {
+          toggleIcon.addEventListener('click', () => {
+            sectionContent.classList.toggle('hidden');
+            toggleIcon.querySelector('i').classList.toggle('rotate-180');
+            const sectionId = header.getAttribute('data-section');
+            if (sectionId) {
+              localStorage.setItem(
+                `widget-section-${sectionId}`, 
+                sectionContent.classList.contains('hidden') ? 'collapsed' : 'expanded'
+              );
+            }
+          });
+          const sectionId = header.getAttribute('data-section');
+          if (sectionId) {
+            const savedState = localStorage.getItem(`widget-section-${sectionId}`);
+            if (savedState === 'collapsed') {
+              sectionContent.classList.add('hidden');
+              toggleIcon.querySelector('i').classList.add('rotate-180');
+            }
+          }
+        }
+      });
+    }
+    function openWidgetModal() {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
+          <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">Add Widget</h3>
+            <button class="text-gray-400 hover:text-gray-500" id="close-widget-modal">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <p class="mb-4 text-gray-600">Select widgets to add to your dashboard:</p>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer transition-colors flex flex-col items-center">
+                <i class="fas fa-chart-pie text-blue-500 text-xl mb-2"></i>
+                <span class="text-sm text-center">Category Distribution</span>
+              </div>
+              <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer transition-colors flex flex-col items-center">
+                <i class="fas fa-truck-loading text-green-500 text-xl mb-2"></i>
+                <span class="text-sm text-center">Inventory Turnover</span>
+              </div>
+              <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer transition-colors flex flex-col items-center">
+                <i class="fas fa-cloud-sun text-amber-500 text-xl mb-2"></i>
+                <span class="text-sm text-center">Weather</span>
+              </div>
+              <div class="p-3 border rounded-lg hover:bg-blue-50 cursor-pointer transition-colors flex flex-col items-center">
+                <i class="fas fa-dollar-sign text-purple-500 text-xl mb-2"></i>
+                <span class="text-sm text-center">Revenue Forecast</span>
+              </div>
+            </div>
+            <div class="flex justify-end pt-3 border-t">
+              <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                Add Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.getElementById('close-widget-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+        }
+      });
+    }
+    function toggleWidgetCustomization() {
+      const widgetsContainer = document.getElementById('widgets-container');
+      const widgetElements = widgetsContainer.querySelectorAll('[id$="-component"]');
+      const customizeBtn = document.getElementById('customize-widgets-btn');
+      widgetsContainer.classList.toggle('customizing-widgets');
+      if (widgetsContainer.classList.contains('customizing-widgets')) {
+        customizeBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Done';
+        customizeBtn.classList.replace('bg-gray-100', 'bg-green-100');
+        customizeBtn.classList.replace('text-gray-600', 'text-green-600');
+        customizeBtn.classList.replace('hover:bg-gray-200', 'hover:bg-green-200');
+        widgetElements.forEach(widget => {
+          const controls = document.createElement('div');
+          controls.className = 'widget-controls absolute top-0 right-0 mt-1 mr-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity';
+          controls.innerHTML = `
+            <button class="widget-move p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs cursor-move">
+              <i class="fas fa-grip-horizontal"></i>
+            </button>
+            <button class="widget-remove p-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-xs">
+              <i class="fas fa-trash"></i>
+            </button>
+          `;
+          widget.classList.add('relative', 'group');
+          widget.style.transition = 'transform 0.2s, box-shadow 0.2s';
+          const existingControls = widget.querySelector('.widget-controls');
+          if (!existingControls) {
+            widget.appendChild(controls);
+          }
+          widget.addEventListener('mouseenter', () => {
+            if (widgetsContainer.classList.contains('customizing-widgets')) {
+              widget.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+            }
+          });
+          widget.addEventListener('mouseleave', () => {
+            widget.style.boxShadow = '';
+          });
+        });
+      } else {
+        customizeBtn.innerHTML = '<i class="fas fa-cog mr-1"></i> Customize';
+        customizeBtn.classList.replace('bg-green-100', 'bg-gray-100');
+        customizeBtn.classList.replace('text-green-600', 'text-gray-600');
+        customizeBtn.classList.replace('hover:bg-green-200', 'hover:bg-gray-200');
+        saveWidgetPositions();
+      }
+    }
+    function initWidgetDragging() {
+      // TODO
+    }
+    function saveWidgetPositions() {
+      const widgetsContainer = document.getElementById('widgets-container');
+      const widgetElements = widgetsContainer.querySelectorAll('[id$="-component"]');
+      //console.log('Widget positions saved');
+    }
+    function initializeDashboard() {
+      // Show loading message while initializing
+      if (typeof showLoading === 'function') {
+        showLoading("Initializing dashboard...");
+      }
+      
+      const today = new Date();
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      if (document.getElementById('current-date')) {
+        document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
+      }
+      initHeaderScroll();
+    }
+    function initHeaderScroll() {
+      const header = document.querySelector('.top-nav');
+      if (!header) return;
+      let lastScrollTop = 0;
+      let scrollThreshold = 100;
+      let isHeaderVisible = true;
+      let ticking = false;
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+              if (isHeaderVisible) {
+                header.classList.add('header-hidden');
+                isHeaderVisible = false;
+              }
+            } else if (scrollTop < lastScrollTop) {
+              if (!isHeaderVisible) {
+                header.classList.remove('header-hidden');
+                isHeaderVisible = true;
+              }
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+  </script>
+  <style>
+    .loader-spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #e5e7eb;
+      border-bottom-color: #3b82f6;
+      border-radius: 50%;
+      animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .sidebar {
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
+      z-index: 60;
+    }
+    .content-wrapper {
+      transition: margin-left 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: margin-left;
+    }
+    /* Top Navigation styles moved to /components/shared/topnav.html */
+    .sidebar.mobile-active {
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+    }
+    body.loading {
+      overflow: hidden;
+    }
+    #main-content-container.invisible {
+      opacity: 0;
+      visibility: hidden;
+    }
+  </style>
+  <script src="/components/support/supportModal.js"></script>
+</body>
+</html>

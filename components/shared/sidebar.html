@@ -1,0 +1,276 @@
+<aside class="sidebar text-white w-64 h-screen p-4 fixed left-0 top-0 z-50 flex flex-col">
+  <div class="flex items-center justify-center p-4 mb-8" data-aos="fade-right">
+    <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+      <i class="fas fa-store text-3xl"></i>
+    </div>
+    <h1 class="text-2xl font-bold">MiniMarket</h1>
+  </div>
+  
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --sidebar-width: 16rem;
+      --sidebar-width-collapsed: 5rem;
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background-image: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    
+    /* Enhanced sidebar navigation */
+    .nav-item {
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+    }
+    
+    .active-nav-item {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #bfdbfe;
+      backdrop-filter: blur(4px);
+    }
+    
+    .active-nav-item span {
+      font-weight: 500;
+    }
+    
+    .active-nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Sidebar closed state */
+    body.sidebar-closed .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    /* Responsive sidebar styles for tablet */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .sidebar.mobile-active nav a span:not(.nav-icon *),
+      .sidebar.mobile-active h1 {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active {
+        width: var(--sidebar-width);
+      }
+    }
+    
+    /* Mobile sidebar styles */
+    @media (max-width: 640px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        position: fixed;
+        z-index: 60;
+      }
+      
+      .sidebar.mobile-active {
+        transform: translateX(0);
+      }
+      
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+    }
+    
+    /* Sidebar overlay for mobile view */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 55;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+  
+  <div class="flex-1 flex flex-col min-h-0">
+    <nav class="space-y-2 flex-1 overflow-y-auto">
+    <a href="/" id="nav-dashboard" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="100" data-page="dashboard">
+      <div class="nav-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <span>Dashboard</span>
+    </a>
+    <a href="/products" id="nav-products" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="150" data-page="products">
+      <div class="nav-icon">
+        <i class="fas fa-box"></i>
+      </div>
+      <span>Products</span>
+    </a>
+    <a href="/reports" id="nav-reports" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="200" data-page="reports">
+      <div class="nav-icon">
+        <i class="fas fa-chart-bar"></i>
+      </div>
+      <span>Reports</span>
+    </a>
+    <a href="/restock" id="nav-restock" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="250" data-page="restock">
+      <div class="nav-icon">
+        <i class="fas fa-boxes"></i>
+      </div>
+      <span>Restock</span>
+    </a>
+    <a href="/asset" id="nav-assets" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="300" data-page="assets">
+      <div class="nav-icon">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <span>Asset</span>
+    </a>
+    <a href="/suppliers" id="nav-datasupply" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="350" data-page="datasupply">
+      <div class="nav-icon">
+        <i class="fas fa-database"></i>
+      </div>
+      <span>Data Supply</span>
+    </a>
+    <a href="/logs" id="nav-user" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-detect" 
+       data-aos="fade-right" data-aos-delay="400" data-page="logs">
+      <div class="nav-icon">
+        <i class="fas fa-history  "></i>
+      </div>
+      <span>Logs</span>
+    </a>
+    </nav>
+
+    <!-- Logout Button at Bottom - Always Visible -->
+    <div class="mt-auto pt-4 border-t border-white/10">
+      <button id="logout-btn" class="logout-btn w-full rounded-xl p-3 flex items-center justify-center transition duration-200 cursor-pointer bg-red-500/20 hover:bg-red-500/30 text-white" 
+              data-aos="fade-right" data-aos-delay="450">
+        <div class="nav-icon">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function markActiveMenuItem() {
+      const path = window.location.pathname;
+      let activePage;
+      if (path === '/' || path === '/index.html') {
+        activePage = 'dashboard';
+      } else {
+        activePage = path.split('/')[1];
+      }
+      const allItems = document.querySelectorAll('a.active-nav-detect');
+      allItems.forEach(item => {
+        item.classList.remove('active-nav-item');
+        const itemPage = item.getAttribute('data-page');
+        if (itemPage === activePage) {
+          item.classList.add('active-nav-item');
+        }
+      });
+    })();
+
+    window.setActiveMenuItem = function() {
+      const path = window.location.pathname;
+      let activePage;
+      if (path === '/' || path === '/index.html') {
+        activePage = 'dashboard';
+      } else {
+        activePage = path.split('/')[1];
+      }
+      document.querySelectorAll('.active-nav-detect').forEach(item => {
+        item.classList.remove('active-nav-item');
+      });
+      document.querySelectorAll('.active-nav-detect').forEach(item => {
+        const itemPage = item.getAttribute('data-page');
+        if (itemPage === activePage) {
+          item.classList.add('active-nav-item');
+        }
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Remove any potential user avatar elements from sidebar
+      const sidebarUserElements = document.querySelectorAll('.sidebar .user-profile, .sidebar .user-avatar, .sidebar .profile-section');
+      sidebarUserElements.forEach(el => el.remove());
+      
+      // Setup logout functionality
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+          if (typeof AuthService !== 'undefined') {
+            AuthService.logout();
+          } else {
+            // Fallback logout
+            document.cookie = 'token=; Max-Age=0; path=/';
+            window.location.href = '/login';
+          }
+        });
+      }
+      
+      setActiveMenuItem();
+      setTimeout(setActiveMenuItem, 100);
+      setTimeout(setActiveMenuItem, 500);
+      window.addEventListener('popstate', setActiveMenuItem);
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+          const sidebar = document.querySelector('.sidebar');
+          if (sidebar) sidebar.classList.remove('mobile-active');
+          this.classList.remove('active');
+        });
+      }
+      window.addEventListener('resize', function() {
+        if (window.innerWidth <= 640) {
+          document.body.classList.remove('sidebar-closed');
+        } else if (window.innerWidth <= 1024) {
+          const sidebar = document.querySelector('.sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          if (sidebar) sidebar.classList.remove('mobile-active');
+          if (overlay) overlay.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</aside>
