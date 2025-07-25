@@ -234,6 +234,7 @@ async function createAllTables() {
         table.increments('id').primary();
         table.string('name').notNullable();
         table.string('contact_person');
+        table.string('contact_info')
         table.string('category');
         table.string('email');
         table.string('phone', 50);
