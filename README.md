@@ -2,6 +2,10 @@
 ## Live Preview
 <h2>https://minimarket.typeof.me</h2>
 
+User: admin
+<br>
+Pass: admin123
+
 ## Technology Stack
 
 - **Backend**: Node.js with Express
@@ -60,7 +64,7 @@ RESEND_API_KEY=API_KEY
 
 ### 4. Database Setup
 
-You can simply execute setup script
+You can simply execute the setup script
 ```bash
 node setup.sh
 ```
