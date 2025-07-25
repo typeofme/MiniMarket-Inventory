@@ -1,0 +1,62 @@
+<!-- Supplier Form Component -->
+<div id="supplierFormMount"></div>
+  <div class="dashboard-card bg-white p-6 rounded-lg shadow mb-8 max-w-2xl mx-auto border-2 border-[#584df4] shadow-lg" data-aos="fade-up" data-aos-delay="100" style="background: #fff; color: #222;">
+    <div class="flex items-center mb-6">
+      <div class="bg-[#584df4]/10 p-2.5 rounded-full mr-3">
+        <i data-feather="user-plus" class="text-[#584df4] w-6 h-6"></i>
+      </div>
+      <h2 class="text-xl font-semibold" id="formTitle">Add New Supplier</h2>
+    </div>
+    <form id="supplierForm" class="flex flex-col gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="supplierName" class="block text-sm font-medium text-gray-700 mb-1.5">Supplier Name</label>
+          <input type="text" id="supplierName" name="supplierName" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required placeholder="Supplier Name" />
+        </div>
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
+          <select id="category" name="category" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required>
+            <option value="">Select Category</option>
+            <option value="Food & Beverage">Food & Beverage</option>
+            <option value="Instant Foods">Instant Foods</option>
+          </select>
+        </div>
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+          <select id="status" name="status" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div>
+          <label for="contact" class="block text-sm font-medium text-gray-700 mb-1.5">Contact Person</label>
+          <input type="text" id="contact" name="contact" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required placeholder="Contact Name" />
+        </div>
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+          <input type="text" id="phone" name="phone" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required placeholder="Phone Number" />
+        </div>
+        <div>
+          <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
+          <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required placeholder="City/Region" />
+        </div>
+        <div>
+          <label for="productCount" class="block text-sm font-medium text-gray-700 mb-1.5">Product Count</label>
+          <input type="number" id="productCount" name="productCount" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required placeholder="0" min="0" />
+        </div>
+         <div>
+          <label for="lastOrder" class="block text-sm font-medium text-gray-700 mb-1.5">Last Order Date</label>
+          <input type="date" id="lastOrder" name="lastOrder" class="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-[#584df4] focus:border-transparent outline-none transition-all" required />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="reset" class="bg-[#f3f4fd] text-[#584df4] px-5 py-2.5 rounded-xl hover:bg-[#e0e7ff] transition-all font-medium">
+          <i data-feather="rotate-ccw" class="w-4 h-4 mr-1.5"></i>Clear
+        </button>
+        <button type="submit" id="submitBtn" class="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow hover:opacity-90 transition flex items-center">
+          <i data-feather="plus" class="w-4 h-4 mr-1.5"></i>Add Supplier
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

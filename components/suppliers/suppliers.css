@@ -1,0 +1,89 @@
+/* Supplier Module Styles - datasupply.css */
+
+.supplier-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 12px rgba(88,77,244,0.07), 0 1.5px 6px rgba(88,77,244,0.03);
+  border: 1.5px solid #e0e7ff;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.supplier-card:hover {
+  box-shadow: 0 8px 32px rgba(88,77,244,0.13), 0 4px 16px rgba(88,77,244,0.07);
+  transform: translateY(-2px) scale(1.01);
+}
+.supplier-badge {
+  font-size: 0.85rem;
+  border-radius: 1rem;
+  padding: 0.2rem 0.8rem;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  background: #f3f4fd;
+  color: #584df4;
+  border: 1px solid #d1d5fa;
+}
+.supplier-actions button {
+  border: none;
+  background: none;
+  color: #584df4;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s;
+}
+.supplier-actions button:hover {
+  background: #f3f4fd;
+}
+.supplier-form label {
+  font-weight: 500;
+  color: #584df4;
+}
+.supplier-form input, .supplier-form select {
+  border: 1.5px solid #d1d5fa;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+  width: 100%;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+.supplier-form input:focus, .supplier-form select:focus {
+  border-color: #584df4;
+  outline: none;
+}
+.supplier-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+.supplier-form .form-actions button {
+  background: linear-gradient(90deg, #584df4 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.supplier-form .form-actions button[type="reset"] {
+  background: #f3f4fd;
+  color: #584df4;
+}
+.supplier-form .form-actions button[type="reset"]:hover {
+  background: #e0e7ff;
+}
+.supplier-form .form-actions button[type="submit"]:hover {
+  opacity: 0.9;
+}
+.supplier-empty {
+  text-align: center;
+  color: #b4b4b4;
+  margin: 2rem 0;
+}
+.supplier-empty i {
+  font-size: 2.5rem;
+  color: #e0e7ff;
+}

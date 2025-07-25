@@ -1,0 +1,34 @@
+<!-- Supplier Search & Filter Bar Component -->
+<div class="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+  <div class="flex-1 flex items-center gap-3">
+    <div class="relative w-full max-w-xs">
+      <input type="text" id="searchInput" placeholder="Search supplier name/contact..." class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#584df4] focus:bg-white transition-all text-sm" />
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <i data-feather="search" class="w-4 h-4"></i>
+      </span>
+    </div>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <select id="categoryFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+      <option value="">All Categories</option>
+      <option value="Food & Beverage">Food & Beverage</option>
+      <option value="Instant Foods">Instant Foods</option>
+    </select>
+    <select id="statusFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+      <option value="">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Pending">Pending</option>
+    </select>
+    <select id="orderFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+      <option value="">Order: Any Time</option>
+      <option value="3">Last 3 days</option>
+      <option value="7">Last 7 days</option>
+    </select>
+    <select id="performanceFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+      <option value="">Performance: All</option>
+      <option value="good">Good</option>
+      <option value="average">Average</option>
+      <option value="bad">Bad</option>
+    </select>
+  </div>
+</div>

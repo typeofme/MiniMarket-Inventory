@@ -1,0 +1,475 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suppliers</title>
+  <link href="/css/style.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/components/suppliers/suppliers-global.css" rel="stylesheet" />
+  <link href="/components/suppliers/suppliers.css" rel="stylesheet" />
+  
+  <!-- Authentication scripts -->
+  <script src="/js/authService.js"></script>
+  <script src="/js/authGuard.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/tokenHandler.js"></script>
+  
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      --transition-smooth: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      --sidebar-width: 16rem;
+      --sidebar-width-collapsed: 5rem;
+    }
+    
+    .sidebar {
+      transition: var(--transition-smooth);
+      background-image: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+    }
+    
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    
+    /* Enhanced sidebar navigation */
+    .nav-item {
+      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover .nav-icon {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(5deg);
+    }
+    
+    .active-nav-item {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #bfdbfe;
+      backdrop-filter: blur(4px);
+    }
+    
+    .active-nav-item span {
+      font-weight: 500;
+    }
+    
+    .active-nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Sidebar closed state */
+    body.sidebar-closed .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    /* Responsive sidebar styles for tablet */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .sidebar.mobile-active nav a span:not(.nav-icon *),
+      .sidebar.mobile-active h1 {
+        display: inline-block;
+      }
+      
+      .sidebar.mobile-active {
+        width: var(--sidebar-width);
+      }
+    }
+    
+    /* Mobile sidebar styles */
+    @media (max-width: 640px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        position: fixed;
+        z-index: 60;
+      }
+      
+      .sidebar.mobile-active {
+        transform: translateX(0);
+      }
+      
+      .sidebar.mobile-active nav a span:not(.nav-icon *) {
+        display: inline-block;
+      }
+    }
+    
+    /* Sidebar overlay for mobile view */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 55;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Top Navigation styles */
+    nav.top-nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: var(--sidebar-width);
+      z-index: 50;
+      transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s ease;
+      will-change: left, transform;
+      transform: translateY(0);
+      background-color: white;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+      width: auto;
+    }
+
+    /* Header hide on scroll */
+    nav.top-nav.header-hidden {
+      transform: translateY(-100%);
+      box-shadow: none;
+    }
+
+    /* Update for when sidebar is closed */
+    body.sidebar-closed .top-nav {
+      left: 0;
+    }
+    
+    .content-wrapper {
+      margin-top: 73px;
+      margin-left: var(--sidebar-width);
+      transition: var(--transition-smooth);
+      flex: 1;
+    }
+
+    body.sidebar-closed .content-wrapper {
+      margin-left: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .content-wrapper {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 flex">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  
+  <!-- Sidebar - Directly included -->
+  <aside class="sidebar text-white w-64 h-screen p-4 fixed left-0 top-0 z-50 flex flex-col">
+    <div class="flex items-center justify-center p-4 mb-8">
+      <div class="bg-white/10 p-2.5 rounded-xl mr-3 shadow-lg">
+        <i class="fas fa-store text-3xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold">MiniMarket</h1>
+    </div>
+    
+    <div class="flex-1 flex flex-col min-h-0">
+      <nav class="space-y-2 flex-1 overflow-y-auto">
+        <a href="/" id="nav-dashboard" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <span>Dashboard</span>
+        </a>
+        <a href="/products" id="nav-products" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <span>Products</span>
+        </a>
+        <a href="/reports" id="nav-reports" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <span>Reports</span>
+        </a>
+        <a href="/restock" id="nav-restock" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-boxes"></i>
+          </div>
+          <span>Restock</span>
+        </a>
+        <a href="/asset" id="nav-assets" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <span>Asset</span>
+        </a>
+        <a href="/suppliers" id="nav-datasupply" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer active-nav-item">
+          <div class="nav-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <span>Data Supply</span>
+        </a>
+        <a href="/logs" id="nav-logs" class="nav-item rounded-xl p-3 flex items-center transition duration-200 cursor-pointer">
+          <div class="nav-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <span>Logs</span>
+        </a>
+      </nav>
+
+      <!-- Logout Button at Bottom - Always Visible -->
+      <div class="mt-auto pt-4 border-t border-white/10">
+        <button id="logout-btn" class="logout-btn w-full rounded-xl p-3 flex items-center justify-center transition duration-200 cursor-pointer bg-red-500/20 hover:bg-red-500/30 text-white">
+          <div class="nav-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+  
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 transition-opacity duration-300">
+    <div class="text-center">
+      <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+      <h2 class="text-xl font-semibold text-gray-800">Loading...</h2>
+      <p class="text-gray-600" id="loading-message">Please wait while we load suppliers</p>
+    </div>
+  </div>
+  
+  <div class="content-wrapper flex-1">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm p-4 flex justify-between items-center top-nav">
+      <div class="flex items-center">
+        <button id="sidebar-toggle" class="mr-4 text-gray-700 hover:bg-gray-100 p-2.5 rounded-xl transition-all">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1 id="page-title" class="text-xl font-bold text-gray-800 fade-in">Supplier Data</h1>
+          <p id="page-subtitle" class="text-sm text-gray-500 hidden sm:block">Welcome back, <span id="user-name-display" class="text-blue-600 font-medium">User</span>!</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a href="/profile" class="hidden sm:flex items-center gap-3 p-1.5 px-3 rounded-xl hover:bg-gray-100 transition-all">
+          <img id="user-avatar-topnav" src="https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff" alt="Profile" class="w-8 h-8 rounded-xl border-2 border-blue-500 object-cover">
+          <div>
+            <span id="user-name-topnav" class="text-sm font-medium text-gray-700">User</span>
+            <p id="user-role-topnav" class="text-xs text-gray-500">Store Manager</p>
+          </div>
+        </a>
+        <a href="/profile" class="sm:hidden p-2.5 rounded-xl bg-gray-100">
+          <i class="fas fa-user-circle"></i>
+        </a>
+      </div>
+    </nav>
+    
+    <main class="p-6">
+      <h2 class="text-2xl font-bold text-[#584df4] mb-1">Supplier Data <span id="supplierCount" class="text-base text-gray-500 font-normal">(0)</span></h2>
+      <p class="text-gray-500 text-sm mb-4">Manage your supplier partners and their performance.</p>
+      
+      <!-- Search & Filter Bar -->
+      <div class="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="flex-1 flex items-center gap-3">
+          <div class="relative w-full">
+            <input type="text" id="searchInput" placeholder="Search suppliers..." class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#584df4] focus:bg-white transition-all text-sm" />
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <i class="fas fa-search w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <select id="categoryFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+            <option value="">All Categories</option>
+            <option value="Food & Beverage">Food & Beverage</option>
+            <option value="Instant Foods">Instant Foods</option>
+          </select>
+          <select id="statusFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Add New Supplier Form -->
+      <div id="supplierFormMount">
+        <form id="supplierForm" class="flex flex-col gap-5 bg-white p-6 rounded-lg shadow mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="supplierName" class="block text-sm font-medium text-gray-700 mb-1.5">Supplier Name</label>
+              <input type="text" id="supplierName" name="supplierName" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="Supplier Name" />
+            </div>
+            <div>
+              <label for="category" class="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
+              <select id="category" name="category" class="w-full border border-gray-300 rounded-xl p-3" required>
+                <option value="">Select Category</option>
+                <option value="Food & Beverage">Food & Beverage</option>
+                <option value="Instant Foods">Instant Foods</option>
+              </select>
+            </div>
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+              <select id="status" name="status" class="w-full border border-gray-300 rounded-xl p-3" required>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
+            <div>
+              <label for="contact" class="block text-sm font-medium text-gray-700 mb-1.5">Contact Person</label>
+              <input type="text" id="contact" name="contact" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="Contact Name" />
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+              <input type="text" id="phone" name="phone" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="Phone Number" />
+            </div>
+            <div>
+              <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
+              <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="City/Region" />
+            </div>
+            <div>
+              <label for="productCount" class="block text-sm font-medium text-gray-700 mb-1.5">Product Count</label>
+              <input type="number" id="productCount" name="productCount" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="0" min="0" />
+            </div>
+            <div>
+              <label for="lastOrder" class="block text-sm font-medium text-gray-700 mb-1.5">Last Order Date</label>
+              <input type="date" id="lastOrder" name="lastOrder" class="w-full border border-gray-300 rounded-xl p-3" required />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button type="reset" class="bg-[#f3f4fd] text-[#584df4] px-5 py-2.5 rounded-xl">Clear</button>
+            <button type="submit" id="submitBtn" class="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold">Add Supplier</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Supplier Card Grid -->
+      <div id="supplierGridMount">
+        <div id="supplierGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+      <div id="noSuppliersMount">
+        <div id="noSuppliers" class="py-8 text-center text-gray-500">
+          <i class="fas fa-box text-gray-300 text-4xl mb-2"></i>
+          <p>Belum ada supplier yang ditambahkan.</p>
+          <button id="addFirstSupplierBtn" class="mt-4 px-6 py-2 rounded-xl bg-[#584df4] text-white font-semibold">Tambah Supplier Pertama</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 class="text-lg font-bold mb-4">Confirm Deletion</h3>
+      <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-all">Cancel</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    feather.replace();
+  </script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: true,
+      easing: 'ease-out-cubic'
+    });
+    
+    // Function to show the loading screen with an optional custom message
+    function showLoading(message = "Please wait...") {
+      const loadingScreen = document.getElementById('loading-screen');
+      const loadingMessage = document.getElementById('loading-message');
+      
+      if (loadingMessage) {
+        loadingMessage.textContent = message;
+      }
+      
+      if (loadingScreen) {
+        loadingScreen.classList.remove('hidden');
+        loadingScreen.style.opacity = '1';
+      }
+    }
+    
+    // Function to hide the loading screen
+    function hideLoading() {
+      const loadingScreen = document.getElementById('loading-screen');
+      
+      if (loadingScreen) {
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+        }, 300);
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup sidebar toggle
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebarToggle && sidebar && overlay) {
+        sidebarToggle.addEventListener('click', function() {
+          if (window.innerWidth <= 640) {
+            sidebar.classList.toggle('mobile-active');
+            overlay.classList.toggle('active');
+          } else {
+            document.body.classList.toggle('sidebar-closed');
+          }
+        });
+        
+        overlay.addEventListener('click', function() {
+          sidebar.classList.remove('mobile-active');
+          this.classList.remove('active');
+        });
+      }
+      
+      // Setup logout button
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+          if (typeof AuthService !== 'undefined') {
+            AuthService.logout();
+          } else {
+            // Fallback logout
+            document.cookie = 'token=; Max-Age=0; path=/';
+            window.location.href = '/login';
+          }
+        });
+      }
+      
+      // Hide loading screen when everything is ready
+      hideLoading();
+    });
+  </script>
+  <script src="/components/suppliers/suppliers-module.js"></script>
+</body>
+</html>

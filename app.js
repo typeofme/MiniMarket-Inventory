@@ -60,12 +60,12 @@ app.use('/components', express.static(path.join(__dirname, 'components'), {
 }));
 
 // Import routes
+const suppliersRoute = require('./routes/suppliers');
 const authRoute = require('./routes/auth');
 const productsRoute = require('./routes/products');
 const reportRoute = require('./routes/report');
 const templateRoute = require('./routes/template');
 const assetRoute = require('./routes/asset');
-const dashboardRoute = require('./routes/dashboard');
 const logsRoute = require('./routes/logs');
 const apiProductsRoute = require('./routes/api/products');
 const apiCategoriesRoute = require('./routes/api/categories');
@@ -126,6 +126,8 @@ app.get('/', authenticateWeb, (req, res) => {
 });
 
 // Other protected routes - require authentication
+
+app.use('/suppliers', authenticateWeb, suppliersRoute);
 app.use('/reports', authenticateWeb, reportRoute);
 app.use('/temp', authenticateWeb, templateRoute);
 app.use('/products', authenticateWeb, productsRoute);

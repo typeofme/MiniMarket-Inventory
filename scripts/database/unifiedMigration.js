@@ -208,6 +208,26 @@ async function createAllTables() {
       console.log('Support requests table already exists');
     }
 
+    // Create restock_order_details table if it doesn't exist
+    if (!await db.schema.hasTable('restock_order_details')) {
+      await db.schema.createTable('restock_order_details', (table) => {
+        table.increments('id').primary();
+        table.integer('restock_order_id').unsigned().notNullable();
+        table.integer('product_id').unsigned().notNullable();
+        table.string('product_name').notNullable();
+        table.integer('quantity').unsigned().notNullable();
+        table.decimal('price_per_unit', 10, 2).notNullable();
+        table.decimal('total_price', 10, 2).notNullable();
+        table.timestamp('created_at').defaultTo(db.fn.now());
+        table.timestamp('updated_at').defaultTo(db.fn.now());
+        
+        // Foreign key relationships
+        table.foreign('restock_order_id').references('id').inTable('restock_orders').onDelete('CASCADE');
+        table.foreign('product_id').references('id').inTable('products').onDelete('CASCADE');
+      });
+      console.log('Created restock_order_details table');
+    }
+
     console.log('Unified database migration completed successfully');
     return true;
   } catch (error) {

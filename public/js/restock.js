@@ -380,6 +380,13 @@ async function handleOrderSubmit(e) {
   // Set processing flag
   isProcessingOrder = true;
 
+  // Show loading state
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+  }
+
   // Calculate totals
   const totalProducts = restockOrderProducts.reduce((sum, p) => sum + (Number(p.orderQuantity) || 0), 0);
   const totalPrice = restockOrderProducts.reduce((sum, p) => sum + (Number(p.total) || 0), 0);
@@ -392,17 +399,19 @@ async function handleOrderSubmit(e) {
     total_products: totalProducts,
     total_price: totalPrice,
     products: restockOrderProducts.map(p => ({
-      product_id: p.id,
-      quantity: p.orderQuantity,
-      price: p.price,
-      total: p.total,
-      name: p.name,
-      current_stock: p.stock
+      id: parseInt(p.id),  // Ensure ID is an integer
+      name: p.name || 'Unknown Product',
+      quantity: parseInt(p.orderQuantity) || 1,
+      price: parseFloat(p.price) || 0,
+      total: parseFloat(p.total) || 0,
+      current_stock: parseInt(p.stock) || 0
     })),
     status: 'Pending'
   };
 
   try {
+    console.log('Sending order data:', JSON.stringify(order));
+    
     const res = await fetch('/api/restock_orders', {
       method: 'POST',
       headers: {
@@ -412,7 +421,10 @@ async function handleOrderSubmit(e) {
       body: JSON.stringify(order)
     });
 
-    if (!res.ok) throw new Error('Failed to create order');
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.details || 'Failed to create order');
+    }
 
     // Order berhasil dibuat
     if (window.toast) {
@@ -458,12 +470,18 @@ async function handleOrderSubmit(e) {
     
   } catch (err) {
     if (window.toast) {
-      window.toast.error('Failed to create order. Please try again.');
+      window.toast.error(`Failed to create order: ${err.message}`);
     }
     console.error('Order creation error:', err);
   } finally {
     // Reset processing flag
     isProcessingOrder = false;
+    
+    // Reset button state
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Create Order';
+    }
   }
 }
 
