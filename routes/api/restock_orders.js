@@ -47,4 +47,21 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
+// Delete restock order
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await db('restock_orders').where({ id }).first();
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    await db('restock_orders').where({ id }).delete();
+    res.json({ success: true, message: 'Order deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete order', details: err.message });
+  }
+});
+
 module.exports = router;

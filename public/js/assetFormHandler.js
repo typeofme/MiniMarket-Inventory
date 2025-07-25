@@ -3,7 +3,7 @@ let editingAssetId = null;
 let deletingAssetId = null;
 let globalAssets = [];
 let isComponentsLoaded = false;
-// let currentFilter = { type: '', status: '', search: '' };
+let currentFilter = { type: '', status: '', search: '' };
 
 // Utility function to wait for element
 function waitForElement(selector, timeout = 5000) {
@@ -53,7 +53,12 @@ function closeAssetModal() {
 
 
 // Asset List Loader with search & filter
-window.loadAndRenderAssets = async function() {
+// Attach main functions to window for global access
+window.updateDashboardStats = updateDashboardStats;
+window.updateHealthOverview = updateHealthOverview;
+window.updateAssetCategories = updateAssetCategories;
+window.loadAndRenderAssets = loadAndRenderAssets;
+async function loadAndRenderAssets() {
   const grid = document.getElementById('assetCardGrid');
   if (!grid) {
     console.warn('Asset card grid not found');
@@ -63,137 +68,114 @@ window.loadAndRenderAssets = async function() {
   try {
     // Fetch and cache assets globally
     globalAssets = await window.assetService.getAssets();
-
+    console.log(`Retrieved ${globalAssets.length} assets from database`);
     
     // Apply filters
     let filteredAssets = [...globalAssets];
     
-    // Search
+    // Search filter
     const searchInput = document.getElementById('searchAssetInput');
     const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
-  
     if (searchTerm) {
-      filteredAssets = filteredAssets.filter(a =>
-        (a.name && a.name.toLowerCase().includes(searchTerm)) ||
-        (a.type && a.type.toLowerCase().includes(searchTerm)) ||
-        (a.placement_location && a.placement_location.toLowerCase().includes(searchTerm))
-      );
-    }
-
-
-    // Search filter
-    if (currentFilter.search) {
-      filteredAssets = filteredAssets.filter(a =>
-        (a.name && a.name.toLowerCase().includes(currentFilter.search.toLowerCase())) ||
-        (a.type && a.type.toLowerCase().includes(currentFilter.search.toLowerCase())) ||
-        (a.placement_location && a.placement_location.toLowerCase().includes(currentFilter.search.toLowerCase()))
+      filteredAssets = filteredAssets.filter(asset => 
+        asset.name.toLowerCase().includes(searchTerm) ||
+        asset.type.toLowerCase().includes(searchTerm) ||
+        (asset.placement_location && asset.placement_location.toLowerCase().includes(searchTerm))
       );
     }
 
     // Type filter
     if (currentFilter.type) {
-      filteredAssets = filteredAssets.filter(a => 
-        (a.type || '').toLowerCase() === currentFilter.type.toLowerCase()
+      filteredAssets = filteredAssets.filter(asset => 
+        asset.type.toLowerCase() === currentFilter.type.toLowerCase()
       );
     }
 
     // Status filter
-    if (currentFilter.status) {
-      filteredAssets = filteredAssets.filter(a => 
-        (a.status || '').toLowerCase() === currentFilter.status.toLowerCase()
+    const statusFilter = document.getElementById('filterStatus');
+    if (statusFilter && statusFilter.value) {
+      filteredAssets = filteredAssets.filter(asset => 
+        asset.status.toLowerCase() === statusFilter.value.toLowerCase()
       );
     }
 
     // Render results
     const noAssets = document.getElementById('noAssets');
     if (!filteredAssets.length) {
-      if (noAssets) noAssets.style.display = 'block';
       grid.innerHTML = '';
+      if (noAssets) {
+        noAssets.classList.remove('hidden');
+        if (currentFilter.type) {
+          noAssets.innerHTML = `
+            <i class="fas fa-filter text-gray-300 text-4xl mb-2"></i>
+            <p>No ${currentFilter.type} assets found.</p>
+          `;
+        } else {
+          noAssets.innerHTML = `
+            <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>
+            <p>No assets found. Add your first asset using the form.</p>
+          `;
+        }
+      }
     } else {
-      if (noAssets) noAssets.style.display = 'none';
-      grid.innerHTML = filteredAssets.map(asset => {
-        // Sanitize function to remove stray '}' and trim
-        const sanitize = val => (val || '').toString().replace(/}/g, '').trim();
-        // Status badge
-        let statusLabel = 'Inactive', statusColor = 'bg-gray-400', statusText = 'text-gray-700';
-        const assetStatus = sanitize(asset.status).toLowerCase();
-        if (assetStatus === 'active') {
-          statusLabel = 'Active';
-          statusColor = 'bg-green-100';
-          statusText = 'text-green-700';
-        } else if (assetStatus === 'inactive') {
-          statusLabel = 'Inactive';
-          statusColor = 'bg-gray-100';
-          statusText = 'text-gray-700';
-        }
-
-        // Category badge
-        const category = sanitize(asset.type) || '-';
-        const iconClass = getAssetIcon(category);
-        const badgeColor = getCategoryBadgeColor(category);
-
-        // Condition badge
-        let conditionColor = 'bg-gray-100 text-gray-700';
-        const conditionVal = sanitize(asset.condition).toLowerCase();
-        if (conditionVal === 'excellent') conditionColor = 'bg-green-100 text-green-700';
-        else if (conditionVal === 'good') conditionColor = 'bg-blue-100 text-blue-700';
-        else if (conditionVal === 'fair') conditionColor = 'bg-yellow-100 text-yellow-700';
-        else if (conditionVal === 'poor') conditionColor = 'bg-red-100 text-red-700';
-
-        // Location
-        const location = sanitize(asset.placement_location) || '-';
-        // Purchase date
-        const purchaseDate = asset.purchase_date ? new Date(asset.purchase_date).toLocaleDateString() : '-';
-        // Condition
-        const condition = sanitize(asset.condition) || '-';
-        // Age calculation
-        let age = '-';
-        let lifecycle = 8;
-        if (asset.purchase_date) {
-          const purchase = new Date(asset.purchase_date);
-          const now = new Date();
-          age = now.getFullYear() - purchase.getFullYear();
-        }
-        let progress = 0;
-        if (age !== '-' && !isNaN(age)) {
-          progress = Math.min(100, Math.round((age / lifecycle) * 100));
-        }
-
-        // Card layout (clean, no stray '}' and no trailing artifacts)
-        return `
-        <div class="asset-card bg-white rounded-lg shadow p-4 flex flex-col gap-2 mb-3 relative group transition hover:shadow-lg" data-id="${asset.id}">
+      if (noAssets) noAssets.classList.add('hidden');
+      
+      grid.innerHTML = filteredAssets.map(asset => `
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow flex flex-col gap-2 relative" data-asset-id="${asset.id}">
           <div class="flex items-center gap-3 mb-2">
-            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full ${badgeColor}">
-              <i class="fas ${iconClass}"></i>
-            </span>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-gray-800 truncate">${sanitize(asset.name) || '-'}</div>
-              <div class="text-xs text-gray-500 truncate">${location}</div>
+            <div class="rounded-full ${getAssetIconBackground(asset.type)} p-3">
+              <i class="fas ${getAssetIcon(asset.type)} ${getAssetIconColor(asset.type)} text-xl"></i>
             </div>
-            <span class="ml-2 px-2 py-1 rounded text-xs font-medium ${statusColor} ${statusText}">${statusLabel}</span>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-800 pr-20">${asset.name}</h3>
+              <div class="text-sm text-gray-500">${asset.type}</div>
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="px-2 py-1 rounded ${badgeColor}">${category}</span>
-            <span class="px-2 py-1 rounded ${conditionColor}">${(condition.charAt(0).toUpperCase() + condition.slice(1))}</span>
-            <span class="px-2 py-1 rounded bg-gray-50 text-gray-500">${purchaseDate}</span>
+          <div class="flex flex-wrap gap-2 text-sm text-gray-600">
+            <span class="inline-flex items-center gap-1">
+              <i class="fas fa-map-marker-alt text-gray-400"></i>
+              ${asset.placement_location || 'N/A'}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <i class="fas fa-info-circle text-gray-400"></i>
+              ${asset.status}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <i class="fas fa-heart text-gray-400"></i>
+              ${asset.condition}
+            </span>
           </div>
-          <div class="flex gap-2 mt-3">
-            <button class="edit-asset-btn px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition text-xs font-medium" data-id="${asset.id}"><i class="fas fa-edit"></i> Edit</button>
-            <button class="delete-asset-btn px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition text-xs font-medium" data-id="${asset.id}"><i class="fas fa-trash"></i> Delete</button>
+          ${asset.purchase_price ? `
+          <div class="mt-2 text-sm font-medium text-green-600">
+            $${parseFloat(asset.purchase_price).toFixed(2)}
+          </div>
+          ` : ''}
+          <div class="flex gap-2 mt-4 justify-end">
+            <button class="edit-btn bg-blue-50 text-blue-600 rounded-full" data-id="${asset.id}" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="delete-btn bg-red-50 text-red-600 rounded-full" data-id="${asset.id}" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
         </div>
-        `;
-      }).join('');
+      `).join('');
     }
     
-    // Ensure event listeners are attached after render
-    setTimeout(() => {
-      attachAssetCardEventListeners();
-    }, 100);
+    // Ensure event listeners are attached
+    attachAssetCardEventListeners();
     
   } catch (err) {
     console.error('Failed to load assets:', err);
     grid.innerHTML = '<div class="text-red-500">Failed to load assets</div>';
+  } finally {
+    // Always update dashboard stats and health overview
+    if (typeof window.updateDashboardStats === 'function') {
+      window.updateDashboardStats();
+    }
+    if (typeof window.updateHealthOverview === 'function') {
+      window.updateHealthOverview();
+    }
   }
 }
 
@@ -202,14 +184,14 @@ function attachAssetCardEventListeners() {
   console.log('Attaching event listeners to asset cards...');
   
   // Edit buttons
-  const editButtons = document.querySelectorAll('.edit-asset-btn');
+  const editButtons = document.querySelectorAll('.edit-btn');
   editButtons.forEach(btn => {
     btn.removeEventListener('click', handleEditClick); // Remove existing
     btn.addEventListener('click', handleEditClick);
   });
   
   // Delete buttons
-  const deleteButtons = document.querySelectorAll('.delete-asset-btn');
+  const deleteButtons = document.querySelectorAll('.delete-btn');
   deleteButtons.forEach(btn => {
     btn.removeEventListener('click', handleDeleteClick); // Remove existing
     btn.addEventListener('click', handleDeleteClick);
@@ -369,6 +351,30 @@ async function initDeleteModalEvents() {
 }
 
 // Helper functions
+function getAssetIconBackground(type) {
+  const backgrounds = {
+    'Electronics': 'bg-blue-50',
+    'Equipment': 'bg-indigo-50',
+    'Furniture': 'bg-yellow-50',
+    'Vehicles': 'bg-green-50',
+    'Machinery': 'bg-red-50',
+    'Tools': 'bg-gray-50'
+  };
+  return backgrounds[type] || 'bg-gray-50';
+}
+
+function getAssetIconColor(type) {
+  const colors = {
+    'Electronics': 'text-blue-600',
+    'Equipment': 'text-indigo-600',
+    'Furniture': 'text-yellow-600',
+    'Vehicles': 'text-green-600',
+    'Machinery': 'text-red-600',
+    'Tools': 'text-gray-600'
+  };
+  return colors[type] || 'text-gray-600';
+}
+
 function getAssetIcon(type) {
   const icons = {
     'Electronics': 'fa-laptop',
@@ -379,18 +385,6 @@ function getAssetIcon(type) {
     'Tools': 'fa-wrench'
   };
   return icons[type] || 'fa-box';
-}
-
-function getCategoryBadgeColor(type) {
-  const colors = {
-    'Electronics': 'bg-blue-100 text-blue-700',
-    'Equipment': 'bg-indigo-100 text-indigo-700',
-    'Furniture': 'bg-yellow-100 text-yellow-700',
-    'Vehicles': 'bg-green-100 text-green-700',
-    'Machinery': 'bg-red-100 text-red-700',
-    'Tools': 'bg-gray-100 text-gray-700'
-  };
-  return colors[type] || 'bg-gray-100 text-gray-700';
 }
 
 // Update dashboard stats
@@ -522,6 +516,24 @@ function attachCategoryClickEvents() {
     item.addEventListener('click', handleCategoryClick);
   });
   console.log(`Attached click events to ${categoryItems.length} category items`);
+
+  // Attach events to action buttons
+  const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+  const exportAssetsBtn = document.getElementById('exportAssetsBtn');
+  
+  if (viewHistoryBtn) {
+    viewHistoryBtn.addEventListener('click', () => {
+      console.log('View History clicked');
+      // TODO: Implement view history functionality
+    });
+  }
+  
+  if (exportAssetsBtn) {
+    exportAssetsBtn.addEventListener('click', () => {
+      console.log('Export Assets clicked');
+      // TODO: Implement export functionality
+    });
+  }
 }
 
 // Handle category click
@@ -530,6 +542,15 @@ function handleCategoryClick(e) {
   const categoryType = this.getAttribute('data-category');
   console.log('Category clicked:', categoryType);
   filterAssetsByType(categoryType);
+  
+  // Update visual state of category items
+  document.querySelectorAll('.category-item').forEach(item => {
+    if (item === this) {
+      item.classList.add('bg-blue-50', 'text-blue-700');
+    } else {
+      item.classList.remove('bg-blue-50', 'text-blue-700');
+    }
+  });
 }
 
 // Filter assets by type
@@ -639,7 +660,8 @@ async function refreshAllComponents() {
 // Ensure components are always visible
 function ensureComponentsVisible() {
   const componentsToShow = [
-    'assetActionsCategories',
+    'assetActionSection',
+    'assetFilterSection',
     'assetList',
     'searchAssetInput',
     'filterType',
@@ -675,7 +697,13 @@ async function initAssetPage() {
     
     // Load initial data
     await refreshAllComponents();
-    
+
+    // --- Tambahan: Pastikan asset list langsung muncul saat page load ---
+    if (typeof window.loadAndRenderAssets === 'function') {
+      window.loadAndRenderAssets();
+    }
+    // --- END tambahan ---
+
     isComponentsLoaded = true;
     console.log('Asset Page initialized successfully');
     

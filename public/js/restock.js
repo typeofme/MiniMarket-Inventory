@@ -4,6 +4,98 @@
 // State
 let restockOrderProducts = [];
 let lowStockProductsInOrder = new Set(); // Track product IDs added from low stock
+let isProcessingOrder = false; // Prevent multiple submissions
+
+// Ensure document is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Add global event listener for ComponentLoader
+  ComponentLoader.onAllLoaded(function() {
+    setupOrderDateHandler();
+    setupButtonHandlers();
+  });
+
+  // Setup order date handler
+  function setupOrderDateHandler() {
+    const orderDateInput = document.getElementById('orderDate');
+    const expectedArrivalInput = document.getElementById('expectedArrival');
+    
+    if (orderDateInput && expectedArrivalInput) {
+      // Initial setup if date already selected
+      if (orderDateInput.value) {
+        updateExpectedArrival();
+      }
+      
+      // Add event listeners
+      ['change', 'input'].forEach(eventType => {
+        orderDateInput.addEventListener(eventType, function() {
+          if (this.value) {
+            const date = new Date(this.value);
+            date.setDate(date.getDate() + 5);
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            expectedArrivalInput.value = `${yyyy}-${mm}-${dd}`;
+          } else {
+            expectedArrivalInput.value = '';
+          }
+        });
+      });
+    }
+  }
+
+  // Setup tab change handlers
+  function setupTabHandlers() {
+    const tabs = ['tabLowStock', 'tabCreateOrder', 'tabOrderList'];
+    tabs.forEach(tabId => {
+      const tab = document.getElementById(tabId);
+      if (tab) {
+        tab.addEventListener('click', function() {
+          // Re-initialize handlers when switching to Create Order tab
+          if (tabId === 'tabCreateOrder') {
+            setTimeout(() => {
+              setupOrderDateHandler();
+              setupButtonHandlers();
+            }, 100);
+          }
+        });
+      }
+    });
+  }
+  
+  // Setup button handlers
+  function setupButtonHandlers() {
+    // Clear All button
+    document.querySelectorAll('#clearAllBtn, .clearAllBtn').forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (confirm('Are you sure you want to clear all items? This will reset the entire form.')) {
+            clearAllOrderProducts();
+          }
+        });
+      }
+    });
+    
+    // Submit Order button
+    document.querySelectorAll('#submitBtn, .submitBtn').forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (!isProcessingOrder) {
+            if (confirm('Are you sure you want to create this order?')) {
+              handleOrderSubmit(e);
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  // Initial setup
+  setupTabHandlers();
+  setupButtonHandlers();
+  setupOrderDateHandler();
+});
 
 // Fetch products from API or window.productService
 async function fetchAllProducts() {
@@ -37,32 +129,58 @@ async function renderProductDropdown() {
 
 // Add product to order list
 async function addProductToOrder(productId, fromLowStock = false) {
+  console.log(`addProductToOrder called with productId: ${productId}, fromLowStock: ${fromLowStock}`);
   const products = await fetchAllProducts();
   const product = products.find(p => String(p.id) === String(productId));
-  if (!product) return;
+  if (!product) {
+    console.warn(`Product with ID ${productId} not found`);
+    return;
+  }
+  
   // Prevent duplicate
-  if (restockOrderProducts.some(p => String(p.id) === String(productId))) return;
+  if (restockOrderProducts.some(p => String(p.id) === String(productId))) {
+    console.log(`Product with ID ${productId} already in order`);
+    return;
+  }
+  
   restockOrderProducts.push({
     ...product,
     orderQuantity: 1,
-    total: Number(product.price) || 0 // Ensure total is always a number
+    total: Number(product.price) || 0
   });
-  if (fromLowStock) {
+
+  // Jika dari low stock atau produk memang low stock, hapus dari tabel
+  if (fromLowStock || (product.stock !== undefined && product.stock <= 10)) {
+    console.log(`Product with ID ${productId} added from low stock`);
     lowStockProductsInOrder.add(String(productId));
-    removeLowStockRow(productId);
-  } else {
-    // If not from low stock, also remove from low stock table if present
-    removeLowStockRow(productId);
+    
+    // Update low stock table
+    const lowStockTable = document.getElementById('restockLowStockTable');
+    if (lowStockTable) {
+      const rows = lowStockTable.querySelectorAll(`tr[data-id="${productId}"]`);
+      rows.forEach(row => {
+        row.style.display = 'none'; // Hide instead of remove
+      });
+    }
   }
+
+  // Switch to Create Order tab after hiding the row
+  const tabCreateOrder = document.getElementById('tabCreateOrder');
+  if (tabCreateOrder) {
+    tabCreateOrder.click();
+  }
+  
   renderOrderProductList();
-  renderProductDropdown(); // Always update dropdown after add
+  renderProductDropdown();
 }
 
 // Remove product from order list
 function removeProductFromOrder(productId) {
+  console.log(`removeProductFromOrder called with productId: ${productId}`);
   restockOrderProducts = restockOrderProducts.filter(p => String(p.id) !== String(productId));
   // If this product was from low stock, restore it
   if (lowStockProductsInOrder.has(String(productId))) {
+    console.log(`Restoring product with ID ${productId} to low stock`);
     lowStockProductsInOrder.delete(String(productId));
     restoreLowStockRow(productId);
   } else {
@@ -149,44 +267,141 @@ function renderOrderProductList() {
 }
 
 // Clear all products from order
-function clearAllOrderProducts() {
-  // Restore all low stock products that were added
-  restockOrderProducts.forEach(p => {
-    if (lowStockProductsInOrder.has(String(p.id))) {
-      restoreLowStockRow(p.id);
+async function clearAllOrderProducts() {
+  console.log('clearAllOrderProducts called');
+  
+  // Reset form fields first
+  const orderForm = document.getElementById('orderForm');
+  if (orderForm) {
+    orderForm.reset();
+    const expectedArrivalInput = document.getElementById('expectedArrival');
+    if (expectedArrivalInput) {
+      expectedArrivalInput.value = '';
     }
-  });
+  }
+
+  if (restockOrderProducts.length === 0) {
+    if (window.toast) {
+      window.toast.info('No products to clear');
+    }
+    return;
+  }
+  
+  // Store products to restore
+  const lowStockProducts = restockOrderProducts.filter(p => 
+    lowStockProductsInOrder.has(String(p.id))
+  );
+  
+  // Clear arrays
   restockOrderProducts = [];
   lowStockProductsInOrder.clear();
+  
+  // Update product list UI
   renderOrderProductList();
   renderProductDropdown();
+  
+  // Restore low stock products in the table
+  const lowStockTable = document.getElementById('restockLowStockTable');
+  if (lowStockTable) {
+    // Show all hidden rows
+    const hiddenRows = lowStockTable.querySelectorAll('tr[style*="display: none"]');
+    hiddenRows.forEach(row => {
+      row.style.display = ''; // Show previously hidden rows
+    });
+  }
+  
+  // Switch to Low Stock tab if there were low stock products
+  if (lowStockProducts.length > 0) {
+    const tabLowStock = document.getElementById('tabLowStock');
+    if (tabLowStock) {
+      setTimeout(() => tabLowStock.click(), 100);
+    }
+  }
+  
+  if (window.toast) {
+    window.toast.success('Form cleared and products restored');
+  }
+}
+
+
+// Update expected arrival date when order date changes
+function updateExpectedArrival() {
+  const orderDateInput = document.getElementById('orderDate');
+  const expectedArrivalInput = document.getElementById('expectedArrival');
+  
+  if (orderDateInput && expectedArrivalInput) {
+    if (orderDateInput.value) {
+      const orderDate = new Date(orderDateInput.value);
+      const arrivalDate = new Date(orderDate);
+      arrivalDate.setDate(orderDate.getDate() + 5); // Add 5 days
+      
+      const yyyy = arrivalDate.getFullYear();
+      const mm = String(arrivalDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(arrivalDate.getDate()).padStart(2, '0');
+      expectedArrivalInput.value = `${yyyy}-${mm}-${dd}`;
+    } else {
+      expectedArrivalInput.value = '';
+    }
+  }
+  
+  // Trigger change event to ensure any listeners are notified
+  if (expectedArrivalInput) {
+    expectedArrivalInput.dispatchEvent(new Event('change'));
+  }
 }
 
 // Handle order submit
 async function handleOrderSubmit(e) {
-  e.preventDefault();
-  // Collect form data
+  if (e) e.preventDefault();
+  
+  if (isProcessingOrder) {
+    return;
+  }
+  
+  // Validate form fields
   const supplier = document.getElementById('supplierSelect')?.value;
   const orderDate = document.getElementById('orderDate')?.value;
-  if (!supplier || !orderDate) {
-    alert('Please fill all order details.');
+  const expectedArrival = document.getElementById('expectedArrival')?.value;
+  
+  if (!supplier || !orderDate || !expectedArrival) {
+    if (window.toast) {
+      window.toast.error('Please fill all order details');
+    }
     return;
   }
+  
   if (!restockOrderProducts.length) {
-    alert('Please add at least one product to the order.');
+    if (window.toast) {
+      window.toast.error('Please add at least one product to the order');
+    }
     return;
   }
-  // Calculate total products and total price
+
+  // Set processing flag
+  isProcessingOrder = true;
+
+  // Calculate totals
   const totalProducts = restockOrderProducts.reduce((sum, p) => sum + (Number(p.orderQuantity) || 0), 0);
   const totalPrice = restockOrderProducts.reduce((sum, p) => sum + (Number(p.total) || 0), 0);
-  // Prepare order data for backend
+
+  // Prepare order data
   const order = {
     supplier_name: supplier,
     order_date: orderDate,
+    expected_arrival: expectedArrival,
     total_products: totalProducts,
-    total_price: totalPrice
+    total_price: totalPrice,
+    products: restockOrderProducts.map(p => ({
+      product_id: p.id,
+      quantity: p.orderQuantity,
+      price: p.price,
+      total: p.total,
+      name: p.name,
+      current_stock: p.stock
+    })),
+    status: 'Pending'
   };
-  // Send order to backend
+
   try {
     const res = await fetch('/api/restock_orders', {
       method: 'POST',
@@ -196,20 +411,59 @@ async function handleOrderSubmit(e) {
       },
       body: JSON.stringify(order)
     });
+
     if (!res.ok) throw new Error('Failed to create order');
-    // Notifikasi sukses
-    const notif = document.getElementById('orderSuccessNotif');
-    if (notif) {
-      notif.classList.remove('hidden');
-      setTimeout(() => notif.classList.add('hidden'), 2500);
+
+    // Order berhasil dibuat
+    if (window.toast) {
+      window.toast.success('Order created successfully');
     }
-    clearAllOrderProducts();
-    document.getElementById('orderForm').reset();
+    
+    // Show success notification
+    const orderSuccessNotif = document.getElementById('orderSuccessNotif');
+    if (orderSuccessNotif) {
+      orderSuccessNotif.classList.remove('hidden');
+      setTimeout(() => {
+        orderSuccessNotif.classList.add('hidden');
+      }, 3000);
+    }
+    
+    // Reset form dan clear products (tapi jangan restore low stock products karena sudah diorder)
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+      orderForm.reset();
+      document.getElementById('expectedArrival').value = '';
+    }
+    
+    restockOrderProducts = [];
+    lowStockProductsInOrder.clear();
     renderOrderProductList();
-    if (window.loadOrderList) window.loadOrderList();
-    updateRestockDashboardCards(); // Tambahkan ini
+    
+    // Switch to order list tab dan refresh datanya
+    const tabOrderList = document.getElementById('tabOrderList');
+    if (tabOrderList) {
+      setTimeout(() => {
+        tabOrderList.click();
+        // Refresh order list setelah tab switch selesai
+        setTimeout(() => {
+          if (typeof window.loadOrderList === 'function') {
+            window.loadOrderList();
+          }
+        }, 100);
+      }, 100);
+    }
+    
+    // Update dashboard stats
+    updateRestockDashboardCards();
+    
   } catch (err) {
-    alert('Failed to create order. Please try again.');
+    if (window.toast) {
+      window.toast.error('Failed to create order. Please try again.');
+    }
+    console.error('Order creation error:', err);
+  } finally {
+    // Reset processing flag
+    isProcessingOrder = false;
   }
 }
 
@@ -250,23 +504,45 @@ window.addEventListener('DOMContentLoaded', () => {
   renderProductDropdown();
   renderOrderProductList();
   updateRestockDashboardCards();
-  // Auto set expected arrival when order date changes
-  const orderDateInput = document.getElementById('orderDate');
-  const expectedArrivalInput = document.getElementById('expectedArrival');
-  function setExpectedArrival() {
-    if (orderDateInput && expectedArrivalInput && orderDateInput.value) {
-      const date = new Date(orderDateInput.value);
-      date.setDate(date.getDate() + 5);
-      const yyyy = date.getFullYear();
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const dd = String(date.getDate()).padStart(2, '0');
-      expectedArrivalInput.value = `${yyyy}-${mm}-${dd}`;
-    } else if (expectedArrivalInput) {
-      expectedArrivalInput.value = '';
+  
+  // Setup order date change handler
+  function setupOrderDateHandler() {
+    const orderDateInput = document.getElementById('orderDate');
+    const expectedArrivalInput = document.getElementById('expectedArrival');
+    
+    if (orderDateInput && expectedArrivalInput) {
+      // Initial setup if date already selected
+      if (orderDateInput.value) {
+        updateExpectedArrival();
+      }
+      
+      // Add event listeners
+      ['change', 'input'].forEach(eventType => {
+        orderDateInput.addEventListener(eventType, function() {
+          if (this.value) {
+            const date = new Date(this.value);
+            date.setDate(date.getDate() + 5);
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            expectedArrivalInput.value = `${yyyy}-${mm}-${dd}`;
+          } else {
+            expectedArrivalInput.value = '';
+          }
+        });
+      });
     }
   }
-  if (orderDateInput && expectedArrivalInput) {
-    orderDateInput.addEventListener('change', setExpectedArrival);
+  
+  // Call setup immediately
+  setupOrderDateHandler();
+  
+  // Re-setup when switching to create order tab
+  const tabCreateOrder = document.getElementById('tabCreateOrder');
+  if (tabCreateOrder) {
+    tabCreateOrder.addEventListener('click', () => {
+      setTimeout(setupOrderDateHandler, 100);
+    });
   }
   // Product dropdown change
   const dropdown = document.getElementById('productDropdown');
@@ -289,17 +565,31 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   // Clear all button (all with class)
   document.querySelectorAll('.clearAllBtn').forEach(btn => {
+    console.log('Found clearAllBtn:', btn); // Check if button is found
     btn.addEventListener('click', function(e) {
+      console.log('clearAllBtn clicked'); // Check if event is triggered
       e.preventDefault();
       clearAllOrderProducts();
     });
   });
-  // Order button (all with class)
-  document.querySelectorAll('.submitBtn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+  // Order button (try both ID and class)
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      console.log('submitBtn clicked');
       e.preventDefault();
       handleOrderSubmit(e);
     });
+  }
+  document.querySelectorAll('.submitBtn').forEach(btn => {
+    if (btn !== submitBtn) { // Don't double-bind if we already bound by ID
+      console.log('Found submitBtn by class:', btn);
+      btn.addEventListener('click', function(e) {
+        console.log('submitBtn clicked');
+        e.preventDefault();
+        handleOrderSubmit(e);
+      });
+    }
   });
 
   // Patch: Intercept low stock restock button
@@ -312,6 +602,12 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }, 100);
   });
+
+  // Initialize expected arrival date
+  const dateInput = document.getElementById('orderDate');
+  if (dateInput) {
+    dateInput.addEventListener('change', updateExpectedArrival);
+  }
 });
 
 // Remove a row from the low stock table (by productId)

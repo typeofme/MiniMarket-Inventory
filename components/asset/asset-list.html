@@ -1,22 +1,6 @@
 <!-- Asset List Section (Card Grid) -->
 <main class="min-w-0 w-full">
-  <!-- Search and Filter Bar -->
-  <div class="flex flex-col md:flex-row md:items-center md:gap-x-6 gap-3 md:gap-4 mb-4 md:mb-6" data-aos="fade-up" data-aos-delay="300" data-aos-once="true">
-    <div class="flex gap-2 w-full flex-wrap">
-      <div class="relative flex-1 min-w-[180px]">
-        <input type="text" id="searchAssetInput" placeholder="Search asset name..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
-        <span class="absolute left-3 top-2.5 text-gray-400"><i class="fas fa-search"></i></span>
-      </div>
-      <select id="filterStatus" class="border border-gray-300 rounded-lg px-4 py-2 min-w-[120px]">
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-      </select>
-    </div>
-  </div>
-  <div id="assetCardGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-5 w-full justify-center items-stretch">
-    <!-- Cards populated by JS -->
-  </div>
+  <div id="assetCardGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 lg:gap-10 xl:gap-12"></div>
   <!-- Script moved to assetFormHandler.js for single source of truth -->
   <div id="noAssets" class="hidden py-8 text-center text-gray-500" data-aos="fade-up" data-aos-delay="350" data-aos-once="true">
     <i class="fas fa-box-open text-gray-300 text-4xl mb-2"></i>

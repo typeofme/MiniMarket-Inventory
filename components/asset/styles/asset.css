@@ -42,9 +42,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  margin-bottom: 1.1rem;
   overflow: hidden;
-  max-width: 340px;
+
   min-width: 0;
   width: 100%;
 }
@@ -210,4 +209,45 @@ body.sidebar-closed .content-wrapper {
 @keyframes assetModalPopIn {
   0% { opacity: 0; transform: scale(0.92) translateY(40px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Edit & Delete Button Styles */
+.edit-btn, .delete-btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1000 !important;
+  cursor: pointer !important;
+  user-select: none;
+  border: none !important;
+  outline: none !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  transform: scale(1.1);
+  background-color: #DBEAFE !important;
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+  background-color: #FEE2E2 !important;
+}
+
+.edit-btn:active,
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* Focus styles for modal inputs */
+#assetModal input:focus,
+#assetModal select:focus,
+#assetModal textarea:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
