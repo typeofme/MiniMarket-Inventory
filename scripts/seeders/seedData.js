@@ -2,6 +2,7 @@ require('dotenv').config();
 const knex = require('knex');
 const { seedAssets } = require('./seedAssets');
 const { seedUsers } = require('./seedUsers');
+const seedSuppliers = require('./seedSuppliers');
 
 const config = {
   client: 'mysql2',
@@ -208,6 +209,18 @@ async function seedDatabase() {
     // Seed assets
     console.log('Seeding assets...');
     await seedAssets(db);
+    
+    // Seed suppliers
+    console.log('Seeding suppliers...');
+    // Check if suppliers already exist
+    const existingSuppliers = await db('suppliers').select('id');
+    
+    if (existingSuppliers.length > 0) {
+      console.log(`Found ${existingSuppliers.length} existing suppliers, skipping supplier seeding.`);
+    } else {
+      await seedSuppliers(15); // Seed 15 suppliers
+      console.log('Suppliers seeded successfully');
+    }
     
     console.log('Database seeding completed successfully');
     

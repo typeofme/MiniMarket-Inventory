@@ -4,8 +4,9 @@ const db = require('../../config/database');
 const { logProductAction } = require('../../controllers/logController');
 const { authenticateToken, optionalAuth } = require('../../middleware/auth');
 const jwt = require('jsonwebtoken');
+const Supplier = require('../../models/Supplier');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Helper function to get user ID from token
 const getUserIdFromRequest = (req) => {
@@ -30,18 +31,58 @@ const getUserIdFromRequest = (req) => {
 // Create new restock order - apply authentication
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { supplier_name, order_date, total_products, total_price, products } = req.body;
-    if (!supplier_name || !order_date || !total_products || !total_price) {
+    const { supplier_id, supplier_name, order_date, total_products, total_price, products } = req.body;
+    
+    // Validate required fields
+    if (!order_date || !total_products || !total_price) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Either supplier_id or supplier_name must be provided
+    if (!supplier_id && !supplier_name) {
+      return res.status(400).json({ error: 'Either supplier_id or supplier_name must be provided' });
     }
 
     // Start a transaction
     const trx = await db.transaction();
 
     try {
+      let finalSupplierId = supplier_id;
+      let finalSupplierName = supplier_name;
+      
+      // If supplier_id is provided, verify it exists
+      if (supplier_id) {
+        const supplier = await trx('suppliers').where({ id: supplier_id }).first();
+        if (!supplier) {
+          throw new Error(`Supplier with ID ${supplier_id} not found`);
+        }
+        finalSupplierName = supplier.name;
+      }
+      // If only supplier_name is provided, try to find or create supplier
+      else if (supplier_name) {
+        // Check if supplier with this name already exists
+        const existingSupplier = await trx('suppliers')
+          .where('name', 'like', supplier_name)
+          .first();
+          
+        if (existingSupplier) {
+          finalSupplierId = existingSupplier.id;
+        } else {
+          // Create a new supplier
+          const [newSupplierId] = await trx('suppliers').insert({
+            name: supplier_name,
+            status: 'Active',
+            created_at: trx.fn.now(),
+            updated_at: trx.fn.now()
+          });
+          finalSupplierId = newSupplierId;
+        }
+      }
+
       // Insert the main order
       const [orderId] = await trx('restock_orders').insert({
-        supplier_name,
+        supplier_id: finalSupplierId,
+        supplier_name: finalSupplierName,
         order_date,
         total_products,
         total_price,
@@ -87,6 +128,11 @@ router.post('/', authenticateToken, async (req, res) => {
         await trx('restock_order_details').insert(orderDetails);
       }
 
+      // Update supplier's product count and last order date
+      if (finalSupplierId) {
+        await Supplier.updateOrderInfo(finalSupplierId, total_products, order_date);
+      }
+
       // Log the creation of the restock order
       const userId = req.user.userId;
       try {
@@ -97,15 +143,16 @@ router.post('/', authenticateToken, async (req, res) => {
           orderId,
           null,
           { 
-            supplier_name,
+            supplier_id: finalSupplierId,
+            supplier_name: finalSupplierName,
             order_date,
             total_products,
             total_price,
             status: 'Pending'
           },
-          `Created restock order for supplier: ${supplier_name}`,
+          `Created restock order for supplier: ${finalSupplierName}`,
           req,
-          supplier_name
+          finalSupplierName
         );
       } catch (logError) {
         console.error('Error logging restock order creation:', logError);
@@ -129,9 +176,42 @@ router.post('/', authenticateToken, async (req, res) => {
 // Get all restock orders - apply optional auth to get user info if available
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const orders = await db('restock_orders').orderBy('created_at', 'desc');
+    // Get query parameters for filtering
+    const { status, supplier_id, start_date, end_date } = req.query;
+    
+    // Start with base query
+    let query = db('restock_orders')
+      .select(
+        'restock_orders.*',
+        'suppliers.name as supplier_name',
+        'suppliers.contact_person',
+        'suppliers.phone'
+      )
+      .leftJoin('suppliers', 'restock_orders.supplier_id', 'suppliers.id');
+    
+    // Apply filters if provided
+    if (status) {
+      query = query.where('restock_orders.status', status);
+    }
+    
+    if (supplier_id) {
+      query = query.where('restock_orders.supplier_id', supplier_id);
+    }
+    
+    if (start_date && end_date) {
+      query = query.whereBetween('restock_orders.order_date', [start_date, end_date]);
+    } else if (start_date) {
+      query = query.where('restock_orders.order_date', '>=', start_date);
+    } else if (end_date) {
+      query = query.where('restock_orders.order_date', '<=', end_date);
+    }
+    
+    // Execute query with ordering
+    const orders = await query.orderBy('restock_orders.created_at', 'desc');
+    
     res.json(orders);
   } catch (err) {
+    console.error('Error fetching restock orders:', err);
     res.status(500).json({ error: 'Failed to fetch restock orders', details: err.message });
   }
 });
@@ -141,8 +221,19 @@ router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Get the main order
-    const order = await db('restock_orders').where({ id }).first();
+    // Get the main order with supplier info
+    const order = await db('restock_orders')
+      .select(
+        'restock_orders.*',
+        'suppliers.name as supplier_name',
+        'suppliers.contact_person',
+        'suppliers.phone',
+        'suppliers.email',
+        'suppliers.address'
+      )
+      .leftJoin('suppliers', 'restock_orders.supplier_id', 'suppliers.id')
+      .where('restock_orders.id', id)
+      .first();
     
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
@@ -329,6 +420,21 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete order', details: err.message });
+  }
+});
+
+// Get all suppliers for dropdown selection
+router.get('/suppliers/list', optionalAuth, async (req, res) => {
+  try {
+    const suppliers = await db('suppliers')
+      .select('id', 'name', 'category')
+      .where({ status: 'Active' })
+      .orderBy('name', 'asc');
+    
+    res.json(suppliers);
+  } catch (err) {
+    console.error('Error fetching suppliers list:', err);
+    res.status(500).json({ error: 'Failed to fetch suppliers list', details: err.message });
   }
 });
 

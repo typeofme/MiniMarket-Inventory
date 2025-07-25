@@ -1,7 +1,7 @@
 const Log = require('../models/Log');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Helper function to get user ID from token
 const getUserIdFromToken = (req) => {

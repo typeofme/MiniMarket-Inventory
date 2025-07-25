@@ -45,19 +45,26 @@ Create a `.env` file in the root directory with the following variables:
 PORT=3000
 
 # Database configuration
-DB_HOST=localhost
+DB_HOST=host
 DB_PORT=3306
-DB_USER=your_db_username
-DB_PASSWORD=your_db_password
-DB_NAME=minimarketdb
+DB_USER=user
+DB_PASSWORD=password
+DB_NAME=minimarket
+JWT_SECRET=isthiskrustykrab?
 
 NODE_ENV=development
-RESEND_API_KEY=KEY
+
+# Resend API KEY
+RESEND_API_KEY=API_KEY
 ```
 
 ### 4. Database Setup
 
-The application includes scripts to set up the database automatically:
+You can simply execute setup script
+```bash
+node setup.sh
+```
+Or
 
 ```bash
 # Create database, tables, and seed initial data

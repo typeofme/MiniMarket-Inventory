@@ -228,6 +228,47 @@ async function createAllTables() {
       console.log('Created restock_order_details table');
     }
 
+    // Create suppliers table if it doesn't exist
+    if (!await db.schema.hasTable('suppliers')) {
+      await db.schema.createTable('suppliers', (table) => {
+        table.increments('id').primary();
+        table.string('name').notNullable();
+        table.string('contact_person');
+        table.string('email');
+        table.string('phone', 50);
+        table.text('address');
+        table.string('city', 100);
+        table.string('country', 100);
+        table.string('postal_code', 20);
+        table.string('contact_info');
+        table.enum('status', ['active', 'inactive']).defaultTo('active');
+        table.text('notes');
+        table.timestamp('created_at').defaultTo(db.fn.now());
+        table.timestamp('updated_at').defaultTo(db.fn.now());
+      });
+      console.log('Created suppliers table');
+    }
+
+    // Add product_count and last_order_date to suppliers if they don't exist
+    const hasProductCountColumn = await db.schema.hasColumn('suppliers', 'product_count');
+    if (!hasProductCountColumn) {
+      await db.schema.table('suppliers', (table) => {
+        table.integer('product_count').defaultTo(0);
+        table.date('last_order_date').nullable();
+      });
+      console.log('Added product_count and last_order_date columns to suppliers table');
+    }
+
+    // Update restock_orders table to add supplier_id if it doesn't exist
+    const hasSupplierIdColumn = await db.schema.hasColumn('restock_orders', 'supplier_id');
+    if (!hasSupplierIdColumn) {
+      await db.schema.table('restock_orders', (table) => {
+        table.integer('supplier_id').unsigned().nullable();
+        table.foreign('supplier_id').references('id').inTable('suppliers').onDelete('SET NULL');
+      });
+      console.log('Added supplier_id column to restock_orders table');
+    }
+
     console.log('Unified database migration completed successfully');
     return true;
   } catch (error) {

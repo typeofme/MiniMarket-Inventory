@@ -74,6 +74,7 @@ const apiSupportRoute = require("./routes/api/support");
 const apiAssetRoute = require('./routes/api/asset');
 const apiLogsRoute = require('./routes/api/logs');
 const apiRestockOrdersRoute = require('./routes/api/restock_orders');
+const apiSuppliersRoute = require('./routes/api/suppliers');
 
 // Authentication routes (public)
 app.use('/api/auth', authRoute);
@@ -92,7 +93,7 @@ app.get('/login', async (req, res) => {
     if (token) {
       // Verify token
       const jwt = require('jsonwebtoken');
-      const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+      const JWT_SECRET = process.env.JWT_SECRET;
       const User = require('./models/User');
       
       try {
@@ -151,6 +152,7 @@ app.use('/api/products', authenticateToken, apiProductsRoute);
 app.use('/api/categories', authenticateToken, apiCategoriesRoute);
 app.use('/api/logs', authenticateToken, apiLogsRoute);
 app.use('/api/restock_orders', authenticateToken, apiRestockOrdersRoute);
+app.use('/api/suppliers', authenticateToken, apiSuppliersRoute);
 
 app.get('/api/status', async (req, res) => {
   let dbStatus = 'disconnected';

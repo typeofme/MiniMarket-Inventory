@@ -1,0 +1,15 @@
+# Server configuration
+PORT=3000
+
+# Database configuration
+DB_HOST=host
+DB_PORT=3306
+DB_USER=user
+DB_PASSWORD=password
+DB_NAME=minimarket
+JWT_SECRET=isthiskrustykrab?
+
+NODE_ENV=development
+
+# Resend API KEY
+RESEND_API_KEY=re_FcVogTD2_2Rbjo3hKtAkqvSbhzJSK5gQC
