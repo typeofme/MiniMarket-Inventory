@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
               setupOrderDateHandler();
               setupButtonHandlers();
+              loadSuppliers(); // Load suppliers when Create Order tab is clicked
             }, 100);
           }
         });
@@ -95,7 +96,44 @@ document.addEventListener('DOMContentLoaded', function() {
   setupTabHandlers();
   setupButtonHandlers();
   setupOrderDateHandler();
+  loadSuppliers(); // Load suppliers from database
 });
+
+// Load suppliers from database
+async function loadSuppliers() {
+  try {
+    const response = await fetch('/api/suppliers');
+    if (!response.ok) {
+      throw new Error('Failed to fetch suppliers');
+    }
+    const suppliers = await response.json();
+    console.log('Loaded suppliers:', suppliers); // Debug log
+    
+    const supplierSelect = document.getElementById('supplierSelect');
+    if (supplierSelect) {
+      // Clear existing options and add the default option
+      supplierSelect.innerHTML = '<option value="">-- Select a supplier --</option>';
+      
+      // Add suppliers from database
+      suppliers.forEach(supplier => {
+        // Check for both 'Active' and 'active' status (case insensitive)
+        const isActive = supplier.status && (supplier.status.toLowerCase() === 'active');
+        if (isActive) {
+          const option = document.createElement('option');
+          option.value = supplier.id;
+          option.textContent = supplier.name;
+          option.dataset.supplierName = supplier.name;
+          supplierSelect.appendChild(option);
+        }
+      });
+      console.log('Suppliers loaded into select:', supplierSelect.children.length - 1); // Debug log
+    } else {
+      console.error('supplierSelect element not found');
+    }
+  } catch (error) {
+    console.error('Error loading suppliers:', error);
+  }
+}
 
 // Fetch products from API or window.productService
 async function fetchAllProducts() {
@@ -359,7 +397,9 @@ async function handleOrderSubmit(e) {
   }
   
   // Validate form fields
-  const supplier = document.getElementById('supplierSelect')?.value;
+  const supplierSelect = document.getElementById('supplierSelect');
+  const supplier = supplierSelect?.value;
+  const supplierName = supplierSelect?.selectedOptions[0]?.dataset?.supplierName || supplierSelect?.selectedOptions[0]?.textContent;
   const orderDate = document.getElementById('orderDate')?.value;
   const expectedArrival = document.getElementById('expectedArrival')?.value;
   
@@ -393,7 +433,8 @@ async function handleOrderSubmit(e) {
 
   // Prepare order data
   const order = {
-    supplier_name: supplier,
+    supplier_id: parseInt(supplier), // Use supplier ID for database reference
+    supplier_name: supplierName, // Keep supplier name for display
     order_date: orderDate,
     expected_arrival: expectedArrival,
     total_products: totalProducts,

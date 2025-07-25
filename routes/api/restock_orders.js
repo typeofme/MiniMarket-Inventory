@@ -128,11 +128,6 @@ router.post('/', authenticateToken, async (req, res) => {
         await trx('restock_order_details').insert(orderDetails);
       }
 
-      // Update supplier's product count and last order date
-      if (finalSupplierId) {
-        await Supplier.updateOrderInfo(finalSupplierId, total_products, order_date);
-      }
-
       // Log the creation of the restock order
       const userId = req.user.userId;
       try {

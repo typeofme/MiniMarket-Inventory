@@ -101,27 +101,6 @@ const Supplier = {
     };
   },
 
-  // Update supplier product count and last order date
-  updateOrderInfo: async (supplierId, productCount = null, orderDate = null) => {
-    const updates = {};
-    
-    if (productCount !== null) {
-      updates.product_count = productCount;
-    }
-    
-    if (orderDate !== null) {
-      updates.last_order_date = orderDate;
-    }
-    
-    if (Object.keys(updates).length > 0) {
-      updates.updated_at = db.fn.now();
-      
-      await db('suppliers')
-        .where({ id: supplierId })
-        .update(updates);
-    }
-  },
-
   // Get supplier with order history
   getWithOrderHistory: async (id) => {
     const supplier = await db('suppliers')

@@ -6,35 +6,66 @@
   const SUPPLIER_KEY = "minimarket_suppliers";
 
   function saveSupplier(supplierData) {
-    const suppliers = getAllSuppliers();
-    suppliers.push(supplierData);
-    localStorage.setItem(SUPPLIER_KEY, JSON.stringify(suppliers));
+    return fetch('/api/suppliers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(supplierData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save supplier');
+      }
+      return response.json();
+    });
   }
 
   function getAllSuppliers() {
-    const data = localStorage.getItem(SUPPLIER_KEY);
-    if (!data) return [];
-    try {
-      return JSON.parse(data);
-    } catch {
-      return [];
-    }
+    return fetch('/api/suppliers')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch suppliers');
+        }
+        return response.json();
+      });
   }
 
   function getSupplierById(id) {
-    return getAllSuppliers().find(s => s.id === id);
+    return fetch(`/api/suppliers/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch supplier');
+        }
+        return response.json();
+      });
   }
 
   function updateSupplier(id, newData) {
-    let suppliers = getAllSuppliers();
-    suppliers = suppliers.map(s => s.id === id ? { ...s, ...newData } : s);
-    localStorage.setItem(SUPPLIER_KEY, JSON.stringify(suppliers));
+    return fetch(`/api/suppliers/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update supplier');
+      }
+      return response.json();
+    });
   }
 
   function deleteSupplier(id) {
-    let suppliers = getAllSuppliers();
-    suppliers = suppliers.filter(s => s.id !== id);
-    localStorage.setItem(SUPPLIER_KEY, JSON.stringify(suppliers));
+    return fetch(`/api/suppliers/${id}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to delete supplier');
+      }
+    });
   }
 
   // --- Render & UI ---
@@ -42,15 +73,25 @@
     switch (category) {
       case 'Food & Beverage': return 'bg-green-100 text-green-800 border-green-300';
       case 'Instant Foods': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'Electronics': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Dairy Products': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Snacks & Confectionery': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'Household Items': return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'Personal Care': return 'bg-pink-100 text-pink-800 border-pink-300';
+      case 'Electronics': return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+      case 'Office Supplies': return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'Cleaning Supplies': return 'bg-teal-100 text-teal-800 border-teal-300';
+      case 'Frozen Foods': return 'bg-cyan-100 text-cyan-800 border-cyan-300';
+      case 'Fresh Produce': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'Beverages': return 'bg-amber-100 text-amber-800 border-amber-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   }
   function getStatusColor(status) {
-    switch (status) {
-      case 'Active': return 'bg-[#584df4]/10 text-[#584df4] border-[#584df4]';
-      case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'Inactive': return 'bg-gray-200 text-gray-500 border-gray-300';
+    const normalizedStatus = status ? status.toLowerCase() : '';
+    switch (normalizedStatus) {
+      case 'active': return 'bg-[#584df4]/10 text-[#584df4] border-[#584df4]';
+      case 'pending': return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'inactive': return 'bg-gray-200 text-gray-500 border-gray-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   }
@@ -83,13 +124,11 @@
           </div>
         </div>
         <div class="flex flex-col gap-1 text-sm">
-          <div><i data-feather="user" class="inline w-4 h-4 mr-1 text-gray-400"></i> <span class="font-medium">${s.contactPerson || '-'}</span></div>
+          <div><i data-feather="user" class="inline w-4 h-4 mr-1 text-gray-400"></i> <span class="font-medium">${s.contact_person || '-'}</span></div>
           <div><i data-feather="phone" class="inline w-4 h-4 mr-1 text-gray-400"></i> ${s.phone || '-'}</div>
           <div><i data-feather="mail" class="inline w-4 h-4 mr-1 text-gray-400"></i> ${s.email || '-'}</div>
           <div><i data-feather="map-pin" class="inline w-4 h-4 mr-1 text-gray-400"></i> ${s.city || '-'}${s.address ? ', ' + s.address : ''}</div>
-          <div><i data-feather="box" class="inline w-4 h-4 mr-1 text-gray-400"></i> <span class="font-medium">${s.productsCount || 0}</span> items</div>
-          <div><i data-feather="clock" class="inline w-4 h-4 mr-1 text-gray-400"></i> Last order: <span class="font-medium">${s.lastOrder ? new Date(s.lastOrder).toLocaleDateString() : '-'}</span></div>
-        </div>
+       </div>
         <div class="flex justify-between items-center mt-3 pt-3 border-t supplier-actions">
           <button class="flex items-center gap-1 text-[#584df4] hover:underline font-semibold text-sm" onclick="editSupplier('${s.id}')">
             <i data-feather="edit-2" class="w-4 h-4"></i>Edit
@@ -109,80 +148,113 @@
     query = query.toLowerCase();
     return suppliers.filter(s =>
       (s.name && s.name.toLowerCase().includes(query)) ||
-      (s.contactPerson && s.contactPerson.toLowerCase().includes(query)) ||
+      (s.contact_person && s.contact_person.toLowerCase().includes(query)) ||
       (s.phone && s.phone.toLowerCase().includes(query)) ||
       (s.email && s.email.toLowerCase().includes(query)) ||
       (s.city && s.city.toLowerCase().includes(query))
     );
   }
   function filterSuppliers({category, status, city}, suppliers) {
-    return suppliers.filter(s =>
-      (!category || s.category === category) &&
-      (!status || s.status === status) &&
-      (!city || (s.city && s.city === city))
-    );
+    return suppliers.filter(s => {
+      const categoryMatch = !category || s.category === category;
+      const statusMatch = !status || (s.status && s.status.toLowerCase() === status.toLowerCase());
+      const cityMatch = !city || (s.city && s.city === city);
+      return categoryMatch && statusMatch && cityMatch;
+    });
   }
 
   // --- CRUD Event Handlers ---
   function handleAddSupplier(e) {
     e.preventDefault();
     const form = e.target;
-    // Simple validation
-    const name = form.supplierName.value.trim();
-    const category = form.category.value;
-    const status = form.status.value;
-    const contactPerson = form.contact.value.trim();
-    const phone = form.phone.value.trim();
-    const email = form.email ? form.email.value.trim() : "";
-    const address = form.address ? form.address.value.trim() : "";
-    const city = form.location.value.trim();
-    const productsCount = parseInt(form.productCount.value) || 0;
-    const lastOrder = form.lastOrder.value ? new Date(form.lastOrder.value).toISOString() : null;
-    const dateAdded = new Date().toISOString();
-    const logo = form.logo && form.logo.files && form.logo.files[0] ? URL.createObjectURL(form.logo.files[0]) : null;
 
-    if (!name || !category || !status || !contactPerson || !phone || !city) {
-      alert("Please fill all required fields.");
-      return;
-    }
-
-    const supplier = {
-      id: Date.now().toString(),
-      name, category, status, contactPerson, phone, email, address, city,
-      productsCount, lastOrder, dateAdded, logo
+    // Collect form data
+    const supplierData = {
+      name: form.supplierName.value.trim(),
+      category: form.category.value,
+      status: form.status.value,
+      contact_person: form.contact.value.trim(),
+      phone: form.phone.value.trim(),
+      email: form.email ? form.email.value.trim() : "",
+      address: form.address ? form.address.value.trim() : "",
+      city: form.location.value.trim()
     };
-    saveSupplier(supplier);
-    form.reset();
-    loadAndRenderSuppliers();
-    alert("Supplier berhasil ditambahkan!");
+
+    // Send data to backend
+    fetch('/api/suppliers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(supplierData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to add supplier');
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert('Supplier added successfully!');
+      form.reset();
+      loadAndRenderSuppliers();
+    })
+    .catch(error => {
+      console.error(error);
+      alert('An error occurred while adding the supplier.');
+    });
+  }
+
+  function getSupplierById(id) {
+    return fetch(`/api/suppliers/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch supplier');
+        }
+        return response.json();
+      });
   }
 
   window.editSupplier = function(id) {
-    const supplier = getSupplierById(id);
-    if (!supplier) return alert("Supplier not found.");
-    // Fill form with supplier data (simple implementation)
-    const form = document.getElementById('supplierForm');
-    form.supplierName.value = supplier.name;
-    form.category.value = supplier.category;
-    form.status.value = supplier.status;
-    form.contact.value = supplier.contactPerson;
-    form.phone.value = supplier.phone;
-    if (form.email) form.email.value = supplier.email || "";
-    if (form.address) form.address.value = supplier.address || "";
-    form.location.value = supplier.city;
-    form.productCount.value = supplier.productsCount || 0;
-    form.lastOrder.value = supplier.lastOrder ? supplier.lastOrder.split('T')[0] : "";
-    form.dataset.editId = id;
-    form.scrollIntoView({behavior: "smooth"});
-    // Change button text
-    document.getElementById('submitBtn').textContent = "Update Supplier";
-    document.getElementById('formTitle').textContent = "Edit Supplier";
+    getSupplierById(id)
+      .then(supplier => {
+        if (!supplier) {
+          alert("Supplier not found.");
+          return;
+        }
+        // Fill form with supplier data
+        const form = document.getElementById('supplierForm');
+        form.supplierName.value = supplier.name || '';
+        form.category.value = supplier.category || '';
+        form.status.value = supplier.status || '';
+        form.contact.value = supplier.contact_person || '';
+        form.phone.value = supplier.phone || '';
+        form.email.value = supplier.email || '';
+        form.address.value = supplier.address || '';
+        form.location.value = supplier.city || '';
+        form.dataset.editId = id;
+        form.scrollIntoView({behavior: "smooth"});
+        // Change button text
+        document.getElementById('submitBtn').textContent = "Update Supplier";
+        document.getElementById('formTitle').textContent = "Edit Supplier";
+      })
+      .catch(error => {
+        console.error(error);
+        alert("Failed to load supplier data.");
+      });
   }
 
   window.deleteSupplierConfirm = function(id) {
-    if (confirm("Yakin ingin menghapus supplier ini?")) {
-      deleteSupplier(id);
-      loadAndRenderSuppliers();
+    if (confirm("Are you sure you want to delete this supplier?")) {
+      deleteSupplier(id)
+        .then(() => {
+          loadAndRenderSuppliers();
+          alert("Supplier deleted successfully!");
+        })
+        .catch(error => {
+          console.error(error);
+          alert("Failed to delete supplier.");
+        });
     }
   }
 
@@ -196,37 +268,48 @@
         name: form.supplierName.value.trim(),
         category: form.category.value,
         status: form.status.value,
-        contactPerson: form.contact.value.trim(),
+        contact_person: form.contact.value.trim(),
         phone: form.phone.value.trim(),
         email: form.email ? form.email.value.trim() : "",
         address: form.address ? form.address.value.trim() : "",
-        city: form.location.value.trim(),
-        productsCount: parseInt(form.productCount.value) || 0,
-        lastOrder: form.lastOrder.value ? new Date(form.lastOrder.value).toISOString() : null,
+        city: form.location.value.trim()
       };
-      updateSupplier(id, updated);
-      form.reset();
-      form.removeAttribute('data-edit-id');
-      document.getElementById('submitBtn').textContent = "Add Supplier";
-      document.getElementById('formTitle').textContent = "Add New Supplier";
-      loadAndRenderSuppliers();
-      alert("Supplier berhasil diupdate!");
+      
+      updateSupplier(id, updated)
+        .then(() => {
+          form.reset();
+          form.removeAttribute('data-edit-id');
+          document.getElementById('submitBtn').textContent = "Add Supplier";
+          document.getElementById('formTitle').textContent = "Add New Supplier";
+          loadAndRenderSuppliers();
+          alert("Supplier updated successfully!");
+        })
+        .catch(error => {
+          console.error(error);
+          alert("Failed to update supplier.");
+        });
     } else {
       handleAddSupplier(e);
     }
   }
 
   function loadAndRenderSuppliers() {
-    let suppliers = getAllSuppliers();
-    // Search
-    const search = document.getElementById('searchInput').value.trim();
-    if (search) suppliers = searchSuppliers(search, suppliers);
-    // Filter
-    const category = document.getElementById('categoryFilter').value;
-    const status = document.getElementById('statusFilter').value;
-    const city = ""; // Add city filter if needed
-    suppliers = filterSuppliers({category, status, city}, suppliers);
-    renderSuppliers(suppliers);
+    getAllSuppliers()
+      .then(suppliers => {
+        // Search
+        const search = document.getElementById('searchInput').value.trim();
+        if (search) suppliers = searchSuppliers(search, suppliers);
+        // Filter
+        const category = document.getElementById('categoryFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const city = ""; // Add city filter if needed
+        suppliers = filterSuppliers({category, status, city}, suppliers);
+        renderSuppliers(suppliers);
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Failed to load suppliers.');
+      });
   }
 
   function initSupplierPage() {

@@ -305,11 +305,22 @@
             <option value="">All Categories</option>
             <option value="Food & Beverage">Food & Beverage</option>
             <option value="Instant Foods">Instant Foods</option>
+            <option value="Dairy Products">Dairy Products</option>
+            <option value="Snacks & Confectionery">Snacks & Confectionery</option>
+            <option value="Household Items">Household Items</option>
+            <option value="Personal Care">Personal Care</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Cleaning Supplies">Cleaning Supplies</option>
+            <option value="Frozen Foods">Frozen Foods</option>
+            <option value="Fresh Produce">Fresh Produce</option>
+            <option value="Beverages">Beverages</option>
           </select>
           <select id="statusFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-[#584df4]">
             <option value="">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
       </div>
@@ -317,6 +328,7 @@
       <!-- Add New Supplier Form -->
       <div id="supplierFormMount">
         <form id="supplierForm" class="flex flex-col gap-5 bg-white p-6 rounded-lg shadow mb-8">
+          <h3 id="formTitle" class="text-lg font-semibold text-gray-800 mb-2">Add New Supplier</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="supplierName" class="block text-sm font-medium text-gray-700 mb-1.5">Supplier Name</label>
@@ -328,13 +340,24 @@
                 <option value="">Select Category</option>
                 <option value="Food & Beverage">Food & Beverage</option>
                 <option value="Instant Foods">Instant Foods</option>
+                <option value="Dairy Products">Dairy Products</option>
+                <option value="Snacks & Confectionery">Snacks & Confectionery</option>
+                <option value="Household Items">Household Items</option>
+                <option value="Personal Care">Personal Care</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Cleaning Supplies">Cleaning Supplies</option>
+                <option value="Frozen Foods">Frozen Foods</option>
+                <option value="Fresh Produce">Fresh Produce</option>
+                <option value="Beverages">Beverages</option>
               </select>
             </div>
             <div>
               <label for="status" class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
               <select id="status" name="status" class="w-full border border-gray-300 rounded-xl p-3" required>
-                <option value="Active">Active</option>
-                <option value="Pending">Pending</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
             <div>
@@ -342,20 +365,20 @@
               <input type="text" id="contact" name="contact" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="Contact Name" />
             </div>
             <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <input type="email" id="email" name="email" class="w-full border border-gray-300 rounded-xl p-3" placeholder="Email Address" />
+            </div>
+            <div>
               <label for="phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
               <input type="text" id="phone" name="phone" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="Phone Number" />
             </div>
             <div>
-              <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
+              <label for="address" class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+              <input type="text" id="address" name="address" class="w-full border border-gray-300 rounded-xl p-3" placeholder="Street Address" />
+            </div>
+            <div>
+              <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">City</label>
               <input type="text" id="location" name="location" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="City/Region" />
-            </div>
-            <div>
-              <label for="productCount" class="block text-sm font-medium text-gray-700 mb-1.5">Product Count</label>
-              <input type="number" id="productCount" name="productCount" class="w-full border border-gray-300 rounded-xl p-3" required placeholder="0" min="0" />
-            </div>
-            <div>
-              <label for="lastOrder" class="block text-sm font-medium text-gray-700 mb-1.5">Last Order Date</label>
-              <input type="date" id="lastOrder" name="lastOrder" class="w-full border border-gray-300 rounded-xl p-3" required />
             </div>
           </div>
           <div class="flex justify-end gap-2 mt-4">

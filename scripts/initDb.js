@@ -9,6 +9,7 @@ const { createAllTables } = require('./database/unifiedMigration');
 
 // Import seed functions
 const { seedUsers } = require('./seeders/seedUsers');
+const {seedSuppliers} = require('./seeders/seedSuppliers'); // Import the entire seedSuppliers modul
 const seedData = require('./seeders/seedData'); // Import the entire seedData module
 const { seedLogs } = require('./seeders/seedLogs');
 const seedReports = require('./seeders/seedReports'); // Import the entire seedReports module
@@ -89,6 +90,15 @@ async function initializeDatabase() {
       await seedAssets();
     } catch (error) {
       console.error('    ❌ Error seeding assets:', error.message);
+      console.log('    Continuing with other seeds...');
+      seedingSuccess = false;
+    }
+
+    try {
+      console.log('  - Seeding suppliers...');
+      await seedSuppliers();
+    } catch (error) {
+      console.error('    ❌ Error seeding suppliers:', error.message);
       console.log('    Continuing with other seeds...');
       seedingSuccess = false;
     }
