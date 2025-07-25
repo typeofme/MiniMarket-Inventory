@@ -2,9 +2,33 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config/database');
 const { logProductAction } = require('../../controllers/logController');
+const { authenticateToken, optionalAuth } = require('../../middleware/auth');
+const jwt = require('jsonwebtoken');
 
-// Create new restock order
-router.post('/', async (req, res) => {
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+
+// Helper function to get user ID from token
+const getUserIdFromRequest = (req) => {
+  // First check if user is already in req (from auth middleware)
+  if (req.user && req.user.userId) {
+    return req.user.userId;
+  }
+  
+  // Otherwise try to extract from token
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return null;
+    
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded.userId;
+  } catch (error) {
+    console.error('Error extracting user ID from token:', error);
+    return null;
+  }
+};
+
+// Create new restock order - apply authentication
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { supplier_name, order_date, total_products, total_price, products } = req.body;
     if (!supplier_name || !order_date || !total_products || !total_price) {
@@ -63,6 +87,31 @@ router.post('/', async (req, res) => {
         await trx('restock_order_details').insert(orderDetails);
       }
 
+      // Log the creation of the restock order
+      const userId = req.user.userId;
+      try {
+        await logProductAction(
+          'create',
+          userId,
+          'restock_order',
+          orderId,
+          null,
+          { 
+            supplier_name,
+            order_date,
+            total_products,
+            total_price,
+            status: 'Pending'
+          },
+          `Created restock order for supplier: ${supplier_name}`,
+          req,
+          supplier_name
+        );
+      } catch (logError) {
+        console.error('Error logging restock order creation:', logError);
+        // Continue even if logging fails
+      }
+
       // Commit the transaction
       await trx.commit();
       res.status(201).json({ id: orderId });
@@ -77,8 +126,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all restock orders
-router.get('/', async (req, res) => {
+// Get all restock orders - apply optional auth to get user info if available
+router.get('/', optionalAuth, async (req, res) => {
   try {
     const orders = await db('restock_orders').orderBy('created_at', 'desc');
     res.json(orders);
@@ -87,8 +136,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific restock order with its details
-router.get('/:id', async (req, res) => {
+// Get a specific restock order with its details - apply optional auth
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -113,8 +162,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update order status
-router.patch('/:id/status', async (req, res) => {
+// Update order status - apply authentication
+router.patch('/:id/status', authenticateToken, async (req, res) => {
   try {
     const { status } = req.body;
     if (!['Pending', 'Received', 'Cancelled'].includes(status)) {
@@ -140,6 +189,27 @@ router.patch('/:id/status', async (req, res) => {
           status,
           updated_at: trx.fn.now()
         });
+      
+      // Get user ID from request
+      const userId = req.user.userId;
+      
+      // Log the status update
+      try {
+        await logProductAction(
+          'update',
+          userId,
+          'restock_order',
+          id,
+          { status: currentOrder.status },
+          { status },
+          `Updated restock order #${id} status from ${currentOrder.status} to ${status}`,
+          req,
+          currentOrder.supplier_name
+        );
+      } catch (logError) {
+        console.error('Error logging restock order status update:', logError);
+        // Continue even if logging fails
+      }
       
       // If status is changing to "Received", update product stock
       if (status === 'Received' && currentOrder.status !== 'Received') {
@@ -172,7 +242,7 @@ router.patch('/:id/status', async (req, res) => {
               try {
                 await logProductAction(
                   'restock',
-                  req.user?.id || null, // User ID from auth middleware
+                  userId,
                   'product',
                   detail.product_id,
                   { stock: product.stock },
@@ -209,8 +279,8 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Delete restock order
-router.delete('/:id', async (req, res) => {
+// Delete restock order - apply authentication
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const order = await db('restock_orders').where({ id }).first();
@@ -223,6 +293,25 @@ router.delete('/:id', async (req, res) => {
     const trx = await db.transaction();
     
     try {
+      // Log the deletion
+      const userId = req.user.userId;
+      try {
+        await logProductAction(
+          'delete',
+          userId,
+          'restock_order',
+          id,
+          order,
+          null,
+          `Deleted restock order #${id} from supplier: ${order.supplier_name}`,
+          req,
+          order.supplier_name
+        );
+      } catch (logError) {
+        console.error('Error logging restock order deletion:', logError);
+        // Continue even if logging fails
+      }
+      
       // Delete order details first (to maintain referential integrity)
       await trx('restock_order_details').where({ restock_order_id: id }).delete();
       
