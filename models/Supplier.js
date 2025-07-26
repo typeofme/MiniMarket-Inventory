@@ -69,14 +69,15 @@ const Supplier = {
   // Get supplier statistics
   getStats: async () => {
     const totalCount = await db('suppliers').count('* as count').first();
-    const activeCount = await db('suppliers').where({ status: 'Active' }).count('* as count').first();
-    const pendingCount = await db('suppliers').where({ status: 'Pending' }).count('* as count').first();
+    const activeCount = await db('suppliers').where('status', 'like', '%active%').count('* as count').first();
+    const pendingCount = await db('suppliers').where('status', 'like', '%pending%').count('* as count').first();
     
     // Get category distribution
     const categoryDistribution = await db('suppliers')
       .select('category')
       .count('* as count')
-      .groupBy('category');
+      .groupBy('category')
+      .whereNotNull('category');
     
     // Get recent orders
     const recentOrders = await db('restock_orders')
@@ -90,15 +91,42 @@ const Supplier = {
         'restock_orders.status'
       )
       .orderBy('restock_orders.order_date', 'desc')
-      .limit(5);
+      .limit(20);
+    
+    // Get all suppliers for performance calculation
+    const suppliers = await db('suppliers')
+      .select('*')
+      .orderBy('name', 'asc');
     
     return {
       total: parseInt(totalCount.count),
       active: parseInt(activeCount.count),
       pending: parseInt(pendingCount.count),
       categoryDistribution,
-      recentOrders
+      recentOrders,
+      suppliers
     };
+  },
+
+  // Update supplier product count and last order date
+  updateOrderInfo: async (supplierId, productCount = null, orderDate = null) => {
+    const updates = {};
+    
+    if (productCount !== null) {
+      updates.product_count = productCount;
+    }
+    
+    if (orderDate !== null) {
+      updates.last_order_date = orderDate;
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      updates.updated_at = db.fn.now();
+      
+      await db('suppliers')
+        .where({ id: supplierId })
+        .update(updates);
+    }
   },
 
   // Get supplier with order history

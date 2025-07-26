@@ -142,11 +142,17 @@ class LowStockWidget {
     // Handle restock button clicks
     this.container.addEventListener('click', (e) => {
       if (e.target.classList.contains('restock-btn')) {
-        const productId = e.target.dataset.productId;
-        const productName = e.target.dataset.productName;
-        this.handleRestockClick(productId, productName);
+        window.location.href = '/restock';
       }
     });
+
+    // Handle widget header click to navigate to restock page
+    const widgetHeader = this.container.querySelector('h3');
+    if (widgetHeader) {
+      widgetHeader.addEventListener('click', () => {
+        window.location.href = '/restock';
+      });
+    }
   }
 
   handleRestockClick(productId, productName) {

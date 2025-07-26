@@ -1,6 +1,11 @@
 <div class="dashboard-card bg-white p-4 rounded-lg shadow h-full low-stock-widget" data-widget="low-stock" data-aos="fade-up">
   <div class="flex justify-between items-center mb-3">
-    <h3 class="font-semibold text-gray-700">Low Stock Alerts</h3>
+    <h3 class="font-semibold text-gray-700 cursor-pointer hover:text-blue-600 transition-colors" 
+       onclick="window.location.href='/restock'" 
+       title="Click to view restock page">
+      Low Stock Alerts
+      <i class="fas fa-external-link-alt text-xs ml-1 opacity-0 hover:opacity-100 transition-opacity"></i>
+    </h3>
     <div class="flex items-center">
       <button class="refresh-btn text-gray-400 hover:text-gray-600 mr-2" title="Refresh">
         <i class="fas fa-sync-alt text-sm"></i>
