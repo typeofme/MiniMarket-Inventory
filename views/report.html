@@ -17,11 +17,23 @@
     <link rel="stylesheet" href="../components/report/styles/report.css" />
 
     <!-- Authentication scripts -->
-    <script src="/js/toast.js"></script>
     <script src="/js/authService.js"></script>
     <script src="/js/authGuard.js"></script>
+
+    <!-- Toast notification system -->
+    <script src="/js/toast.js"></script>
   </head>
   <body class="bg-gray-50 flex">
+    <div
+      id="page-loader"
+      class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center transition-opacity duration-300"
+    >
+      <div class="loader-spinner mb-4"></div>
+      <h2 class="text-gray-700 text-xl font-semibold mb-1">Loading Reports</h2>
+      <p class="text-gray-500 text-sm">
+        Preparing your MiniMarket report experience...
+      </p>
+    </div>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div id="sidebar-container"></div>
     <div class="content-wrapper flex-1">
@@ -52,15 +64,54 @@
     </div>
     <div id="support-button-container"></div>
     <div id="delete-modal-container"></div>
-    <div id="loading-screen-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="../components/componentLoader.js"></script>
-    <script src="/components/support/supportModal.js"></script>
+    <script src="../components/dashboard/notification-modal.js"></script>
+    <script src="../components/support/supportModal.js"></script>
+    <style>
+      .loader-spinner {
+        width: 48px;
+        height: 48px;
+        border: 5px solid #e5e7eb;
+        border-bottom-color: #3b82f6;
+        border-radius: 50%;
+        animation: rotation 1s linear infinite;
+      }
+      @keyframes rotation {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      body.loading {
+        overflow: hidden;
+      }
+    </style>
     <script>
       AOS.init({
         easing: "ease-out-cubic",
       });
+      document.body.classList.add("loading");
+      let reportTablesLoaded = false;
+      let reportChartsLoaded = false;
+      function hidePageLoader() {
+        const loader = document.getElementById("page-loader");
+        if (loader) {
+          loader.classList.add("opacity-0");
+          setTimeout(() => {
+            loader.style.display = "none";
+            document.body.classList.remove("loading");
+          }, 300);
+        }
+      }
+      function checkAllLoaded() {
+        if (reportTablesLoaded && reportChartsLoaded) {
+          hidePageLoader();
+        }
+      }
       document.addEventListener("DOMContentLoaded", function () {
         ComponentLoader.load("shared/sidebar", "sidebar-container");
         setTimeout(() => {
@@ -81,18 +132,26 @@
             if (window.setActiveMenuItem) {
               window.setActiveMenuItem();
             }
-            
-            // Ensure sidebar toggle is working
-            if (window.initializeSidebarToggle) {
-              window.initializeSidebarToggle();
-            }
-            
             import("../components/report/report-module.js").then((module) => {
-              module.afterComponentsLoaded();
+              module.afterComponentsLoaded && module.afterComponentsLoaded();
+              if (module.initSidebarToggle) module.initSidebarToggle();
+              document.addEventListener("report-tables-loaded", function () {
+                reportTablesLoaded = true;
+                checkAllLoaded();
+              });
+              document.addEventListener("report-charts-loaded", function () {
+                reportChartsLoaded = true;
+                checkAllLoaded();
+              });
+              setTimeout(hidePageLoader, 4000);
             });
           });
         }, 100);
       });
+      // Patch: listen for chart loaded event in charts component
+      // In your charts component JS, after charts are rendered, add:
+      // document.dispatchEvent(new Event('report-charts-loaded');
+      // loadReportStats and initSidebarToggle are now imported from report-module.js
     </script>
   </body>
 </html>

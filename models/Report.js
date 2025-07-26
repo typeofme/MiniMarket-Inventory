@@ -1,4 +1,5 @@
 const db = require("../config/database");
+const Product = require("./Product");
 
 const Report = {
   getAll() {
@@ -33,16 +34,145 @@ const Report = {
       .first();
   },
 
-  create(data) {
-    return db("reports").insert(data);
+  async create(data) {
+    const trx = await db.transaction();
+
+    try {
+      // Validate required fields
+      if (!data.product_id) {
+        throw new Error("Product ID is required");
+      }
+
+      // Extract quantities with default values
+      const sold = parseInt(data.sold) || 0;
+      const damaged = parseInt(data.damaged) || 0;
+      const missing = parseInt(data.missing) || 0;
+
+      // Check if product exists and has sufficient stock
+      const product = await trx("products")
+        .where("id", data.product_id)
+        .first();
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      const totalDecrease = sold + damaged + missing;
+      if (totalDecrease > product.stock) {
+        throw new Error(
+          `Insufficient stock. Available: ${product.stock}, Required: ${totalDecrease}`
+        );
+      }
+
+      // Create the report
+      const [reportId] = await trx("reports").insert(data);
+
+      // Update product stock if there are any quantities to decrease
+      if (totalDecrease > 0) {
+        const newStock = Math.max(0, product.stock - totalDecrease);
+        await trx("products").where("id", data.product_id).update({
+          stock: newStock,
+          updated_at: trx.fn.now(),
+        });
+      }
+
+      await trx.commit();
+      return [reportId];
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error creating report:", error);
+      throw error;
+    }
   },
 
-  update(id, data) {
-    return db("reports").where({ id }).update(data);
+  async update(id, data) {
+    const trx = await db.transaction();
+
+    try {
+      // Get the original report data
+      const originalReport = await trx("reports").where({ id }).first();
+      if (!originalReport) {
+        throw new Error("Report not found");
+      }
+
+      // Get product information
+      const product = await trx("products")
+        .where("id", originalReport.product_id)
+        .first();
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      // Calculate the difference in quantities
+      const originalTotal =
+        (originalReport.sold || 0) +
+        (originalReport.damaged || 0) +
+        (originalReport.missing || 0);
+      const newTotal =
+        (parseInt(data.sold) || 0) +
+        (parseInt(data.damaged) || 0) +
+        (parseInt(data.missing) || 0);
+      const stockDifference = newTotal - originalTotal;
+
+      // Check if we have sufficient stock for the increase
+      if (stockDifference > 0 && stockDifference > product.stock) {
+        throw new Error(
+          `Insufficient stock for update. Available: ${product.stock}, Additional required: ${stockDifference}`
+        );
+      }
+
+      // Update the report
+      const result = await trx("reports").where({ id }).update(data);
+
+      // Update product stock if there's a difference
+      if (stockDifference !== 0) {
+        const newStock = Math.max(0, product.stock - stockDifference);
+        await trx("products").where("id", originalReport.product_id).update({
+          stock: newStock,
+          updated_at: trx.fn.now(),
+        });
+      }
+
+      await trx.commit();
+      return result;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error updating report:", error);
+      throw error;
+    }
   },
 
-  delete(id) {
-    return db("reports").where({ id }).del();
+  async delete(id) {
+    const trx = await db.transaction();
+
+    try {
+      // Get the report data before deletion to restore stock
+      const report = await trx("reports").where({ id }).first();
+      if (!report) {
+        throw new Error("Report not found");
+      }
+
+      // Calculate total quantity to restore to stock
+      const totalToRestore =
+        (report.sold || 0) + (report.damaged || 0) + (report.missing || 0);
+
+      // Delete the report
+      const result = await trx("reports").where({ id }).del();
+
+      // Restore stock if there were quantities in the report
+      if (totalToRestore > 0 && result > 0) {
+        await trx("products")
+          .where("id", report.product_id)
+          .increment("stock", totalToRestore)
+          .update("updated_at", trx.fn.now());
+      }
+
+      await trx.commit();
+      return result;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error deleting report:", error);
+      throw error;
+    }
   },
 
   // Get today's sales and orders statistics
@@ -83,7 +213,8 @@ const Report = {
       yesterdaySales > 0
         ? ((todaySales - yesterdaySales) / yesterdaySales) * 100
         : 0;
-    const ordersChange = yesterdayOrders > 0 ? todayOrders - yesterdayOrders : 0;
+    const ordersChange =
+      yesterdayOrders > 0 ? todayOrders - yesterdayOrders : 0;
 
     return {
       todaySales: todaySales.toFixed(2),
@@ -96,9 +227,7 @@ const Report = {
         value: Math.abs(ordersChange),
         direction: ordersChange >= 0 ? "up" : "down",
         comparison:
-          ordersChange >= 0
-            ? "more than yesterday"
-            : "less than yesterday",
+          ordersChange >= 0 ? "more than yesterday" : "less than yesterday",
       },
     };
   },
@@ -168,13 +297,14 @@ const Report = {
       let direction = "neutral";
 
       if (previousSales > 0) {
-        changePercentage = ((currentSales - previousSales) / previousSales) * 100;
+        changePercentage =
+          ((currentSales - previousSales) / previousSales) * 100;
         direction =
           changePercentage > 0
             ? "positive"
             : changePercentage < 0
-            ? "negative"
-            : "neutral";
+              ? "negative"
+              : "neutral";
       } else if (currentSales > 0) {
         changePercentage = 100;
         direction = "positive";
@@ -193,8 +323,8 @@ const Report = {
           direction === "positive"
             ? "fas fa-arrow-up"
             : direction === "negative"
-            ? "fas fa-arrow-down"
-            : "fas fa-minus",
+              ? "fas fa-arrow-down"
+              : "fas fa-minus",
       };
     });
 
@@ -205,8 +335,8 @@ const Report = {
   async getInventoryTurnover() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoDate = thirtyDaysAgo.toISOString().split('T')[0];
-    
+    const thirtyDaysAgoDate = thirtyDaysAgo.toISOString().split("T")[0];
+
     // Calculate turnover for each category (last 30 days)
     const turnoverData = await db("reports")
       .join("products", "reports.product_id", "products.id")
@@ -221,31 +351,37 @@ const Report = {
         db.raw("COUNT(DISTINCT reports.created_at) as days_with_sales")
       )
       .whereRaw("DATE(reports.created_at) >= ?", [thirtyDaysAgoDate])
-      .groupBy("categories.id", "categories.name", "categories.icon", "categories.color")
+      .groupBy(
+        "categories.id",
+        "categories.name",
+        "categories.icon",
+        "categories.color"
+      )
       .having("total_sold", ">", 0)
       .orderBy("category_name", "asc");
 
     // Calculate turnover rate for each category
-    const processedData = turnoverData.map(item => {
+    const processedData = turnoverData.map((item) => {
       const totalSold = parseInt(item.total_sold) || 0;
       const avgStock = parseFloat(item.avg_stock) || 1;
       const daysWithSales = parseInt(item.days_with_sales) || 1;
-      
+
       // Turnover rate = Average Stock / (Total Sold / Days)
       // This gives us how many days it takes to sell the average stock
       const dailySalesRate = totalSold / 30; // Average daily sales over 30 days
-      const turnoverDays = dailySalesRate > 0 ? (avgStock / dailySalesRate).toFixed(1) : 999;
-      
+      const turnoverDays =
+        dailySalesRate > 0 ? (avgStock / dailySalesRate).toFixed(1) : 999;
+
       return {
         category_id: item.category_id,
         category_name: item.category_name,
-        category_icon: item.category_icon || 'fas fa-box',
-        category_color: item.category_color || '#6B7280',
+        category_icon: item.category_icon || "fas fa-box",
+        category_color: item.category_color || "#6B7280",
         total_sold: totalSold,
         avg_stock: avgStock.toFixed(0),
         turnover_days: parseFloat(turnoverDays),
         days_with_sales: daysWithSales,
-        daily_sales_rate: dailySalesRate.toFixed(1)
+        daily_sales_rate: dailySalesRate.toFixed(1),
       };
     });
 
@@ -253,23 +389,32 @@ const Report = {
     processedData.sort((a, b) => a.turnover_days - b.turnover_days);
 
     // Calculate overall statistics
-    const validTurnovers = processedData.filter(item => item.turnover_days < 999);
-    const avgTurnover = validTurnovers.length > 0 
-      ? (validTurnovers.reduce((sum, item) => sum + item.turnover_days, 0) / validTurnovers.length).toFixed(1)
-      : 0;
-    
-    const fastestCategory = validTurnovers.length > 0 ? validTurnovers[0] : null;
+    const validTurnovers = processedData.filter(
+      (item) => item.turnover_days < 999
+    );
+    const avgTurnover =
+      validTurnovers.length > 0
+        ? (
+            validTurnovers.reduce((sum, item) => sum + item.turnover_days, 0) /
+            validTurnovers.length
+          ).toFixed(1)
+        : 0;
+
+    const fastestCategory =
+      validTurnovers.length > 0 ? validTurnovers[0] : null;
 
     return {
       categories: processedData.slice(0, 8), // Return top 8 categories
       statistics: {
         average_turnover: avgTurnover,
-        fastest_category: fastestCategory ? {
-          name: fastestCategory.category_name,
-          turnover_days: fastestCategory.turnover_days
-        } : null,
-        total_categories: processedData.length
-      }
+        fastest_category: fastestCategory
+          ? {
+              name: fastestCategory.category_name,
+              turnover_days: fastestCategory.turnover_days,
+            }
+          : null,
+        total_categories: processedData.length,
+      },
     };
   },
 };

@@ -9,7 +9,7 @@ const { createAllTables } = require('./database/unifiedMigration');
 
 // Import seed functions
 const { seedUsers } = require('./seeders/seedUsers');
-const {seedSuppliers} = require('./seeders/seedSuppliers'); // Import the entire seedSuppliers modul
+const seedSuppliers = require('./seeders/seedSuppliers'); // Import the entire seedSuppliers modul
 const seedData = require('./seeders/seedData'); // Import the entire seedData module
 const { seedLogs } = require('./seeders/seedLogs');
 const seedReports = require('./seeders/seedReports'); // Import the entire seedReports module

@@ -4,7 +4,9 @@
   class="absolute inset-0 z-40 flex items-center justify-center bg-white bg-opacity-80 rounded-xl transition-opacity duration-300 hidden"
 >
   <div class="text-center">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
+    <div
+      class="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"
+    ></div>
     <p class="text-gray-600" id="report-list-loading-message">
       Loading reports...
     </p>
@@ -197,10 +199,7 @@
     cancelEditBtn.classList.add("hidden");
   }
 
-  // Add safety check before adding event listener
-  if (cancelEditBtn) {
   cancelEditBtn.addEventListener("click", resetForm);
-  }
 
   // --- Fetch initial reports ---
   async function fetchReports() {
@@ -250,16 +249,32 @@
       if (isEditMode) {
         if (window.editProductNotification) {
           window.editProductNotification(savedReport);
+        } else if (window.Toast) {
+          window.Toast.success(
+            `Report updated: ${savedReport.product_name || "Report"} has been updated successfully`
+          );
         }
       } else {
         if (window.addProductNotification) {
           window.addProductNotification(savedReport);
+        } else if (window.Toast) {
+          window.Toast.success(
+            `Report created: ${savedReport.product_name || "Report"} has been added successfully and stock updated`
+          );
         }
       }
       await fetchReports();
       resetForm();
     } catch (error) {
       console.error("Submit Error:", error);
+      // Show error notification
+      if (window.Toast) {
+        window.Toast.error(
+          `Error: ${error.message || "Failed to save the report"}`
+        );
+      } else {
+        alert(`Error: ${error.message || "Failed to save the report"}`);
+      }
     }
   });
 
@@ -268,13 +283,31 @@
     try {
       // Find the report to get its name for notification
       const reportToDelete = reports.find((r) => r.id === id);
-      await fetch(`/api/reports/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/reports/${id}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete the report");
+      }
+
       if (window.deleteProductNotification && reportToDelete) {
         window.deleteProductNotification(reportToDelete);
+      } else if (window.Toast && reportToDelete) {
+        window.Toast.success(
+          `Report deleted: ${reportToDelete.product_name || "Report"} has been removed and stock restored`
+        );
       }
       await fetchReports();
     } catch (error) {
       console.error("Error deleting report:", error);
+      // Show error notification
+      if (window.Toast) {
+        window.Toast.error(
+          `Error: ${error.message || "Failed to delete the report"}`
+        );
+      } else {
+        alert(`Error: ${error.message || "Failed to delete the report"}`);
+      }
     }
   }
 
@@ -317,19 +350,19 @@
   fetchReports();
 
   function showReportListLoading(message = "Loading reports...") {
-    const loading = document.getElementById('report-list-loading');
-    const msg = document.getElementById('report-list-loading-message');
+    const loading = document.getElementById("report-list-loading");
+    const msg = document.getElementById("report-list-loading-message");
     if (msg) msg.textContent = message;
     if (loading) {
-      loading.classList.remove('hidden');
-      loading.style.opacity = '1';
+      loading.classList.remove("hidden");
+      loading.style.opacity = "1";
     }
   }
   function hideReportListLoading() {
-    const loading = document.getElementById('report-list-loading');
+    const loading = document.getElementById("report-list-loading");
     if (loading) {
-      loading.style.opacity = '0';
-      setTimeout(() => loading.classList.add('hidden'), 300);
+      loading.style.opacity = "0";
+      setTimeout(() => loading.classList.add("hidden"), 300);
     }
   }
 </script>

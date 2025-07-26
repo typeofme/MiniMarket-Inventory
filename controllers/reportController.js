@@ -11,11 +11,29 @@ exports.getAllReports = async (req, res) => {
 
 exports.createReport = async (req, res) => {
   try {
+    // Validate required fields
+    if (!req.body.product_id) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
     const [id] = await Report.create(req.body);
     const newReport = await Report.findById(id);
-    res.status(201).json(newReport);
+    res.status(201).json({
+      ...newReport,
+      message: "Report created successfully and product stock updated",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error creating report:", err);
+
+    // Handle specific error types
+    if (err.message.includes("Insufficient stock")) {
+      return res.status(400).json({ message: err.message });
+    }
+    if (err.message.includes("Product not found")) {
+      return res.status(404).json({ message: err.message });
+    }
+
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 };
 
@@ -37,12 +55,25 @@ exports.updateReport = async (req, res) => {
     const affectedRows = await Report.update(req.params.id, req.body);
     if (affectedRows > 0) {
       const updatedReport = await Report.findById(req.params.id);
-      res.json(updatedReport);
+      res.json({
+        ...updatedReport,
+        message: "Report updated successfully and product stock adjusted",
+      });
     } else {
       res.status(404).json({ message: "Report not found" });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error updating report:", err);
+
+    // Handle specific error types
+    if (err.message.includes("Insufficient stock")) {
+      return res.status(400).json({ message: err.message });
+    }
+    if (err.message.includes("not found")) {
+      return res.status(404).json({ message: err.message });
+    }
+
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 };
 
@@ -50,12 +81,22 @@ exports.deleteReport = async (req, res) => {
   try {
     const affectedRows = await Report.delete(req.params.id);
     if (affectedRows > 0) {
-      res.status(204).send();
+      res
+        .status(204)
+        .json({
+          message: "Report deleted successfully and product stock restored",
+        });
     } else {
       res.status(404).json({ message: "Report not found" });
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error deleting report:", err);
+
+    if (err.message.includes("not found")) {
+      return res.status(404).json({ message: err.message });
+    }
+
+    res.status(500).json({ message: err.message || "Internal server error" });
   }
 };
 

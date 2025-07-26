@@ -165,7 +165,7 @@
               </td>
               <td class="px-4 py-3 font-medium text-gray-800">${p.name || '-'}</td>
               <td class="px-4 py-3">${p.stock}</td>
-              <td class="px-4 py-3 text-green-700 font-semibold">${p.price ? 'Rp ' + Number(p.price).toLocaleString() : '-'}</td>
+              <td class="px-4 py-3 text-green-700 font-semibold">${p.price ? '$' + Number(p.price).toLocaleString() : '-'}</td>
               <td class="px-4 py-3 text-gray-600">${p.description || '-'}</td>
               <td class="px-4 py-3"><button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition" onclick="addProductToOrder('${p.id}')">Restock</button></td>
             </tr>`;
