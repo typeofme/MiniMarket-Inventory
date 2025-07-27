@@ -14,6 +14,209 @@
   <script src="/js/authService.js"></script>
   <script src="/js/authGuard.js"></script>
   <script src="/js/tokenHandler.js"></script>
+  
+  <style>
+    /* Additional styles for better space efficiency */
+    body, html {
+      min-height: 100vh;
+      background-color: #f9fafb;
+    }
+    
+    .profile-container {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 1.5rem;
+    }
+    
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+    }
+    
+    .profile-header {
+      grid-column: span 12;
+      margin-left: 0;
+      justify-content: flex-start;
+    }
+    
+    .profile-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .profile-card-body {
+      flex: 1;
+    }
+    
+    .main-content {
+      padding: 1.5rem 0;
+      background-color: #f9fafb;
+      min-height: calc(100vh - 64px);
+    }
+    
+    /* Avatar upload styles */
+    .avatar-upload {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0;
+      cursor: pointer;
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+    
+    .avatar-edit input {
+      display: none;
+    }
+    
+    .avatar-edit label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #3b82f6;
+      border: 1px solid transparent;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .avatar-edit label:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+    
+    .avatar-upload:hover .avatar-edit {
+      transform: translateY(-3px);
+    }
+    
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .avatar-upload:hover .avatar-preview {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #profile-avatar-preview {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    .avatar-preview-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background-color: #3b82f6;
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 600;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+    
+    .avatar-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 5;
+    }
+    
+    .avatar-loading.active {
+      opacity: 1;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Responsive layout adjustments */
+    @media (min-width: 1024px) {
+      .personal-info-card {
+        grid-column: span 7;
+      }
+      
+      .security-card {
+        grid-column: span 5;
+      }
+    }
+    
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .personal-info-card, .security-card {
+        grid-column: span 12;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .personal-info-card, .security-card {
+        grid-column: span 12;
+      }
+      
+      .profile-grid {
+        gap: 1rem;
+      }
+    }
+    
+    .content-wrapper {
+      background-color: #f9fafb;
+    }
+  </style>
 </head>
 <body class="bg-gray-50">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
@@ -22,116 +225,127 @@
     <div class="content-wrapper">
       <div id="topnav-component"></div>
       <main class="main-content">
-        <div class="max-w-4xl mx-auto p-6">
-        <!-- Profile Header -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-              <img id="profile-avatar" src="" alt="Profile" class="w-16 h-16 rounded-full object-cover hidden">
-              <span id="profile-initials" class="text-white text-xl font-semibold"></span>
+        <div class="profile-container">
+          <!-- Profile Header -->
+          <div class="profile-grid">
+            <div class="profile-header bg-white rounded-xl shadow-sm p-6 mb-4">
+              <div class="flex items-center space-x-6">
+                <div class="avatar-upload">
+                  <div class="avatar-edit">
+                    <input type='file' id="avatar-upload" accept=".png, .jpg, .jpeg" />
+                    <label for="avatar-upload"><i class="fas fa-camera"></i></label>
+                  </div>
+                  <div class="avatar-preview">
+                    <div id="profile-avatar-preview">
+                      <img id="profile-avatar" src="" alt="Profile" class="hidden">
+                      <div id="profile-initials-preview" class="avatar-preview-text"></div>
+                    </div>
+                    <div id="avatar-loading" class="avatar-loading">
+                      <div class="spinner"></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h1 id="profile-name" class="text-2xl font-bold text-gray-800">Loading...</h1>
+                  <p id="profile-role" class="text-gray-600">Loading...</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 id="profile-name" class="text-2xl font-bold text-gray-800">Loading...</h1>
-              <p id="profile-role" class="text-gray-600">Loading...</p>
-            </div>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Personal Information -->
-          <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-800">
-                <i class="fas fa-user mr-2 text-blue-500"></i>
-                Personal Information
-              </h2>
-              <button id="edit-profile-btn" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
-                <i class="fas fa-edit mr-1"></i>Edit
-              </button>
-            </div>
-            
-            <form id="profile-form">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                  <input type="text" id="first_name" name="first_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                  <input type="text" id="last_name" name="last_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                  <input type="text" id="username" name="username" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                  <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                  <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                  <input type="text" id="role" name="role" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
-                </div>
-                
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                  <textarea id="address" name="address" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly></textarea>
-                </div>
+            <!-- Personal Information -->
+            <div class="personal-info-card bg-white rounded-xl shadow-sm p-6 profile-card">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">
+                  <i class="fas fa-user mr-2 text-blue-500"></i>
+                  Personal Information
+                </h2>
+                <button id="edit-profile-btn" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                  <i class="fas fa-edit mr-1"></i>Edit
+                </button>
               </div>
               
-              <div id="form-actions" class="mt-6 flex space-x-3 hidden">
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
-                  <i class="fas fa-save mr-2"></i>Save Changes
-                </button>
-                <button type="button" id="cancel-edit-btn" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
-                  <i class="fas fa-times mr-2"></i>Cancel
-                </button>
-              </div>
-            </form>
-          </div>
+              <form id="profile-form" class="profile-card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" id="username" name="username" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <input type="text" id="role" name="role" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                  </div>
+                  
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                    <textarea id="address" name="address" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly></textarea>
+                  </div>
+                </div>
+                
+                <div id="form-actions" class="mt-6 flex space-x-3 hidden">
+                  <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                  </button>
+                  <button type="button" id="cancel-edit-btn" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
 
-          <!-- Security Section -->
-          <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-6">
-              <i class="fas fa-shield-alt mr-2 text-green-500"></i>
-              Security
-            </h2>
-            
-            <form id="password-form">
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                  <input type="password" id="current_password" name="current_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter current password">
+            <!-- Security Section -->
+            <div class="security-card bg-white rounded-xl shadow-sm p-6 profile-card">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+                Security
+              </h2>
+              
+              <form id="password-form" class="profile-card-body">
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter current password">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <input type="password" id="new_password" name="new_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter new password">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Confirm new password">
+                  </div>
+                  
+                  <button type="submit" class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200">
+                    <i class="fas fa-key mr-2"></i>Update Password
+                  </button>
                 </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                  <input type="password" id="new_password" name="new_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter new password">
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-                  <input type="password" id="confirm_password" name="confirm_password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Confirm new password">
-                </div>
-                
-                <button type="submit" class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200">
-                  <i class="fas fa-key mr-2"></i>Update Password
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
     </div>
   </div>
 
@@ -139,6 +353,7 @@
   <script>
     let isEditing = false;
     let currentUser = null;
+    let avatarChanged = false;
 
     // Initialize components
     function initializeComponents() {
@@ -200,18 +415,33 @@
       
       // Handle profile avatar
       const avatar = document.getElementById('profile-avatar');
-      const initials = document.getElementById('profile-initials');
+      const initialsPreview = document.getElementById('profile-initials-preview');
+      const avatarPreview = document.getElementById('profile-avatar-preview');
       
       if (user.avatar_url) {
-        avatar.src = user.avatar_url;
-        avatar.classList.remove('hidden');
-        initials.style.display = 'none';
+        // Preload the image to ensure it loads properly
+        const img = new Image();
+        img.onload = function() {
+          avatar.src = user.avatar_url;
+          avatar.classList.remove('hidden');
+          initialsPreview.classList.add('hidden');
+        };
+        img.onerror = function() {
+          showInitials(user, avatar, initialsPreview);
+        };
+        img.src = user.avatar_url;
       } else {
-        const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'User';
-        initials.textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        avatar.classList.add('hidden');
-        initials.style.display = 'block';
+        // No avatar, show initials
+        showInitials(user, avatar, initialsPreview);
       }
+    }
+    
+    // Helper function to show user initials
+    function showInitials(user, avatarElement, initialsElement) {
+      const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'User';
+      initialsElement.textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      avatarElement.classList.add('hidden');
+      initialsElement.classList.remove('hidden');
     }
 
     // Setup event listeners
@@ -227,13 +457,112 @@
       
       // Password form submission
       document.getElementById('password-form').addEventListener('submit', handlePasswordUpdate);
+      
+      // Avatar upload
+      document.getElementById('avatar-upload').addEventListener('change', handleAvatarChange);
+    }
+    
+    // Handle avatar change
+    async function handleAvatarChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      // Check file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        showNotification('Please select a valid image file (JPEG, PNG)', 'error');
+        return;
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        showNotification('Image size should be less than 2MB', 'error');
+        return;
+      }
+      
+      try {
+        // Create form data for file upload
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        // Show loading state
+        const avatar = document.getElementById('profile-avatar');
+        const initialsPreview = document.getElementById('profile-initials-preview');
+        const avatarLoading = document.getElementById('avatar-loading');
+        
+        // Update UI to show loading
+        showNotification('Uploading avatar...', 'info');
+        
+        // Show loading indicator
+        avatarLoading.classList.add('active');
+        
+        // Upload the file
+        const response = await fetch('/api/auth/upload-avatar', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+        
+        // Hide loading indicator
+        avatarLoading.classList.remove('active');
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorMessage = 'Failed to upload avatar';
+          
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.error || errorMessage;
+          } catch (parseError) {
+            console.error('Error parsing error response:', parseError);
+          }
+          
+          showNotification(errorMessage, 'error');
+          return;
+        }
+        
+        const result = await response.json();
+        
+        // Preload the image to ensure it loads properly
+        const img = new Image();
+        img.onload = function() {
+          // Update avatar preview with the new URL
+          avatar.src = result.user.avatar_url;
+          avatar.classList.remove('hidden');
+          initialsPreview.classList.add('hidden');
+          
+          // Update current user
+          currentUser = { ...currentUser, avatar_url: result.user.avatar_url };
+          
+          // Show success message
+          showNotification('Avatar uploaded successfully!', 'success');
+          
+          // Update topnav if needed
+          if (window.AuthGuard && window.AuthGuard.updateUserDisplay) {
+            window.AuthGuard.updateUserDisplay(currentUser);
+          }
+        };
+        
+        img.onerror = function() {
+          showNotification('Failed to load the uploaded image', 'error');
+        };
+        
+        img.src = result.user.avatar_url;
+      } catch (error) {
+        // Hide loading indicator if there's an error
+        const avatarLoading = document.getElementById('avatar-loading');
+        avatarLoading.classList.remove('active');
+        
+        console.error('Error uploading avatar:', error);
+        showNotification('Failed to upload avatar', 'error');
+      }
     }
 
     // Toggle edit mode
     function toggleEditMode() {
       isEditing = !isEditing;
       const form = document.getElementById('profile-form');
-      const inputs = form.querySelectorAll('input, textarea');
+      const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea');
       const editBtn = document.getElementById('edit-profile-btn');
       const formActions = document.getElementById('form-actions');
 
@@ -254,8 +583,10 @@
     // Cancel edit mode
     function cancelEdit() {
       isEditing = false;
+      avatarChanged = false;
+      
       const form = document.getElementById('profile-form');
-      const inputs = form.querySelectorAll('input, textarea');
+      const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea');
       const editBtn = document.getElementById('edit-profile-btn');
       const formActions = document.getElementById('form-actions');
 
@@ -298,14 +629,24 @@
         
         if (response.ok) {
           showNotification('Profile updated successfully!', 'success');
-          currentUser = { ...currentUser, ...updateData };
+          
+          // Update the current user with the new data
+          currentUser = { 
+            ...currentUser, 
+            first_name: updateData.first_name,
+            last_name: updateData.last_name,
+            phone: updateData.phone,
+            address: updateData.address
+          };
+          
           cancelEdit();
+          
           // Update topnav if needed
           if (window.AuthGuard && window.AuthGuard.updateUserDisplay) {
             window.AuthGuard.updateUserDisplay(currentUser);
           }
         } else {
-          showNotification(result.message || 'Failed to update profile', 'error');
+          showNotification(result.message || result.error || 'Failed to update profile', 'error');
         }
       } catch (error) {
         console.error('Error updating profile:', error);
@@ -333,7 +674,7 @@
 
       try {
         const response = await fetch('/api/auth/change-password', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -350,7 +691,7 @@
           showNotification('Password updated successfully!', 'success');
           document.getElementById('password-form').reset();
         } else {
-          showNotification(result.message || 'Failed to update password', 'error');
+          showNotification(result.message || result.error || 'Failed to update password', 'error');
         }
       } catch (error) {
         console.error('Error updating password:', error);

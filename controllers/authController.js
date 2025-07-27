@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const path = require('path');
+const fs = require('fs');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
@@ -198,14 +200,13 @@ const AuthController = {
   updateProfile: async (req, res) => {
     try {
       const userId = req.user.userId;
-      const { first_name, last_name, phone, address, avatar } = req.body;
+      const { first_name, last_name, phone, address } = req.body;
       
       const updatedUser = await User.update(userId, {
         first_name,
         last_name,
         phone,
-        address,
-        avatar
+        address
       });
       
       res.json({
@@ -216,6 +217,64 @@ const AuthController = {
     } catch (error) {
       console.error('Profile update error:', error);
       res.status(500).json({ error: 'Failed to update profile' });
+    }
+  },
+
+  // Upload avatar
+  uploadAvatar: async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+      
+      const userId = req.user.userId;
+      
+      // Get the relative path for storing in database
+      const relativePath = `/uploads/avatars/${path.basename(req.file.path)}`;
+      const fullUrl = `/uploads/avatars/${path.basename(req.file.path)}`;
+      
+      // Get current user to check if they have an existing avatar
+      const currentUser = await User.getById(userId);
+      if (!currentUser) {
+        // Clean up the uploaded file if user not found
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (err) {
+          console.error('Error deleting uploaded file:', err);
+        }
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Delete the old avatar if it exists
+      await User.deleteUserAvatar(currentUser);
+      
+      // Update user with new avatar path
+      const updatedUser = await User.update(userId, {
+        avatar: relativePath,
+        avatar_url: fullUrl
+      });
+      
+      res.json({
+        message: 'Avatar uploaded successfully',
+        user: {
+          ...updatedUser,
+          avatar_url: fullUrl
+        }
+      });
+      
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      
+      // Clean up the uploaded file if there was an error
+      if (req.file && req.file.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (err) {
+          console.error('Error deleting uploaded file after error:', err);
+        }
+      }
+      
+      res.status(500).json({ error: 'Failed to upload avatar' });
     }
   },
 

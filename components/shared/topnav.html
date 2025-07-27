@@ -181,21 +181,25 @@
         pageTitle = "Dashboard Overview";
       } else if (path.includes('products')) {
         pageTitle = "Product Management";
+        pageSubtitle = "Start managing your products more efficiently today";
       } else if (path.includes('logs')) {
         pageTitle = "Activity Logs";
         pageSubtitle = "Track all product updates, edits, and restocks";
       } else if (path.includes('reports')) {
         pageTitle = "Reports";
+        pageSubtitle = "Create a detailed report of your productsi";
       } else if (path.includes('restock')) {
         pageTitle = "Restock Management";
         pageSubtitle = "Manage your products restock process";
-      } else if (path.includes('assets')) {
+      } else if (path.includes('asset')) {
         pageTitle = "Asset Management";
         pageSubtitle = "Manage your store's physical assets and equipment";
-      } else if (path.includes('datasupply')) {
-        pageTitle = "Data Supply";
-      } else if (path.includes('supply')) {
-        pageTitle = "Supply Management";
+      } else if (path.includes('suppliers')) {
+        pageTitle = "Data Suppliers";
+        pageSubtitle = "View and Manage Your Suppliers";
+      } else if (path.includes('profile')) {
+        pageTitle = "Profile Management";
+        pageSubtitle = "View and Edit your Profile";
       }
       const titleElement = document.getElementById('page-title');
       if (titleElement) {

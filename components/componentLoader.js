@@ -34,10 +34,6 @@ const ComponentLoader = (function() {
     }
   }
 
-  function executeComponentScripts(targetElement) {
-    // ...existing code...
-  }
-
   function showFallback(targetElement, componentName, error) {
     if (targetElement) {
       targetElement.innerHTML = `
