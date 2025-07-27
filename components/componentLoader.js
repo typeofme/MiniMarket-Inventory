@@ -3,7 +3,7 @@ const ComponentLoader = (function() {
   const componentsToLoad = new Set();
   const callbacks = [];
   const loadingAttempts = new Map(); // Track loading attempts
-  const maxRetries = 3;
+  const maxRetries = 5; // Increased from 3 to 5
   let isDebugMode = false;
 
   // Enable debug mode for mobile or when needed
@@ -49,82 +49,126 @@ const ComponentLoader = (function() {
     }
   }
 
-  return {
-    load: function(componentName, targetId) {
-      // Check if target element exists
-      const targetElement = document.getElementById(targetId);
-      if (!targetElement) {
-        return;
-      }
-      // Track loading attempts
-      const attempts = loadingAttempts.get(componentName) || 0;
-      if (attempts >= maxRetries) {
-        showFallback(targetElement, componentName, 'Max retries exceeded');
+  // Function to ensure a component is fully loaded
+  function ensureComponentLoaded(componentName, targetId, callback) {
+    const targetElement = document.getElementById(targetId);
+    if (!targetElement) {
+      if (callback) callback(false);
+      return;
+    }
+    
+    // Check if component is already loaded
+    if (loadedComponents.has(componentName)) {
+      if (callback) callback(true);
+      return;
+    }
+    
+    // Set a timeout to check if component loaded properly
+    setTimeout(() => {
+      const element = document.getElementById(targetId);
+      if (element && element.children.length > 0) {
         loadedComponents.add(componentName);
-        checkAllLoaded();
-        return;
+        if (callback) callback(true);
+      } else {
+        // Try to reload the component
+        load(componentName, targetId, callback);
       }
-      
-      loadingAttempts.set(componentName, attempts + 1);
-      componentsToLoad.add(componentName);
-      
-      fetch(`/components/${componentName}.html`, {
-        method: 'GET',
-        cache: 'no-cache', // Prevent caching issues on mobile
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+    }, 300);
+  }
+
+  function load(componentName, targetId, callback) {
+    // Check if target element exists
+    const targetElement = document.getElementById(targetId);
+    if (!targetElement) {
+      if (callback) callback(false);
+      return;
+    }
+    
+    // Track loading attempts
+    const attempts = loadingAttempts.get(componentName) || 0;
+    if (attempts >= maxRetries) {
+      showFallback(targetElement, componentName, 'Max retries exceeded');
+      loadedComponents.add(componentName);
+      checkAllLoaded();
+      if (callback) callback(false);
+      return;
+    }
+    
+    loadingAttempts.set(componentName, attempts + 1);
+    componentsToLoad.add(componentName);
+    
+    fetch(`/components/${componentName}.html`, {
+      method: 'GET',
+      cache: 'no-cache', // Prevent caching issues on mobile
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to load component: ${componentName}`);
+        }
+        return response.text();
+      })
+      .then(html => {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.innerHTML = html;
+          
+          // Execute scripts
+          const scriptTags = targetElement.querySelectorAll('script');
+          if (scriptTags.length > 0) {
+            Array.from(scriptTags).forEach((oldScript, index) => {
+              try {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => {
+                  newScript.setAttribute(attr.name, attr.value);
+                });
+                newScript.textContent = oldScript.textContent;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+              } catch (scriptError) {
+                // ...removed error log...
+              }
+            });
+          }
+          
+          // Ensure component is properly rendered
+          setTimeout(() => {
+            loadedComponents.add(componentName);
+            checkAllLoaded();
+            if (callback) callback(true);
+          }, 50);
+        } else {
+          // ...removed error log...
+          if (callback) callback(false);
         }
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: Failed to load component: ${componentName}`);
-          }
-          return response.text();
-        })
-        .then(html => {
-          const targetElement = document.getElementById(targetId);
-          if (targetElement) {
-            targetElement.innerHTML = html;
-            
-            // Execute scripts
-            const scriptTags = targetElement.querySelectorAll('script');
-            if (scriptTags.length > 0) {
-              Array.from(scriptTags).forEach((oldScript, index) => {
-                try {
-                  const newScript = document.createElement('script');
-                  Array.from(oldScript.attributes).forEach(attr => {
-                    newScript.setAttribute(attr.name, attr.value);
-                  });
-                  newScript.textContent = oldScript.textContent;
-                  oldScript.parentNode.replaceChild(newScript, oldScript);
-                } catch (scriptError) {
-                  // ...removed error log...
-                }
-              });
-            }
+      .catch(error => {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          // Retry logic for mobile
+          if (attempts < maxRetries) {
+            setTimeout(() => {
+              load(componentName, targetId, callback);
+            }, 1000 * Math.min(attempts + 1, 3)); // Progressive backoff
+            return;
           } else {
-            // ...removed error log...
+            showFallback(targetElement, componentName, error.message);
           }
-          loadedComponents.add(componentName);
-          checkAllLoaded();
-        })
-        .catch(error => {
-          const targetElement = document.getElementById(targetId);
-          if (targetElement) {
-            // Retry logic for mobile
-            if (attempts < maxRetries) {
-              setTimeout(() => {
-                this.load(componentName, targetId);
-              }, 1000);
-              return;
-            } else {
-              showFallback(targetElement, componentName, error.message);
-            }
-          }
-          loadedComponents.add(componentName);
-          checkAllLoaded();
-        });
+        }
+        loadedComponents.add(componentName);
+        checkAllLoaded();
+        if (callback) callback(false);
+      });
+  }
+
+  return {
+    load: function(componentName, targetId, callback) {
+      load(componentName, targetId, callback);
+    },
+    ensureLoaded: function(componentName, targetId, callback) {
+      ensureComponentLoaded(componentName, targetId, callback);
     },
     onAllLoaded: function(callback) {
       callbacks.push(callback);

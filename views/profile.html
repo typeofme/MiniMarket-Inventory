@@ -363,20 +363,39 @@
         return;
       }
       
-      // Load components immediately without delays
-      ComponentLoader.load('shared/sidebar', 'sidebar-component');
-      ComponentLoader.load('shared/topnav', 'topnav-component');
-      
-      // Load user profile after a short delay to ensure components are ready
-      setTimeout(() => {
-        loadUserProfile();
-        setupEventListeners();
-        
-        // Try activating the sidebar menu item
-        if (window.setActiveMenuItem) {
-          window.setActiveMenuItem();
+      // Load sidebar first and ensure it's fully loaded
+      ComponentLoader.load('shared/sidebar', 'sidebar-component', function(success) {
+        if (success) {
+          // Once sidebar is loaded, load topnav
+          ComponentLoader.load('shared/topnav', 'topnav-component', function(success) {
+            // After both components are loaded, load user profile data
+            loadUserProfile();
+            setupEventListeners();
+            
+            // Try activating the sidebar menu item
+            if (window.setActiveMenuItem) {
+              window.setActiveMenuItem();
+              // Call it again after a short delay to ensure it works
+              setTimeout(window.setActiveMenuItem, 300);
+            }
+          });
+        } else {
+          // If sidebar failed to load, try one more time with a delay
+          setTimeout(() => {
+            ComponentLoader.load('shared/sidebar', 'sidebar-component');
+            ComponentLoader.load('shared/topnav', 'topnav-component');
+            
+            setTimeout(() => {
+              loadUserProfile();
+              setupEventListeners();
+              
+              if (window.setActiveMenuItem) {
+                window.setActiveMenuItem();
+              }
+            }, 500);
+          }, 1000);
         }
-      }, 200);
+      });
     }
 
     // Load user profile data
